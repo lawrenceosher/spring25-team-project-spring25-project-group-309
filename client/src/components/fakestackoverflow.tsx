@@ -17,6 +17,8 @@ import UsersListPage from './main/usersListPage';
 import ProfileSettings from './profileSettings';
 import AllGamesPage from './main/games/allGamesPage';
 import GamePage from './main/games/gamePage';
+import SprintPlanningPage from './projectPlanning/sprintPlanning';
+import KanbanBoardPage from './projectPlanning/kanbanBoard';
 
 const ProtectedRoute = ({
   user,
@@ -66,6 +68,8 @@ const FakeStackOverflow = ({ socket }: { socket: FakeSOSocket | null }) => {
             <Route path='/user/:username' element={<ProfileSettings />} />
             <Route path='/games' element={<AllGamesPage />} />
             <Route path='/games/:gameID' element={<GamePage />} />
+            <Route path='/project/sprintPlanning' element={<SprintPlanningPage />} />
+            <Route path='/project/board' element={<KanbanBoardPage />} />
           </Route>
         }
       </Routes>
