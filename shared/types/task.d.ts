@@ -1,11 +1,17 @@
 import { ObjectId } from 'mongodb';
 
 export interface Task {
-  name: string;
+  assigned_user: ObjectId;
   description: string;
+  name: string;
+  sprint: ObjectId;
   status: string;
-  assignedTo: ObjectId;
-  dueDate: Date;
+  dependentTasks: ObjectId[];
+  prereqForTasks: ObjectId[];
+  project: ObjectId;
+  priority: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface DatabaseTask extends Task {

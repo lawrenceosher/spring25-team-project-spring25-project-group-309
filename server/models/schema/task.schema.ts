@@ -38,13 +38,13 @@ const taskSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    dependent_tasks: [
+    dependentTasks: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Task',
       },
     ],
-    prereq_for_tasks: [
+    prereqForasks: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Task',

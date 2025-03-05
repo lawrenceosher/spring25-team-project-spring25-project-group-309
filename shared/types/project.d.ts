@@ -1,11 +1,9 @@
 import { ObjectId } from 'mongodb';
 
 export interface Project {
-  name: string;
+  assignedUsers: ObjectId[];
   description: string;
-  startDate: Date;
-  endDate: Date;
-  status: string;
+  name: string;
   sprints: ObjectId[];
 }
 export interface DatabaseProject extends Project {

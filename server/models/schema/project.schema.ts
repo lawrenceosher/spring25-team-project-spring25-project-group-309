@@ -13,7 +13,7 @@ import { Schema } from 'mongoose';
  */
 const projectSchema: Schema = new Schema(
   {
-    assigned_users: [
+    assignedUsers: [
       {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -36,7 +36,6 @@ const projectSchema: Schema = new Schema(
   },
   {
     collection: 'Project',
-    timestamps: true,
   },
 );
 
