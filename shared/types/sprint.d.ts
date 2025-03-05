@@ -12,3 +12,5 @@ export interface Sprint {
 export interface DatabaseSprint extends Sprint {
   _id: ObjectId;
 }
+
+export type SprintResponse = DatabaseSprint | { error: string };
