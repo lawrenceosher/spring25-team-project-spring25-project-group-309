@@ -49,7 +49,7 @@ export const getSprintsByStatus = async (status: string): Promise<SprintResponse
  * Updates a sprint with new information.
  * @param sprintId The ID of the sprint to update.
  * @param updates The new information to update the sprint with.
- * @returns 
+ * @returns The updated sprint or an error message.
  */
 export const updateSprint = async (
   sprintId: string,
@@ -63,5 +63,17 @@ export const updateSprint = async (
     return updatedSprint;
   } catch (error) {
     return { error: 'Error when updating a sprint' };
+  }
+};
+
+export const deleteSprintById = async (sprintId: string): Promise<SprintResponse> => {
+  try {
+    const deletedSprint = await SprintModel.findByIdAndDelete(sprintId);
+    if (!deletedSprint) {
+      throw Error('Sprint not found');
+    }
+    return deletedSprint;
+  } catch (error) {
+    return { error: 'Error when deleting a sprint' };
   }
 };

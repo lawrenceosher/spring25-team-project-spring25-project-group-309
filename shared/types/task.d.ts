@@ -17,3 +17,5 @@ export interface Task {
 export interface DatabaseTask extends Task {
   _id: ObjectId;
 }
+
+export type TaskResponse = DatabaseTask | { error: string };
