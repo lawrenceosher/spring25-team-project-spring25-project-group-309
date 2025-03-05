@@ -7,3 +7,6 @@ export * from './question';
 export * from './socket';
 export * from './tag';
 export * from './user';
+export * from './project';
+export * from './sprint';
+export * from './task';
