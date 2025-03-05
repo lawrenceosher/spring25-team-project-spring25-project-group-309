@@ -11,6 +11,9 @@ import { DatabaseProject } from '../types/types';
  *
  * @type {Model<DatabaseProject>}
  */
-const ProjectModel: Model<DatabaseProject> = mongoose.model<DatabaseProject>('Project', projectSchema);
+const ProjectModel: Model<DatabaseProject> = mongoose.model<DatabaseProject>(
+  'Project',
+  projectSchema,
+);
 
 export default ProjectModel;

@@ -66,4 +66,3 @@ const taskSchema: Schema = new Schema(
 );
 
 export default taskSchema;
-

@@ -48,4 +48,3 @@ const sprintSchema: Schema = new Schema(
 );
 
 export default sprintSchema;
-

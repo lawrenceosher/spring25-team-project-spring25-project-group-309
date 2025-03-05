@@ -2,7 +2,6 @@ import mongoose, { Model } from 'mongoose';
 import taskSchema from './schema/task.schema';
 import { DatabaseTask } from '../types/types';
 
-
 /**
  * Mongoose model for the `Task` collection.
  *
@@ -15,4 +14,3 @@ import { DatabaseTask } from '../types/types';
 const TaskModel: Model<DatabaseTask> = mongoose.model<DatabaseTask>('Task', taskSchema);
 
 export default TaskModel;
-
