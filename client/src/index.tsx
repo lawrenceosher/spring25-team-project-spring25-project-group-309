@@ -5,6 +5,8 @@ import { io } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import FakeStackOverflow from './components/fakestackoverflow';
 import { FakeSOSocket } from './types/types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const container = document.getElementById('root');
 
