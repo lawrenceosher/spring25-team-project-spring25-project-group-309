@@ -3,8 +3,14 @@ import { Button, Card, ListGroup } from 'react-bootstrap';
 import './index.css';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
+import { useState } from 'react';
+import TaskCreationModal from '../components/TaskCreationModal';
 
 export default function SprintPlanningPage() {
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const handleClose = () => setShowCreateTaskModal(false);
+  const handleShow = () => setShowCreateTaskModal(true);
+
   return (
     <div className='p-3'>
       <div id='sprint-planning-header' className='d-flex'>
@@ -13,11 +19,13 @@ export default function SprintPlanningPage() {
           <Button size='lg' className='me-2'>
             + Create Sprint
           </Button>
-          <Button size='lg' variant='success'>
+          <Button size='lg' variant='success' onClick={handleShow}>
             + Create Task
           </Button>
         </span>
       </div>
+
+      <TaskCreationModal show={showCreateTaskModal} handleClose={handleClose} />
 
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
