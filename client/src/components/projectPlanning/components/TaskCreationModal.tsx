@@ -17,7 +17,7 @@ export default function TaskCreationModal({
           <Form>
             <Form.Group controlId='taskTitle'>
               <Form.Label>Title</Form.Label>
-              <Form.Control type='text' placeholder='Enter Title' />
+              <Form.Control type='text' placeholder='Enter Task Title' />
             </Form.Group>
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
@@ -50,7 +50,7 @@ export default function TaskCreationModal({
             </Form.Group>
             <Form.Group controlId='taskDescription'>
               <Form.Label>Description</Form.Label>
-              <Form.Control as='textarea' rows={5} cols={50} placeholder='Enter Description' />
+              <Form.Control as='textarea' rows={5} cols={50} placeholder='Enter Task Description' />
             </Form.Group>
 
             <Form.Group controlId='taskQuestions'>

@@ -5,27 +5,38 @@ import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal';
+import SprintCreationModal from '../components/SprintCreationModal';
 
 export default function SprintPlanningPage() {
+  // Task Creation
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-  const handleClose = () => setShowCreateTaskModal(false);
-  const handleShow = () => setShowCreateTaskModal(true);
+  const handleCloseCreateTaskModal = () => setShowCreateTaskModal(false);
+  const handleShowCreateTaskModal = () => setShowCreateTaskModal(true);
+
+  // Sprint Creation
+  const [showCreateSprintModal, setShowCreateSprintModal] = useState(false);
+  const handleCloseCreateSprintModal = () => setShowCreateSprintModal(false);
+  const handleShowCreateSprintModal = () => setShowCreateSprintModal(true);
 
   return (
     <div className='p-3'>
       <div id='sprint-planning-header' className='d-flex'>
         <h1 className='fw-bold d-flex flex-fill'>Project Name - Sprint Planning</h1>
         <span className=''>
-          <Button size='lg' className='me-2'>
+          <Button size='lg' className='me-2' onClick={handleShowCreateSprintModal}>
             + Create Sprint
           </Button>
-          <Button size='lg' variant='success' onClick={handleShow}>
+          <Button size='lg' variant='success' onClick={handleShowCreateTaskModal}>
             + Create Task
           </Button>
         </span>
       </div>
 
-      <TaskCreationModal show={showCreateTaskModal} handleClose={handleClose} />
+      <TaskCreationModal show={showCreateTaskModal} handleClose={handleCloseCreateTaskModal} />
+      <SprintCreationModal
+        show={showCreateSprintModal}
+        handleClose={handleCloseCreateSprintModal}
+      />
 
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
@@ -142,6 +153,7 @@ export default function SprintPlanningPage() {
                 Task Title{' '}
                 <span className='float-end'>
                   <FaPencil className='text-primary me-3' />
+                  <FaTrash className='text-danger me-1' />
                 </span>
               </Card.Title>
               <Card.Subtitle className='mb-2 text-muted'>Sprint 1</Card.Subtitle>
