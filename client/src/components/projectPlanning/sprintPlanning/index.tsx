@@ -8,7 +8,7 @@ export default function SprintPlanningPage() {
   return (
     <div className='p-3'>
       <div id='sprint-planning-header' className='d-flex'>
-        <h1 className='fw-bold d-flex flex-fill'>Sprint Planning & Backlog</h1>
+        <h1 className='fw-bold d-flex flex-fill'>Project Name - Sprint Planning</h1>
         <span className=''>
           <Button size='lg' className='me-2'>
             + Create Sprint
@@ -25,6 +25,7 @@ export default function SprintPlanningPage() {
             <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
               <div id='sprint-header' className='p-3 ps-2 bg-light'>
                 <span>Sprint Title 1</span>
+                <span className='ms-4 text-muted'>2/27/25 - 3/12/25</span>
                 <div className='float-end'>
                   <span className='me-3 bg-primary-subtle p-2 rounded-pill'>10</span>
                   <FaPencil className='text-primary me-3' />
@@ -61,6 +62,7 @@ export default function SprintPlanningPage() {
             <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
               <div id='sprint-header' className='p-3 ps-2 bg-light'>
                 <span>Sprint Title 2</span>
+                <span className='ms-4 text-muted'>3/13/25 - 3/27/25</span>
                 <div className='float-end'>
                   <span className='me-3 bg-primary-subtle p-2 rounded-pill'>5</span>
                   <FaPencil className='text-primary me-3' />
@@ -128,7 +130,12 @@ export default function SprintPlanningPage() {
         <div id='task-details' className='ms-3'>
           <Card>
             <Card.Body>
-              <Card.Title className='fs-4'>Task Title</Card.Title>
+              <Card.Title className='fs-4'>
+                Task Title{' '}
+                <span className='float-end'>
+                  <FaPencil className='text-primary me-3' />
+                </span>
+              </Card.Title>
               <Card.Subtitle className='mb-2 text-muted'>Sprint 1</Card.Subtitle>
               <Card.Subtitle className='mb-2 text-muted'>Assigned To: Username</Card.Subtitle>
               <Card.Subtitle className='mb-2 text-muted'>Status: In Progress</Card.Subtitle>
