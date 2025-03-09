@@ -30,6 +30,11 @@ const getPriorityColor = (priority: number) => {
 /**
  * Represents the RoadmapGraph component.
  * It displays the project roadmap in a graph view.
+ *   - Each task is represented as a node
+ *   - Each dependency is represented as an edge
+ *     - Edges are directed from the dependent task to the task it depends on
+ *   - The color of the node is based on the priority of the task
+ *   - The higher the priority, the darker the color
  * @returns The RoadmapGraph component
  */
 const RoadmapGraph = () => {
@@ -53,6 +58,7 @@ const RoadmapGraph = () => {
     );
 
     // Create a new DataSet for edges
+    // If Task B depends on Task A, then there is an edge from B->A
     const edges = new DataSet(
       FAKETASKS.flatMap((task, index) =>
         task.dependsOn.map(dep => ({
