@@ -10,6 +10,11 @@ const FAKETASKS = [
   { id: 'task-5', name: 'Deployment', dependsOn: ['task-3', 'task-4'], priority: 5 },
 ];
 
+/**
+ * Get the color based on the priority
+ * @param priority  The priority of the task
+ * @returns  The color code based on the priority, default is blue
+ */
 const getPriorityColor = (priority: number) => {
   const colors: { [key: number]: string } = {
     1: '#ff4d4d',
@@ -18,16 +23,24 @@ const getPriorityColor = (priority: number) => {
     4: '#33cc33',
     5: '#999999',
   };
+  // Return blue color if priority is not in the list
   return colors[priority] || '#007bff';
 };
 
+/**
+ * Represents the RoadmapGraph component.
+ * It displays the project roadmap in a graph view.
+ * @returns The RoadmapGraph component
+ */
 const RoadmapGraph = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
 
+  // Initialize the network graph
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // Create a new DataSet for nodes
     const nodes = new DataSet(
       FAKETASKS.map(task => ({
         id: task.id,
@@ -39,6 +52,7 @@ const RoadmapGraph = () => {
       })),
     );
 
+    // Create a new DataSet for edges
     const edges = new DataSet(
       FAKETASKS.flatMap((task, index) =>
         task.dependsOn.map(dep => ({
@@ -52,6 +66,7 @@ const RoadmapGraph = () => {
       ),
     );
 
+    // Create a new Network instance
     networkRef.current = new Network(
       containerRef.current,
       { nodes, edges },
