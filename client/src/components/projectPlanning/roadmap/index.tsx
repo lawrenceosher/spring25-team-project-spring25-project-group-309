@@ -58,7 +58,7 @@ const RoadmapGraph = () => {
     );
 
     // Create a new DataSet for edges
-    // If Task B depends on Task A, then there is an edge from B->A
+    // If Task B depends on Task A, then there is an edge from A->B
     const edges = new DataSet(
       FAKETASKS.flatMap((task, index) =>
         task.dependsOn.map(dep => ({
