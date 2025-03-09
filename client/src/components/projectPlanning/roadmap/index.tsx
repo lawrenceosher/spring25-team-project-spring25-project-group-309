@@ -57,10 +57,10 @@ const RoadmapGraph = () => {
       { nodes, edges },
       {
         layout: { hierarchical: false },
-        nodes: { shape: 'box', size: 20, physics: true, fixed: false },
+        nodes: { shape: 'box', size: 20 },
         edges: { arrows: { to: { enabled: true, scaleFactor: 1.2 } }, color: '#000000' },
-        interaction: { dragNodes: true, dragView: true, zoomView: true, tooltipDelay: 200 },
-        physics: { enabled: true, solver: 'forceAtlas2Based' },
+        interaction: { dragNodes: true, dragView: true, zoomView: true },
+        physics: { enabled: true, solver: 'barnesHut', stabilization: false },
       },
     );
   }, []);
