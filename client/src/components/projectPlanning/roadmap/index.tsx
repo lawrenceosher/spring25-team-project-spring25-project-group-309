@@ -63,8 +63,8 @@ const RoadmapGraph = () => {
       FAKETASKS.flatMap((task, index) =>
         task.dependsOn.map(dep => ({
           id: `edge-${index}-${dep}-${task.id}`,
-          from: task.id,
-          to: dep,
+          from: dep,
+          to: task.id,
           arrows: 'to',
           width: 2,
           smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
