@@ -37,7 +37,7 @@ export default function KanbanBoardPage() {
         </span>
       </div>
 
-      <h3 className='text-muted'>Sprint 1</h3>
+      <h3 className='text-muted'>Sprint Name: 2/27/25 - 3/11/25</h3>
 
       <Container className='bg-transparent mt-3' fluid>
         <Row>
