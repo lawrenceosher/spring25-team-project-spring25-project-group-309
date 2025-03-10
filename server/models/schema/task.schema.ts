@@ -44,7 +44,7 @@ const taskSchema: Schema = new Schema(
         ref: 'Task',
       },
     ],
-    prereqForasks: [
+    prereqForTasks: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Task',
@@ -55,9 +55,19 @@ const taskSchema: Schema = new Schema(
       ref: 'Project',
     },
     priority: {
+      type: String,
+      required: true,
+    },
+    taskPoints: {
       type: Number,
       required: true,
     },
+    relevantQuestions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Question',
+      },
+    ],
   },
   {
     collection: 'Task',

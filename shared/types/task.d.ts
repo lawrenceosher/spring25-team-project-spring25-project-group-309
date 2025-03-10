@@ -10,6 +10,8 @@ export interface Task {
   prereqForTasks: ObjectId[];
   project: ObjectId;
   priority: number;
+  taskPoints: number;
+  relevantQuestions: ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
