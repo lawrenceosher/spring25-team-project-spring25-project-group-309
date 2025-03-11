@@ -12,11 +12,15 @@ const taskController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
+  const getPrerequisiteTasks = async (req: Request, res: Response): Promise<void> => {
+    res.status(501).send('Not implemented');
+  };
+
   const getDependentTasks = async (req: Request, res: Response): Promise<void> => {
     res.status(501).send('Not implemented');
   };
 
-  const addToTask = async (req: Request, res: Response): Promise<void> => {
+  const updateTask = async (req: Request, res: Response): Promise<void> => {
     res.status(501).send('Not implemented');
   };
 

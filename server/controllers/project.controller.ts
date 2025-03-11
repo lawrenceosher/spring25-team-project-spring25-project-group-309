@@ -11,14 +11,6 @@ const projectController = (socket: FakeSOSocket) => {
   const getProject = async (req: Request, res: Response): Promise<void> => {
     res.status(501).send('Not implemented');
   };
-
-  const updateProject = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
-  };
-
-  const deleteProjec = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
-  };
 };
 
 export default projectController;
