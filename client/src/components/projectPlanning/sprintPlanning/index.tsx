@@ -237,6 +237,7 @@ export default function SprintPlanningPage() {
                 </span>
               </Card.Title>
               <Card.Subtitle className='mb-2 text-muted'>Sprint 1</Card.Subtitle>
+              <Card.Subtitle className='mb-2 text-muted'>Priority: High</Card.Subtitle>
               <Card.Subtitle className='mb-2 text-muted'>Assigned To: Username</Card.Subtitle>
               <Card.Subtitle className='mb-2 text-muted'>Status: In Progress</Card.Subtitle>
               <Card.Subtitle className='mb-2 text-muted'>Task Points: 5</Card.Subtitle>
@@ -264,6 +265,20 @@ export default function SprintPlanningPage() {
               </Card.Footer>
               <Card.Footer>
                 <span>Task Dependencies:</span>
+                <ListGroup variant='flush' className='mt-2'>
+                  <ListGroup.Item className='bg-transparent p-1'>
+                    <Card.Link href='#'>Task 1</Card.Link>
+                  </ListGroup.Item>
+                  <ListGroup.Item className='bg-transparent p-1'>
+                    <Card.Link href='#'>Task 2</Card.Link>
+                  </ListGroup.Item>
+                  <ListGroup.Item className='bg-transparent p-1'>
+                    <Card.Link href='#'>Task 3</Card.Link>
+                  </ListGroup.Item>
+                </ListGroup>
+              </Card.Footer>
+              <Card.Footer>
+                <span>Task Prerequisites:</span>
                 <ListGroup variant='flush' className='mt-2'>
                   <ListGroup.Item className='bg-transparent p-1'>
                     <Card.Link href='#'>Task 1</Card.Link>
