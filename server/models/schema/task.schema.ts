@@ -19,8 +19,8 @@ import { Schema } from 'mongoose';
 const taskSchema: Schema = new Schema(
   {
     assigned_user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
+      required: true,
     },
     description: {
       type: String,

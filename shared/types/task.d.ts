@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export interface Task {
-  assigned_user: ObjectId;
+  assigned_user: String;
   description: string;
   name: string;
   sprint: ObjectId;

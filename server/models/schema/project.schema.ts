@@ -15,8 +15,7 @@ const projectSchema: Schema = new Schema(
   {
     assignedUsers: [
       {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
       },
     ],
     description: {
