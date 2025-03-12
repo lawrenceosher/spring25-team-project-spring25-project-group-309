@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 export interface Project {
-  assignedUsers: String[];
+  assignedUsers: string[];
   description: string;
   name: string;
   sprints: ObjectId[];
