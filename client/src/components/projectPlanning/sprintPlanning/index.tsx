@@ -5,10 +5,130 @@ import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
 import { useState } from 'react';
+import { DatabaseTask } from '@fake-stack-overflow/shared/types/task';
+import { ObjectId } from 'mongodb';
+import { DatabaseSprint } from '@fake-stack-overflow/shared';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
 import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
+
+const sprint1: DatabaseSprint = {
+  _id: new ObjectId(),
+  tasks: [],
+  name: 'First Project Sprint',
+  project: new ObjectId(),
+  status: 'Not Started',
+  start_date: new Date(2025, 1, 27),
+  end_date: new Date(2025, 2, 12),
+};
+
+const task1: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'aayusht',
+  description: 'Create the relevant DB types, models, and schemas for Sprints, Tasks, and Projects',
+  name: '[DB] Create DB Models',
+  sprint: sprint1._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 3,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task2: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'losher',
+  description:
+    'Set up the routes to the sprint planning, kanban board, and project roadmap screen. Add in links to these routes on the navigation sidebar',
+  name: '[UI] Navigation and Routing',
+  sprint: sprint1._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task3: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'losher',
+  description: 'Create a prototype for the Sprint Planning Page',
+  name: '[UI] Sprint Planning Page Initial Layout/Skeleton',
+  sprint: sprint1._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task2._id],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 2,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task4: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'losher',
+  description: 'Create a prototype for the Kanban Board Page',
+  name: '[UI] Kanban Board Initial Layout/Skeleton',
+  sprint: sprint1._id,
+  status: 'In Progress',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task2._id],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 2,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task5: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'jasonl',
+  description: 'Create a prototype for the Project Roadmap Page',
+  name: '[UI] Project Roadmap Initial Layout/Skeleton',
+  sprint: sprint1._id,
+  status: 'In Progress',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task2._id],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 2,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task6: DatabaseTask = {
+  _id: new ObjectId(),
+  assigned_user: 'jylahb',
+  description: 'Create API Structure and enumerate different endpoints based on data models',
+  name: '[API] Initial API Structure',
+  sprint: sprint1._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id],
+  project: new ObjectId(),
+  priority: 5,
+  taskPoints: 3,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+sprint1.tasks = [task1._id, task2._id, task3._id, task4._id, task5._id, task6._id];
+
+const DUMMY_TASKS_SPRINT1 = [task1, task2, task3, task4, task5, task6];
 
 export default function SprintPlanningPage() {
   // Task Creation Modal
