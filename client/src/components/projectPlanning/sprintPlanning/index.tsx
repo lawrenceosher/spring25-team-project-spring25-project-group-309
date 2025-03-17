@@ -5,10 +5,10 @@ import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
 import { useState } from 'react';
-import TaskCreationModal from '../components/TaskCreationModal';
-import SprintCreationModal from '../components/SprintCreationModal';
-import TaskDeletionModal from '../components/TaskDeletionModal';
-import SprintDeletionModal from '../components/SprintDeletionModal';
+import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
+import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
+import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
+import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
 
 export default function SprintPlanningPage() {
   // Task Creation Modal
