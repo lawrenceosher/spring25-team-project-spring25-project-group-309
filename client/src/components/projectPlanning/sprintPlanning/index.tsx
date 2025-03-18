@@ -3,27 +3,54 @@ import { Button, Card, FormGroup, FormLabel, FormSelect, ListGroup } from 'react
 import './index.css';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
-import { VscDebugStart } from 'react-icons/vsc';
 import { useState } from 'react';
-import { DatabaseTask } from '@fake-stack-overflow/shared/types/task';
-import { ObjectId } from 'mongodb';
-import { DatabaseSprint } from '@fake-stack-overflow/shared';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
 import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
+import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
+import { Project, Sprint, Task } from '../../../types/types';
 
-const sprint1: DatabaseSprint = {
-  _id: new ObjectId(),
+const project1: Project = {
+  _id: '1',
+  assignedUsers: ['aayusht', 'losher', 'jasonl', 'jylahb'],
+  description: '',
+  name: 'Project Planning Tool',
+  sprints: [],
+};
+
+const sprint1: Sprint = {
   tasks: [],
   name: 'First Project Sprint',
-  project: new ObjectId(),
-  status: 'Not Started',
+  project: project1._id,
+  status: 'Done',
   start_date: new Date(2025, 1, 27),
   end_date: new Date(2025, 2, 12),
 };
 
-const task1: DatabaseTask = {
+const sprint2: Sprint = {
+  _id: new ObjectId(),
+  tasks: [],
+  name: 'Second Project Sprint',
+  project: project1._id,
+  status: 'In Progress',
+  start_date: new Date(2025, 2, 13),
+  end_date: new Date(2025, 2, 27),
+};
+
+const sprint3: Sprint = {
+  _id: new ObjectId(),
+  tasks: [],
+  name: 'Third Project Sprint',
+  project: project1._id,
+  status: 'Not Started',
+  start_date: new Date(2025, 2, 27),
+  end_date: new Date(2025, 3, 9),
+};
+
+project1.sprints = [sprint1._id, sprint2._id, sprint3._id];
+
+const task1: Task = {
   _id: new ObjectId(),
   assigned_user: 'aayusht',
   description: 'Create the relevant DB types, models, and schemas for Sprints, Tasks, and Projects',
@@ -32,7 +59,7 @@ const task1: DatabaseTask = {
   status: 'Not Started',
   dependentTasks: [],
   prereqForTasks: [],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 3,
   relevantQuestions: [],
@@ -40,7 +67,7 @@ const task1: DatabaseTask = {
   updatedAt: new Date(),
 };
 
-const task2: DatabaseTask = {
+const task2: Task = {
   _id: new ObjectId(),
   assigned_user: 'losher',
   description:
@@ -50,7 +77,7 @@ const task2: DatabaseTask = {
   status: 'Not Started',
   dependentTasks: [],
   prereqForTasks: [task1._id],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 1,
   relevantQuestions: [],
@@ -58,7 +85,7 @@ const task2: DatabaseTask = {
   updatedAt: new Date(),
 };
 
-const task3: DatabaseTask = {
+const task3: Task = {
   _id: new ObjectId(),
   assigned_user: 'losher',
   description: 'Create a prototype for the Sprint Planning Page',
@@ -67,7 +94,7 @@ const task3: DatabaseTask = {
   status: 'Not Started',
   dependentTasks: [],
   prereqForTasks: [task1._id, task2._id],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 2,
   relevantQuestions: [],
@@ -75,7 +102,7 @@ const task3: DatabaseTask = {
   updatedAt: new Date(),
 };
 
-const task4: DatabaseTask = {
+const task4: Task = {
   _id: new ObjectId(),
   assigned_user: 'losher',
   description: 'Create a prototype for the Kanban Board Page',
@@ -84,7 +111,7 @@ const task4: DatabaseTask = {
   status: 'In Progress',
   dependentTasks: [],
   prereqForTasks: [task1._id, task2._id],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 2,
   relevantQuestions: [],
@@ -92,7 +119,7 @@ const task4: DatabaseTask = {
   updatedAt: new Date(),
 };
 
-const task5: DatabaseTask = {
+const task5: Task = {
   _id: new ObjectId(),
   assigned_user: 'jasonl',
   description: 'Create a prototype for the Project Roadmap Page',
@@ -101,7 +128,7 @@ const task5: DatabaseTask = {
   status: 'In Progress',
   dependentTasks: [],
   prereqForTasks: [task1._id, task2._id],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 2,
   relevantQuestions: [],
@@ -109,7 +136,7 @@ const task5: DatabaseTask = {
   updatedAt: new Date(),
 };
 
-const task6: DatabaseTask = {
+const task6: Task = {
   _id: new ObjectId(),
   assigned_user: 'jylahb',
   description: 'Create API Structure and enumerate different endpoints based on data models',
@@ -118,7 +145,7 @@ const task6: DatabaseTask = {
   status: 'Not Started',
   dependentTasks: [],
   prereqForTasks: [task1._id],
-  project: new ObjectId(),
+  project: project1._id,
   priority: 5,
   taskPoints: 3,
   relevantQuestions: [],
@@ -126,9 +153,81 @@ const task6: DatabaseTask = {
   updatedAt: new Date(),
 };
 
+const task7: Task = {
+  _id: new ObjectId(),
+  assigned_user: 'aayusht',
+  description:
+    'Create GET endpoint to populate sprint planning screen. Also must write Unit tests.',
+  name: '[API] GET Endpoint Sprint Planning',
+  sprint: sprint2._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task5._id],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task8: Task = {
+  _id: new ObjectId(),
+  assigned_user: 'jasonl',
+  description: 'Create POST Endpoint for creating new “sprints”. Include unit tests',
+  name: '[API] POST Endpoint New Sprint',
+  sprint: sprint2._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task5._id],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task9: Task = {
+  _id: new ObjectId(),
+  assigned_user: 'losher',
+  description: 'Create POST Endpoint for creating new tasks. Include unit tests',
+  name: '[API] POST Endpoint New Task',
+  sprint: sprint2._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task5._id],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task10: Task = {
+  _id: new ObjectId(),
+  assigned_user: 'jylahb',
+  description:
+    'Create PUT Endpoint for assigning tasks from the overall task backlog to different sprints. Include unit tests',
+  name: '[API] PUT Endpoint for assigning tasks from the overall task backlog to different sprints',
+  sprint: sprint2._id,
+  status: 'Not Started',
+  dependentTasks: [],
+  prereqForTasks: [task1._id, task5._id],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 sprint1.tasks = [task1._id, task2._id, task3._id, task4._id, task5._id, task6._id];
+sprint2.tasks = [task7._id, task8._id, task9._id, task10._id];
 
 const DUMMY_TASKS_SPRINT1 = [task1, task2, task3, task4, task5, task6];
+const DUMMY_TASKS_SPRINT2 = [task7, task8, task9, task10];
 
 export default function SprintPlanningPage() {
   // Task Creation Modal
@@ -194,49 +293,11 @@ export default function SprintPlanningPage() {
 
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
-          <ListGroup className='rounded-0'>
-            <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
-              <div id='sprint-header' className='p-3 ps-2 bg-light'>
-                <span>Sprint Title 1</span>
-                <span className='ms-4 text-muted'>2/27/25 - 3/12/25</span>
-                <div className='float-end'>
-                  <span className='me-3 rounded-pill p-2 bg-danger-subtle'>Not Started</span>
-                  <span className='me-3 bg-primary-subtle p-2 rounded-pill'>10</span>
-                  <FaPencil className='text-primary me-3' />
-                  <FaTrash className='text-danger me-1' onClick={handleShowDeleteSprintModal} />
-                </div>
-              </div>
-              <ListGroup className='rounded-0'>
-                <ListGroup.Item>
-                  <span>Task 1</span>
-                  <div className='float-end'>
-                    <span className='bg-danger-subtle p-2 rounded-pill fs-6 me-1'>To-Do</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>2</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 2</span>
-                  <div className='float-end'>
-                    <span className='bg-info-subtle p-2 rounded-pill fs-6 me-1'>In Progress</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>5</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 3</span>
-                  <div className='float-end'>
-                    <span className='bg-success-subtle p-2 rounded-pill fs-6 me-1'>Done</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>3</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item className='bg-body-secondary text-center'>
-                  <Button variant='success'>
-                    <VscDebugStart className='mb-1' /> Start Sprint
-                    {/* Only render for sprints that have not been started yet */}
-                  </Button>
-                </ListGroup.Item>
-              </ListGroup>
-            </ListGroup.Item>
-          </ListGroup>
+          <SprintListGroup
+            sprint={sprint1}
+            tasks={DUMMY_TASKS_SPRINT1}
+            handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+          />
 
           <ListGroup className='rounded-0 '>
             <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
