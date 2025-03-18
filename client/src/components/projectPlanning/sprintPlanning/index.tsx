@@ -9,17 +9,20 @@ import SprintCreationModal from '../components/SprintCreationModal/SprintCreatio
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
 import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
 import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
-import { Project, Sprint, Task } from '../../../types/types';
+import { MockProject } from '../../../types/mockTypes/project';
+import { MockSprint } from '../../../types/mockTypes/sprint';
+import { MockTask } from '../../../types/mockTypes/task';
 
-const project1: Project = {
-  _id: '1',
+const project1: MockProject = {
+  _id: 'P1',
   assignedUsers: ['aayusht', 'losher', 'jasonl', 'jylahb'],
   description: '',
   name: 'Project Planning Tool',
   sprints: [],
 };
 
-const sprint1: Sprint = {
+const sprint1: MockSprint = {
+  _id: 'S1',
   tasks: [],
   name: 'First Project Sprint',
   project: project1._id,
@@ -28,8 +31,8 @@ const sprint1: Sprint = {
   end_date: new Date(2025, 2, 12),
 };
 
-const sprint2: Sprint = {
-  _id: new ObjectId(),
+const sprint2: MockSprint = {
+  _id: 'S2',
   tasks: [],
   name: 'Second Project Sprint',
   project: project1._id,
@@ -38,8 +41,8 @@ const sprint2: Sprint = {
   end_date: new Date(2025, 2, 27),
 };
 
-const sprint3: Sprint = {
-  _id: new ObjectId(),
+const sprint3: MockSprint = {
+  _id: 'S3',
   tasks: [],
   name: 'Third Project Sprint',
   project: project1._id,
@@ -50,8 +53,8 @@ const sprint3: Sprint = {
 
 project1.sprints = [sprint1._id, sprint2._id, sprint3._id];
 
-const task1: Task = {
-  _id: new ObjectId(),
+const task1: MockTask = {
+  _id: 'T1',
   assigned_user: 'aayusht',
   description: 'Create the relevant DB types, models, and schemas for Sprints, Tasks, and Projects',
   name: '[DB] Create DB Models',
@@ -67,8 +70,8 @@ const task1: Task = {
   updatedAt: new Date(),
 };
 
-const task2: Task = {
-  _id: new ObjectId(),
+const task2: MockTask = {
+  _id: 'T2',
   assigned_user: 'losher',
   description:
     'Set up the routes to the sprint planning, kanban board, and project roadmap screen. Add in links to these routes on the navigation sidebar',
@@ -85,8 +88,8 @@ const task2: Task = {
   updatedAt: new Date(),
 };
 
-const task3: Task = {
-  _id: new ObjectId(),
+const task3: MockTask = {
+  _id: 'T3',
   assigned_user: 'losher',
   description: 'Create a prototype for the Sprint Planning Page',
   name: '[UI] Sprint Planning Page Initial Layout/Skeleton',
@@ -102,8 +105,8 @@ const task3: Task = {
   updatedAt: new Date(),
 };
 
-const task4: Task = {
-  _id: new ObjectId(),
+const task4: MockTask = {
+  _id: 'T4',
   assigned_user: 'losher',
   description: 'Create a prototype for the Kanban Board Page',
   name: '[UI] Kanban Board Initial Layout/Skeleton',
@@ -119,8 +122,8 @@ const task4: Task = {
   updatedAt: new Date(),
 };
 
-const task5: Task = {
-  _id: new ObjectId(),
+const task5: MockTask = {
+  _id: 'T5',
   assigned_user: 'jasonl',
   description: 'Create a prototype for the Project Roadmap Page',
   name: '[UI] Project Roadmap Initial Layout/Skeleton',
@@ -136,8 +139,8 @@ const task5: Task = {
   updatedAt: new Date(),
 };
 
-const task6: Task = {
-  _id: new ObjectId(),
+const task6: MockTask = {
+  _id: 'T6',
   assigned_user: 'jylahb',
   description: 'Create API Structure and enumerate different endpoints based on data models',
   name: '[API] Initial API Structure',
@@ -153,8 +156,8 @@ const task6: Task = {
   updatedAt: new Date(),
 };
 
-const task7: Task = {
-  _id: new ObjectId(),
+const task7: MockTask = {
+  _id: 'T7',
   assigned_user: 'aayusht',
   description:
     'Create GET endpoint to populate sprint planning screen. Also must write Unit tests.',
@@ -171,8 +174,8 @@ const task7: Task = {
   updatedAt: new Date(),
 };
 
-const task8: Task = {
-  _id: new ObjectId(),
+const task8: MockTask = {
+  _id: 'T8',
   assigned_user: 'jasonl',
   description: 'Create POST Endpoint for creating new “sprints”. Include unit tests',
   name: '[API] POST Endpoint New Sprint',
@@ -188,8 +191,8 @@ const task8: Task = {
   updatedAt: new Date(),
 };
 
-const task9: Task = {
-  _id: new ObjectId(),
+const task9: MockTask = {
+  _id: 'T9',
   assigned_user: 'losher',
   description: 'Create POST Endpoint for creating new tasks. Include unit tests',
   name: '[API] POST Endpoint New Task',
@@ -205,8 +208,8 @@ const task9: Task = {
   updatedAt: new Date(),
 };
 
-const task10: Task = {
-  _id: new ObjectId(),
+const task10: MockTask = {
+  _id: 'T10',
   assigned_user: 'jylahb',
   description:
     'Create PUT Endpoint for assigning tasks from the overall task backlog to different sprints. Include unit tests',
