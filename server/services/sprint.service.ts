@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { Sprint, SprintResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
 
@@ -71,11 +72,11 @@ export const addTasksToSprint = async (
   taskIds: string[],
 ): Promise<SprintResponse> => {
   try {
-    const updatedSprint = await SprintModel.findByIdAndUpdate(
-      sprintId,
+    const updatedSprint = await SprintModel.findOneAndUpdate(
+      { _id: new ObjectId(sprintId) },
       { $addToSet: { tasks: { $each: taskIds } } },
       { new: true },
-    );
+    ).lean();
     if (!updatedSprint) {
       throw new Error('Sprint not found');
     }

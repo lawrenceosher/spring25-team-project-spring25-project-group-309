@@ -1,6 +1,6 @@
 import express, { Response, Request } from 'express';
 import { FakeSOSocket, AddDepedentsRequest, TasksByUsernameRequest } from '../types/types';
-import { addDependentTasks, getTasksByUser } from '../services/task.service';
+import { addDependentTasks, getAllTasksByUser } from '../services/task.service';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -12,11 +12,11 @@ const taskController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
-  const getTaskByUser = async (req: TasksByUsernameRequest, res: Response): Promise<void> => {
+  const getTasksByUser = async (req: TasksByUsernameRequest, res: Response): Promise<void> => {
     try {
       const { username } = req.params;
 
-      const tasks = await getTasksByUser(username);
+      const tasks = await getAllTasksByUser(username);
       const errorTask = tasks.find(task => 'error' in task);
       if (errorTask) {
         throw new Error(errorTask.error);
@@ -66,7 +66,7 @@ const taskController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
-  router.get('/getTaskByUser/:username', getTaskByUser);
+  router.get('/getTaskByUser/:username', getTasksByUser);
   router.put('/addDependentTasks', addDependentTasksToTicket);
   return router;
 };

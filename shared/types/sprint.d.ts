@@ -6,8 +6,8 @@ export interface Sprint {
   name: string;
   project: ObjectId;
   status: string;
-  start_date: Date;
-  end_date: Date;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface DatabaseSprint extends Sprint {
