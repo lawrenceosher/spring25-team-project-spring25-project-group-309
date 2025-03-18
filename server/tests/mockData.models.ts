@@ -209,18 +209,18 @@ export const databaseSprint: DatabaseSprint = {
 };
 
 export const databaseTask: DatabaseTask = {
-  _id: new ObjectId(),
+  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
   assignedUser: 'user123',
   description: 'Complete the sprint task.',
   name: 'Task 1',
-  sprint: new ObjectId(),
+  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
   status: 'todo',
   dependentTasks: [],
   prereqForTasks: [],
-  project: new ObjectId(),
+  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
   priority: 'low',
   taskPoints: 5,
   relevantQuestions: [],
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  createdAt: new Date('2023-11-18T09:24:00'),
+  updatedAt: new Date('2023-11-18T09:24:00'),
 };

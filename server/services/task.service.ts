@@ -79,6 +79,12 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
   }
 };
 
+/**
+ * Updates a list of tasks with new information.
+ * @param taskId The ID of the task to add to.
+ * @param dependentTaskIds The IDs of the tasks to add as dependencies.
+ * @returns The Updated Task
+ */
 export const addDependentTasks = async (
   taskId: string,
   dependentTaskIds: string[],

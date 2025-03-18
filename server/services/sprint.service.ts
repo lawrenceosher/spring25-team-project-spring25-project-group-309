@@ -67,6 +67,12 @@ export const updateSprint = async (
   }
 };
 
+/**
+ * Adds a lists of tasks to a sprint.
+ * @param sprintId The spring to add the tasks to.
+ * @param taskIds The list of tasks to add to the sprint.
+ * @returns The updated sprint or an error message.
+ */
 export const addTasksToSprint = async (
   sprintId: string,
   taskIds: string[],

@@ -19,7 +19,7 @@ const taskController = (socket: FakeSOSocket) => {
       const tasks = await getAllTasksByUser(username);
       const errorTask = tasks.find(task => 'error' in task);
       if (errorTask) {
-        throw new Error(errorTask.error);
+        throw new Error(`${errorTask}`);
       }
 
       res.status(200).json(tasks);
