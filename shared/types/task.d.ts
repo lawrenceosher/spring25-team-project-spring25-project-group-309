@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { Request } from 'express';
 
 export interface Task {
   assigned_user: string;
@@ -18,6 +19,19 @@ export interface Task {
 
 export interface DatabaseTask extends Task {
   _id: ObjectId;
+}
+
+export interface AddDepedentsRequest extends Request {
+  body: {
+    taskId: string;
+    dependentTaskIds: string[];
+  };
+}
+
+export interface TasksByUsernameRequest extends Request {
+  params: {
+    username: string;
+  };
 }
 
 export type TaskResponse = DatabaseTask | { error: string };

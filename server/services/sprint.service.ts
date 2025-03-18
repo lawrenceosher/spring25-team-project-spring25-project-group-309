@@ -66,6 +66,25 @@ export const updateSprint = async (
   }
 };
 
+export const addTasksToSprint = async (
+  sprintId: string,
+  taskIds: string[],
+): Promise<SprintResponse> => {
+  try {
+    const updatedSprint = await SprintModel.findByIdAndUpdate(
+      sprintId,
+      { $addToSet: { tasks: { $each: taskIds } } },
+      { new: true },
+    );
+    if (!updatedSprint) {
+      throw new Error('Sprint not found');
+    }
+    return updatedSprint;
+  } catch (error) {
+    return { error: 'Error updating sprint' };
+  }
+};
+
 export const deleteSprintById = async (sprintId: string): Promise<SprintResponse> => {
   try {
     const deletedSprint = await SprintModel.findByIdAndDelete(sprintId);

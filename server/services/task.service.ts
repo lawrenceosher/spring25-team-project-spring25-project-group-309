@@ -67,7 +67,7 @@ export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
  * @param updates The new information to update the task with.
  * @returns The updated task or an error message.
  */
-export const updatetask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
+export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
   try {
     const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true });
     if (!updatedtask) {
@@ -76,6 +76,25 @@ export const updatetask = async (taskId: string, updates: Partial<Task>): Promis
     return updatedtask;
   } catch (error) {
     return { error: 'Error when updating a task' };
+  }
+};
+
+export const addDependentTasks = async (
+  taskId: string,
+  dependentTaskIds: string[],
+): Promise<TaskResponse> => {
+  try {
+    const updatedTask = await TaskModel.findByIdAndUpdate(
+      taskId,
+      { $addToSet: { dependentTasks: { $each: dependentTaskIds } } },
+      { new: true },
+    );
+    if (!updatedTask) {
+      throw new Error('Task not found');
+    }
+    return updatedTask;
+  } catch (error) {
+    return { error: 'Error when adding dependent tasks' };
   }
 };
 /**
