@@ -9,3 +9,5 @@ export interface Project {
 export interface DatabaseProject extends Project {
   _id: ObjectId;
 }
+
+export type ProjectResponse = DatabaseProject | { error: string };
