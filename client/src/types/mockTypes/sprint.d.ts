@@ -1,8 +1,10 @@
+import { MockTask } from './task';
+
 export interface MockSprint {
   _id: string;
-  tasks: ObjectId[];
+  tasks: MockTask[];
   name: string;
-  project: ObjectId;
+  project: string;
   status: string;
   start_date: Date;
   end_date: Date;

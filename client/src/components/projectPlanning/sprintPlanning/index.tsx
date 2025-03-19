@@ -51,7 +51,7 @@ const sprint3: MockSprint = {
   end_date: new Date(2025, 3, 9),
 };
 
-project1.sprints = [sprint1._id, sprint2._id, sprint3._id];
+project1.sprints = [sprint1, sprint2, sprint3];
 
 const task1: MockTask = {
   _id: 'T1',
@@ -79,7 +79,7 @@ const task2: MockTask = {
   sprint: sprint1._id,
   status: 'Done',
   dependentTasks: [],
-  prereqForTasks: [task1._id],
+  prereqForTasks: [task1],
   project: project1._id,
   priority: 5,
   taskPoints: 1,
@@ -96,7 +96,7 @@ const task3: MockTask = {
   sprint: sprint1._id,
   status: 'Done',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task2._id],
+  prereqForTasks: [task1, task2],
   project: project1._id,
   priority: 5,
   taskPoints: 2,
@@ -113,7 +113,7 @@ const task4: MockTask = {
   sprint: sprint1._id,
   status: 'Not Started',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task2._id],
+  prereqForTasks: [task1, task2],
   project: project1._id,
   priority: 5,
   taskPoints: 2,
@@ -130,7 +130,7 @@ const task5: MockTask = {
   sprint: sprint1._id,
   status: 'In Progress',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task2._id],
+  prereqForTasks: [task1, task2],
   project: project1._id,
   priority: 5,
   taskPoints: 2,
@@ -147,7 +147,7 @@ const task6: MockTask = {
   sprint: sprint1._id,
   status: 'Done',
   dependentTasks: [],
-  prereqForTasks: [task1._id],
+  prereqForTasks: [task1],
   project: project1._id,
   priority: 5,
   taskPoints: 3,
@@ -165,7 +165,7 @@ const task7: MockTask = {
   sprint: sprint2._id,
   status: 'Not Started',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task5._id],
+  prereqForTasks: [task1, task5],
   project: project1._id,
   priority: 3,
   taskPoints: 1,
@@ -182,7 +182,7 @@ const task8: MockTask = {
   sprint: sprint2._id,
   status: 'Not Started',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task5._id],
+  prereqForTasks: [task1, task5],
   project: project1._id,
   priority: 3,
   taskPoints: 1,
@@ -199,7 +199,7 @@ const task9: MockTask = {
   sprint: sprint2._id,
   status: 'Not Started',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task5._id],
+  prereqForTasks: [task1, task5],
   project: project1._id,
   priority: 3,
   taskPoints: 1,
@@ -217,7 +217,7 @@ const task10: MockTask = {
   sprint: sprint2._id,
   status: 'Not Started',
   dependentTasks: [],
-  prereqForTasks: [task1._id, task5._id],
+  prereqForTasks: [task1, task5],
   project: project1._id,
   priority: 3,
   taskPoints: 1,
@@ -226,11 +226,8 @@ const task10: MockTask = {
   updatedAt: new Date(),
 };
 
-sprint1.tasks = [task1._id, task2._id, task3._id, task4._id, task5._id, task6._id];
-sprint2.tasks = [task7._id, task8._id, task9._id, task10._id];
-
-const DUMMY_TASKS_SPRINT1 = [task1, task2, task3, task4, task5, task6];
-const DUMMY_TASKS_SPRINT2 = [task7, task8, task9, task10];
+sprint1.tasks = [task1, task2, task3, task4, task5, task6];
+sprint2.tasks = [task7, task8, task9, task10];
 
 export default function SprintPlanningPage() {
   // Task Creation Modal
@@ -298,55 +295,13 @@ export default function SprintPlanningPage() {
 
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
-          <SprintListGroup
-            sprint={sprint1}
-            tasks={DUMMY_TASKS_SPRINT1}
-            handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-          />
-
-          <SprintListGroup
-            sprint={sprint2}
-            tasks={DUMMY_TASKS_SPRINT2}
-            handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-          />
-
-          <ListGroup className='rounded-0 '>
-            <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
-              <div id='sprint-header' className='p-3 ps-2 bg-light'>
-                <span>Sprint Title 3</span>
-                <span className='ms-4 text-muted'>3/27/25 - 4/9/25</span>
-                <div className='float-end'>
-                  <span className='me-3 rounded-pill p-2 bg-success-subtle'>Finished</span>
-                  <span className='me-3 bg-primary-subtle p-2 rounded-pill'>5</span>
-                  <FaPencil className='text-primary me-3' />
-                  <FaTrash className='text-danger me-1' />
-                </div>
-              </div>
-              <ListGroup className='rounded-0'>
-                <ListGroup.Item>
-                  <span>Task 1</span>
-                  <div className='float-end'>
-                    <span className='bg-danger-subtle p-2 rounded-pill fs-6 me-1'>To-Do</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>2</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 2</span>
-                  <div className='float-end'>
-                    <span className='bg-info-subtle p-2 rounded-pill fs-6 me-1'>In Progress</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>1</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 3</span>
-                  <div className='float-end'>
-                    <span className='bg-info-subtle p-2 rounded-pill fs-6 me-1'>In Progress</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>2</span>
-                  </div>
-                </ListGroup.Item>
-              </ListGroup>
-            </ListGroup.Item>
-          </ListGroup>
+          {project1.sprints.map(sprint => (
+            <SprintListGroup
+              key={sprint._id}
+              sprint={sprint}
+              handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+            />
+          ))}
 
           <ListGroup className='rounded-0 '>
             <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>

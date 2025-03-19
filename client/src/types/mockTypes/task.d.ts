@@ -3,11 +3,11 @@ export interface MockTask {
   assigned_user: string;
   description: string;
   name: string;
-  sprint: ObjectId;
+  sprint: string;
   status: string;
-  dependentTasks: ObjectId[];
-  prereqForTasks: ObjectId[];
-  project: ObjectId;
+  dependentTasks: MockTask[];
+  prereqForTasks: MockTask[];
+  project: string;
   priority: number;
   taskPoints: number;
   relevantQuestions: ObjectId[];

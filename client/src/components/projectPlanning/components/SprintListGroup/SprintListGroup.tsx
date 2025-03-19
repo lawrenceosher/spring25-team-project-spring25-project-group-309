@@ -4,19 +4,16 @@ import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
 import TaskListItem from '../TaskListItem/TaskListItem';
 import { MockSprint } from '../../../../types/mockTypes/sprint';
-import { MockTask } from '../../../../types/mockTypes/task';
 import { getFullDate, getStatusColor } from '../../../../tool';
 
 export default function SprintListGroup({
   sprint,
-  tasks,
   handleShowDeleteSprintModal,
 }: {
   sprint: MockSprint;
-  tasks: MockTask[];
   handleShowDeleteSprintModal: () => void;
 }) {
-  const totalSprintTaskPoints = tasks.reduce((points, task) => points + task.taskPoints, 0);
+  const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
 
   return (
     <ListGroup className='rounded-0'>
@@ -36,7 +33,7 @@ export default function SprintListGroup({
           </div>
         </div>
         <ListGroup className='rounded-0'>
-          {tasks.map(task => (
+          {sprint.tasks.map(task => (
             <TaskListItem
               key={task._id}
               taskName={task.name}
