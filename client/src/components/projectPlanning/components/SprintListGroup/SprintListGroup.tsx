@@ -5,6 +5,7 @@ import { VscDebugStart } from 'react-icons/vsc';
 import TaskListItem from '../TaskListItem/TaskListItem';
 import { MockSprint } from '../../../../types/mockTypes/sprint';
 import { MockTask } from '../../../../types/mockTypes/task';
+import { getFullDate, getStatusColor } from '../../../../tool';
 
 export default function SprintListGroup({
   sprint,
@@ -23,10 +24,12 @@ export default function SprintListGroup({
         <div id='sprint-header' className='p-3 ps-2 bg-light'>
           <span>{sprint.name}</span>
           <span className='ms-4 text-muted'>
-            {sprint.start_date.toString()} - {sprint.end_date.toString()}
+            {`${getFullDate(sprint.start_date)} - ${getFullDate(sprint.end_date)}`}
           </span>
           <div className='float-end'>
-            <span className='me-3 rounded-pill p-2 bg-danger-subtle'>{sprint.status}</span>
+            <span className={`me-3 rounded-pill p-2 ${getStatusColor(sprint.status)}`}>
+              {sprint.status}
+            </span>
             <span className='me-3 bg-primary-subtle p-2 rounded-pill'>{totalSprintTaskPoints}</span>
             <FaPencil className='text-primary me-3' />
             <FaTrash className='text-danger me-1' onClick={handleShowDeleteSprintModal} />

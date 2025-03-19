@@ -1,4 +1,5 @@
 import { ListGroupItem } from 'react-bootstrap';
+import { getStatusColor } from '../../../../tool';
 
 export default function TaskListItem({
   taskName,
@@ -13,7 +14,9 @@ export default function TaskListItem({
     <ListGroupItem>
       <span>{taskName}</span>
       <div className='float-end'>
-        <span className='bg-danger-subtle p-2 rounded-pill fs-6 me-1'>{taskStatus}</span>
+        <span className={`p-2 rounded-pill fs-6 me-1 ${getStatusColor(taskStatus)}`}>
+          {taskStatus}
+        </span>
         <span className='bg-primary-subtle p-2 rounded-pill fs-6'>{taskPoints}</span>
       </div>
     </ListGroupItem>
