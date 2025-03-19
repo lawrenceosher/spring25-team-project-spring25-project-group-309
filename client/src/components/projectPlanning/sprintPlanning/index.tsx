@@ -302,43 +302,11 @@ export default function SprintPlanningPage() {
             handleShowDeleteSprintModal={handleShowDeleteSprintModal}
           />
 
-          <ListGroup className='rounded-0 '>
-            <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
-              <div id='sprint-header' className='p-3 ps-2 bg-light'>
-                <span>Sprint Title 2</span>
-                <span className='ms-4 text-muted'>3/13/25 - 3/27/25</span>
-                <div className='float-end'>
-                  <span className='me-3 rounded-pill p-2 bg-info-subtle'>In Progress</span>
-                  <span className='me-3 bg-primary-subtle p-2 rounded-pill'>5</span>
-                  <FaPencil className='text-primary me-3' />
-                  <FaTrash className='text-danger me-1' />
-                </div>
-              </div>
-              <ListGroup className='rounded-0'>
-                <ListGroup.Item>
-                  <span>Task 1</span>
-                  <div className='float-end'>
-                    <span className='bg-danger-subtle p-2 rounded-pill fs-6 me-1'>To-Do</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>2</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 2</span>
-                  <div className='float-end'>
-                    <span className='bg-info-subtle p-2 rounded-pill fs-6 me-1'>In Progress</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>1</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Task 3</span>
-                  <div className='float-end'>
-                    <span className='bg-info-subtle p-2 rounded-pill fs-6 me-1'>In Progress</span>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>2</span>
-                  </div>
-                </ListGroup.Item>
-              </ListGroup>
-            </ListGroup.Item>
-          </ListGroup>
+          <SprintListGroup
+            sprint={sprint2}
+            tasks={DUMMY_TASKS_SPRINT2}
+            handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+          />
 
           <ListGroup className='rounded-0 '>
             <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
