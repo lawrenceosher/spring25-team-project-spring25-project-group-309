@@ -1,26 +1,24 @@
 import { ListGroupItem } from 'react-bootstrap';
 import { getStatusColor } from '../../../../tool';
 import './TaskListItem.css';
+import useSprintPlanningPage from '../../../../hooks/useSprintPlanningPage';
+import { MockTask } from '../../../../types/mockTypes/task';
 
-export default function TaskListItem({
-  taskName,
-  taskStatus,
-  taskPoints,
-}: {
-  taskName: string;
-  taskStatus: string;
-  taskPoints: number;
-}) {
+export default function TaskListItem({ task }: { task: MockTask }) {
+  const { setSelectedTask } = useSprintPlanningPage();
+
   return (
-    <ListGroupItem className='d-flex align-items-center'>
+    <ListGroupItem
+      className='d-flex align-items-center'
+      onClick={() => setSelectedTask({ ...task })}>
       <div id='task-name-label' className='flex-grow-1'>
-        {taskName}
+        {task.name}
       </div>
       <div className='d-flex justify-content-end flex-grow-1'>
-        <span className={`p-2 rounded-pill fs-6 me-1 ${getStatusColor(taskStatus)}`}>
-          {taskStatus}
+        <span className={`p-2 rounded-pill fs-6 me-1 ${getStatusColor(task.status)}`}>
+          {task.status}
         </span>
-        <span className='bg-primary-subtle p-2 rounded-pill fs-6'>{taskPoints}</span>
+        <span className='bg-primary-subtle p-2 rounded-pill fs-6'>{task.taskPoints}</span>
       </div>
     </ListGroupItem>
   );

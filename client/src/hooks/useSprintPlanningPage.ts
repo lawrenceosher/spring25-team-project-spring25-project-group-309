@@ -50,7 +50,7 @@ const useSprintPlanningPage = () => {
     description:
       'Create the relevant DB types, models, and schemas for Sprints, Tasks, and Projects',
     name: '[DB] Create DB Models',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'Done',
     dependentTasks: [],
     prereqForTasks: [],
@@ -68,7 +68,7 @@ const useSprintPlanningPage = () => {
     description:
       'Set up the routes to the sprint planning, kanban board, and project roadmap screen. Add in links to these routes on the navigation sidebar',
     name: '[UI] Navigation and Routing',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'Done',
     dependentTasks: [],
     prereqForTasks: [task1],
@@ -85,7 +85,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'losher',
     description: 'Create a prototype for the Sprint Planning Page',
     name: '[UI] Sprint Planning Page Initial Layout/Skeleton',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'Done',
     dependentTasks: [],
     prereqForTasks: [task1, task2],
@@ -102,7 +102,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'losher',
     description: 'Create a prototype for the Kanban Board Page',
     name: '[UI] Kanban Board Initial Layout/Skeleton',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'Not Started',
     dependentTasks: [],
     prereqForTasks: [task1, task2],
@@ -119,7 +119,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'jasonl',
     description: 'Create a prototype for the Project Roadmap Page',
     name: '[UI] Project Roadmap Initial Layout/Skeleton',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'In Progress',
     dependentTasks: [],
     prereqForTasks: [task1, task2],
@@ -136,7 +136,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'jylahb',
     description: 'Create API Structure and enumerate different endpoints based on data models',
     name: '[API] Initial API Structure',
-    sprint: sprint1._id,
+    sprint: sprint1,
     status: 'Done',
     dependentTasks: [],
     prereqForTasks: [task1],
@@ -154,7 +154,7 @@ const useSprintPlanningPage = () => {
     description:
       'Create GET endpoint to populate sprint planning screen. Also must write Unit tests.',
     name: '[API] GET Endpoint Sprint Planning',
-    sprint: sprint2._id,
+    sprint: sprint2,
     status: 'Not Started',
     dependentTasks: [],
     prereqForTasks: [task1, task5],
@@ -171,7 +171,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'jasonl',
     description: 'Create POST Endpoint for creating new “sprints”. Include unit tests',
     name: '[API] POST Endpoint New Sprint',
-    sprint: sprint2._id,
+    sprint: sprint2,
     status: 'Not Started',
     dependentTasks: [],
     prereqForTasks: [task1, task5],
@@ -188,7 +188,7 @@ const useSprintPlanningPage = () => {
     assigned_user: 'losher',
     description: 'Create POST Endpoint for creating new tasks. Include unit tests',
     name: '[API] POST Endpoint New Task',
-    sprint: sprint2._id,
+    sprint: sprint2,
     status: 'Not Started',
     dependentTasks: [],
     prereqForTasks: [task1, task5],
@@ -206,7 +206,7 @@ const useSprintPlanningPage = () => {
     description:
       'Create PUT Endpoint for assigning tasks from the overall task backlog to different sprints. Include unit tests',
     name: '[API] PUT Endpoint for assigning tasks from the overall task backlog to different sprints',
-    sprint: sprint2._id,
+    sprint: sprint2,
     status: 'Not Started',
     dependentTasks: [],
     prereqForTasks: [task1, task5],
@@ -221,9 +221,12 @@ const useSprintPlanningPage = () => {
   sprint1.tasks = [task1, task2, task3, task4, task5, task6];
   sprint2.tasks = [task7, task8, task9, task10];
 
-  const [project, setProject] = useState<MockProject>(project1);
+  task1.dependentTasks = [task2, task3, task4, task5, task6];
 
-  return { project, sprint1 };
+  const [project, setProject] = useState<MockProject>(project1);
+  const [selectedTask, setSelectedTask] = useState<MockTask>(project.sprints[0].tasks[0]);
+
+  return { project, selectedTask, setSelectedTask, setProject };
 };
 
 export default useSprintPlanningPage;

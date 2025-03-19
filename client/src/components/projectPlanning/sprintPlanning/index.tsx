@@ -1,8 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Button, Card, FormGroup, FormLabel, FormSelect, ListGroup } from 'react-bootstrap';
+import { Button, FormGroup, FormLabel, FormSelect, ListGroup } from 'react-bootstrap';
 import './index.css';
-import { FaTrash } from 'react-icons/fa';
-import { FaPencil } from 'react-icons/fa6';
 import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
@@ -10,9 +8,10 @@ import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal
 import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
 import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
 import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
+import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 
 export default function SprintPlanningPage() {
-  const { project } = useSprintPlanningPage();
+  const { project, selectedTask } = useSprintPlanningPage();
 
   // Task Creation Modal
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
@@ -120,72 +119,10 @@ export default function SprintPlanningPage() {
         </div>
 
         <div id='task-details' className='ms-3'>
-          <Card>
-            <Card.Body>
-              <Card.Title className='fs-4'>
-                Task Title{' '}
-                <span className='float-end'>
-                  <FaPencil className='text-primary me-3' />
-                  <FaTrash className='text-danger me-1' onClick={handleShowDeleteTaskModal} />
-                </span>
-              </Card.Title>
-              <Card.Subtitle className='mb-2 text-muted'>Sprint 1</Card.Subtitle>
-              <Card.Subtitle className='mb-2 text-muted'>Priority: High</Card.Subtitle>
-              <Card.Subtitle className='mb-2 text-muted'>Assigned To: Username</Card.Subtitle>
-              <Card.Subtitle className='mb-2 text-muted'>Status: In Progress</Card.Subtitle>
-              <Card.Subtitle className='mb-2 text-muted'>Task Points: 5</Card.Subtitle>
-              <Card.Text>
-                Some quick example text to build on the card title and make up the bulk of the
-                card&apos;s content. The description of the Task will go here Some quick example
-                text to build on the card title and make up the bulk of the card&apos;s content. The
-                description of the Task will go here Some quick example text to build on the card
-                title and make up the bulk of the card&apos;s content. The description of the Task
-                will go here.
-              </Card.Text>
-              <Card.Footer>
-                <span>Relevant Fake Stack Overflow Questions:</span>
-                <ListGroup variant='flush' className='mt-2'>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>StackOverflow Question 1</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>StackOverflow Question 2</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>StackOverflow Question 3</Card.Link>
-                  </ListGroup.Item>
-                </ListGroup>
-              </Card.Footer>
-              <Card.Footer>
-                <span>Task Dependencies:</span>
-                <ListGroup variant='flush' className='mt-2'>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 1</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 2</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 3</Card.Link>
-                  </ListGroup.Item>
-                </ListGroup>
-              </Card.Footer>
-              <Card.Footer>
-                <span>Task Prerequisites:</span>
-                <ListGroup variant='flush' className='mt-2'>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 1</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 2</Card.Link>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='bg-transparent p-1'>
-                    <Card.Link href='#'>Task 3</Card.Link>
-                  </ListGroup.Item>
-                </ListGroup>
-              </Card.Footer>
-            </Card.Body>
-          </Card>
+          <TaskDetailsCard
+            handleShowDeleteTaskModal={handleShowDeleteTaskModal}
+            task={selectedTask}
+          />
         </div>
       </div>
     </div>

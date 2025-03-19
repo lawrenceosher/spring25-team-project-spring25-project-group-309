@@ -34,12 +34,7 @@ export default function SprintListGroup({
         </div>
         <ListGroup className='rounded-0'>
           {sprint.tasks.map(task => (
-            <TaskListItem
-              key={task._id}
-              taskName={task.name}
-              taskStatus={task.status}
-              taskPoints={task.taskPoints}
-            />
+            <TaskListItem key={task._id} task={task} />
           ))}
           {sprint.status === 'Not Started' && (
             <ListGroup.Item className='bg-body-secondary text-center'>
