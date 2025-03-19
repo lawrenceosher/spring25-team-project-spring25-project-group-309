@@ -1,7 +1,11 @@
 #sprints {
-    width: 60%;
+  width: 60%;
 }
 
 #task-details {
-    width: 40%
+  width: 40%;
+}
+
+#project-name-header {
+  max-width: 60%;
 }

@@ -17,7 +17,7 @@ const project1: MockProject = {
   _id: 'P1',
   assignedUsers: ['aayusht', 'losher', 'jasonl', 'jylahb'],
   description: '',
-  name: 'Project Planning Tool',
+  name: 'Example Project',
   sprints: [],
 };
 
@@ -256,8 +256,10 @@ export default function SprintPlanningPage() {
   return (
     <div className='p-3'>
       <div id='sprint-planning-header' className='d-flex align-items-center'>
-        <h1 className='fw-bold d-flex flex-fill'>Project Name - Sprint Planning</h1>
-        <span>
+        <h1 id='project-name-header' className='fw-bold d-flex'>
+          {project1.name} - Sprint Planning
+        </h1>
+        <div className='d-flex justify-content-end flex-grow-1'>
           <FormGroup className='d-inline-flex me-3 align-middle'>
             <div>
               <FormLabel>Filter by User:</FormLabel>
@@ -275,7 +277,7 @@ export default function SprintPlanningPage() {
           <Button size='lg' variant='success' onClick={handleShowCreateTaskModal}>
             + Create Task
           </Button>
-        </span>
+        </div>
       </div>
 
       <TaskCreationModal show={showCreateTaskModal} handleClose={handleCloseCreateTaskModal} />
