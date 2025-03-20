@@ -5,12 +5,14 @@ import useSprintPlanningPage from '../../../../hooks/useSprintPlanningPage';
 import { MockTask } from '../../../../types/mockTypes/task';
 
 export default function TaskListItem({ task }: { task: MockTask }) {
-  const { setSelectedTask } = useSprintPlanningPage();
+  const { setSelectedTaskOnChange } = useSprintPlanningPage();
 
   return (
     <ListGroupItem
       className='d-flex align-items-center'
-      onClick={() => setSelectedTask({ ...task })}>
+      onClick={() => {
+        setSelectedTaskOnChange(task);
+      }}>
       <div id='task-name-label' className='flex-grow-1'>
         {task.name}
       </div>

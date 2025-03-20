@@ -11,7 +11,7 @@ import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 
 export default function SprintPlanningPage() {
-  const { project, selectedTask } = useSprintPlanningPage();
+  const { project } = useSprintPlanningPage();
 
   // Task Creation Modal
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
@@ -119,10 +119,7 @@ export default function SprintPlanningPage() {
         </div>
 
         <div id='task-details' className='ms-3'>
-          <TaskDetailsCard
-            handleShowDeleteTaskModal={handleShowDeleteTaskModal}
-            task={selectedTask}
-          />
+          <TaskDetailsCard handleShowDeleteTaskModal={handleShowDeleteTaskModal} />
         </div>
       </div>
     </div>

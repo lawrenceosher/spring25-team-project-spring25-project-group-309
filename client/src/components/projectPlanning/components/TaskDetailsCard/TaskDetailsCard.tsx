@@ -1,70 +1,75 @@
 import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
-import { MockTask } from '../../../../types/mockTypes/task';
+import useSprintPlanningPage from '../../../../hooks/useSprintPlanningPage';
 
 export default function TaskDetailsCard({
-  task,
   handleShowDeleteTaskModal,
 }: {
-  task: MockTask;
   handleShowDeleteTaskModal: () => void;
 }) {
+  const { selectedTask } = useSprintPlanningPage();
+
   return (
-    <Card>
+    <Card key={selectedTask._id}>
       <Card.Body>
         <Card.Title className='fs-4'>
-          {task.name}
+          {selectedTask.name}
           <span className='float-end'>
             <FaPencil className='text-primary me-3' />
             <FaTrash className='text-danger me-1' onClick={handleShowDeleteTaskModal} />
           </span>
         </Card.Title>
-        <Card.Subtitle className='mb-2 text-muted'>{task.sprint.name}</Card.Subtitle>
-        <Card.Subtitle className='mb-2 text-muted'>Priority: {task.priority}</Card.Subtitle>
-        <Card.Subtitle className='mb-2 text-muted'>Assigned To: {task.assigned_user}</Card.Subtitle>
-        <Card.Subtitle className='mb-2 text-muted'>Status: {task.status}</Card.Subtitle>
-        <Card.Subtitle className='mb-2 text-muted'>Task Points: {task.taskPoints}</Card.Subtitle>
-        <Card.Text>{task.description}</Card.Text>
-        {task.relevantQuestions && task.relevantQuestions.length > 0 && (
-          <Card.Footer>
-            <span>Relevant Fake Stack Overflow Questions:</span>
-            <ListGroup variant='flush' className='mt-2'>
-              {task.relevantQuestions.map(question => (
-                <ListGroup.Item key={question} className='bg-transparent p-1'>
-                  <Card.Link href='#'>{question}</Card.Link>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Card.Footer>
-        )}
-
-        {task.dependentTasks && task.dependentTasks.length > 0 && (
-          <Card.Footer>
-            <span>Task Dependencies:</span>
-            <ListGroup variant='flush' className='mt-2'>
-              {task.dependentTasks.map(dependentTask => (
-                <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
-                  <Card.Link href='#'>{dependentTask.name}</Card.Link>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Card.Footer>
-        )}
-
-        {task.prereqForTasks && task.prereqForTasks.length > 0 && (
-          <Card.Footer>
-            <span>Task Prerequisites:</span>
-            <ListGroup variant='flush' className='mt-2'>
-              {task.prereqForTasks.map(preReqTask => (
-                <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
-                  <Card.Link href='#'>{preReqTask.name}</Card.Link>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Card.Footer>
-        )}
+        <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint.name}</Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>
+          Assigned To: {selectedTask.assigned_user}
+        </Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>Status: {selectedTask.status}</Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>
+          Task Points: {selectedTask.taskPoints}
+        </Card.Subtitle>
+        <Card.Text>{selectedTask.description}</Card.Text>
       </Card.Body>
+
+      {selectedTask.relevantQuestions && selectedTask.relevantQuestions.length > 0 && (
+        <Card.Footer>
+          <span>Relevant Fake Stack Overflow Questions:</span>
+          <ListGroup variant='flush' className='mt-2'>
+            {selectedTask.relevantQuestions.map(question => (
+              <ListGroup.Item key={question} className='bg-transparent p-1'>
+                <Card.Link href='#'>{question}</Card.Link>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Card.Footer>
+      )}
+
+      {selectedTask.dependentTasks && selectedTask.dependentTasks.length > 0 && (
+        <Card.Footer>
+          <span>Task Dependencies:</span>
+          <ListGroup variant='flush' className='mt-2'>
+            {selectedTask.dependentTasks.map(dependentTask => (
+              <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
+                <Card.Link href='#'>{dependentTask.name}</Card.Link>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Card.Footer>
+      )}
+
+      {selectedTask.prereqForTasks && selectedTask.prereqForTasks.length > 0 && (
+        <Card.Footer>
+          <span>Task Prerequisites:</span>
+          <ListGroup variant='flush' className='mt-2'>
+            {selectedTask.prereqForTasks.map(preReqTask => (
+              <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
+                <Card.Link href='#'>{preReqTask.name}</Card.Link>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Card.Footer>
+      )}
     </Card>
   );
 }
