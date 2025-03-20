@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
-import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
@@ -12,27 +11,21 @@ import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlann
 import Backlog from '../components/Backlog/Backlog';
 
 export default function SprintPlanningPage() {
-  const { project } = useSprintPlanningPage();
-
-  // Task Creation Modal
-  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-  const handleCloseCreateTaskModal = () => setShowCreateTaskModal(false);
-  const handleShowCreateTaskModal = () => setShowCreateTaskModal(true);
-
-  // Sprint Creation Modal
-  const [showCreateSprintModal, setShowCreateSprintModal] = useState(false);
-  const handleCloseCreateSprintModal = () => setShowCreateSprintModal(false);
-  const handleShowCreateSprintModal = () => setShowCreateSprintModal(true);
-
-  // Sprint Deletion Modal
-  const [showDeleteSprintModal, setShowDeleteSprintModal] = useState(false);
-  const handleCloseDeleteSprintModal = () => setShowDeleteSprintModal(false);
-  const handleShowDeleteSprintModal = () => setShowDeleteSprintModal(true);
-
-  // Task Deletion Modal
-  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false);
-  const handleCloseDeleteTaskModal = () => setShowDeleteTaskModal(false);
-  const handleShowDeleteTaskModal = () => setShowDeleteTaskModal(true);
+  const {
+    project,
+    showCreateTaskModal,
+    handleCloseCreateTaskModal,
+    handleShowCreateTaskModal,
+    showCreateSprintModal,
+    handleCloseCreateSprintModal,
+    handleShowCreateSprintModal,
+    showDeleteSprintModal,
+    handleCloseDeleteSprintModal,
+    handleShowDeleteSprintModal,
+    showDeleteTaskModal,
+    handleCloseDeleteTaskModal,
+    handleShowDeleteTaskModal,
+  } = useSprintPlanningPage();
 
   return (
     <div className='p-3'>
@@ -61,7 +54,7 @@ export default function SprintPlanningPage() {
         sprintTitle='Sprint 1'
       />
 
-      {/* Sprints */}
+      {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
           {project.sprints.map(sprint => (
