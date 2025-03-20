@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { Button, FormGroup, FormLabel, FormSelect, ListGroup } from 'react-bootstrap';
+import { ListGroup } from 'react-bootstrap';
 import './index.css';
 import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
@@ -9,6 +9,7 @@ import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletio
 import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
 import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
+import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 
 export default function SprintPlanningPage() {
   const { project } = useSprintPlanningPage();
@@ -35,30 +36,12 @@ export default function SprintPlanningPage() {
 
   return (
     <div className='p-3'>
-      <div id='sprint-planning-header' className='d-flex align-items-center'>
-        <h1 id='project-name-header' className='fw-bold d-flex'>
-          {project.name} - Sprint Planning
-        </h1>
-        <div className='d-flex justify-content-end flex-grow-1'>
-          <FormGroup className='d-inline-flex me-3 align-middle'>
-            <div>
-              <FormLabel>Filter by User:</FormLabel>
-              {/* Insert list of users in the project here */}
-              <FormSelect>
-                <option value='User 1'>User 1</option>
-                <option value='User 2'>User 2</option>
-                <option value='User 3'>User 3</option>
-              </FormSelect>
-            </div>
-          </FormGroup>
-          <Button size='lg' className='me-2' onClick={handleShowCreateSprintModal}>
-            + Create Sprint
-          </Button>
-          <Button size='lg' variant='success' onClick={handleShowCreateTaskModal}>
-            + Create Task
-          </Button>
-        </div>
-      </div>
+      <SprintPlanningHeader
+        projectName={project.name}
+        users={project.assignedUsers}
+        handleShowCreateSprintModal={handleShowCreateSprintModal}
+        handleShowCreateTaskModal={handleShowCreateTaskModal}
+      />
 
       <TaskCreationModal show={showCreateTaskModal} handleClose={handleCloseCreateTaskModal} />
       <SprintCreationModal

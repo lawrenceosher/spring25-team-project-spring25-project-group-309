@@ -9,3 +9,7 @@
 #project-name-header {
   max-width: 60%;
 }
+
+#sprint-action-button {
+  height: fit-content;
+}

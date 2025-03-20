@@ -22,7 +22,7 @@ export default function TaskDetailsCard({
             <FaTrash className='text-danger me-1' onClick={handleShowDeleteTaskModal} />
           </span>
         </Card.Title>
-        <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint.name}</Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
           Assigned To: {selectedTask.assigned_user}
