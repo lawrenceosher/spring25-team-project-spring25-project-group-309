@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable import/no-extraneous-dependencies */
 import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
-import useSprintPlanningPage from '../../../../hooks/useSprintPlanningPage';
+import { useSelector } from 'react-redux';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
 }: {
   handleShowDeleteTaskModal: () => void;
 }) {
-  const { selectedTask } = useSprintPlanningPage();
+  const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
   return (
     <Card key={selectedTask._id}>
@@ -36,7 +38,7 @@ export default function TaskDetailsCard({
         <Card.Footer>
           <span>Relevant Fake Stack Overflow Questions:</span>
           <ListGroup variant='flush' className='mt-2'>
-            {selectedTask.relevantQuestions.map(question => (
+            {selectedTask.relevantQuestions.map((question: any) => (
               <ListGroup.Item key={question} className='bg-transparent p-1'>
                 <Card.Link href='#'>{question}</Card.Link>
               </ListGroup.Item>
@@ -49,9 +51,10 @@ export default function TaskDetailsCard({
         <Card.Footer>
           <span>Task Dependencies:</span>
           <ListGroup variant='flush' className='mt-2'>
-            {selectedTask.dependentTasks.map(dependentTask => (
+            {selectedTask.dependentTasks.map((dependentTask: any) => (
               <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
-                <Card.Link href='#'>{dependentTask.name}</Card.Link>
+                <Card.Link href='#'>{dependentTask}</Card.Link>
+                {/* Need to figure out a way to get the dependent tasks fully there. Same for pre-reqs */}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -62,7 +65,7 @@ export default function TaskDetailsCard({
         <Card.Footer>
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
-            {selectedTask.prereqForTasks.map(preReqTask => (
+            {selectedTask.prereqForTasks.map((preReqTask: any) => (
               <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
                 <Card.Link href='#'>{preReqTask.name}</Card.Link>
               </ListGroup.Item>

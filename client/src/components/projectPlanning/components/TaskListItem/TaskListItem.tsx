@@ -1,17 +1,19 @@
+/* eslint-disable import/no-extraneous-dependencies */
+import { useDispatch } from 'react-redux';
 import { ListGroupItem } from 'react-bootstrap';
 import { getStatusColor } from '../../../../tool';
 import './TaskListItem.css';
-import useSprintPlanningPage from '../../../../hooks/useSprintPlanningPage';
 import { MockTask } from '../../../../types/mockTypes/task';
+import { updateSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 
 export default function TaskListItem({ task }: { task: MockTask }) {
-  const { setSelectedTaskOnChange } = useSprintPlanningPage();
+  const dispatch = useDispatch();
 
   return (
     <ListGroupItem
       className='d-flex align-items-center'
       onClick={() => {
-        setSelectedTaskOnChange(task);
+        dispatch(updateSelectedTask({ ...task }));
       }}>
       <div id='task-name-label' className='flex-grow-1'>
         {task.name}
