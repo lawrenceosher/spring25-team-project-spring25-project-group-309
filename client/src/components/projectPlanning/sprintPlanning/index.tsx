@@ -9,10 +9,12 @@ import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 import Backlog from '../components/Backlog/Backlog';
+import { MockTask } from '../../../types/mockTypes/task';
 
 export default function SprintPlanningPage() {
   const {
     project,
+    setProject,
     showCreateTaskModal,
     handleCloseCreateTaskModal,
     handleShowCreateTaskModal,
@@ -27,6 +29,19 @@ export default function SprintPlanningPage() {
     handleShowDeleteTaskModal,
   } = useSprintPlanningPage();
 
+  const addTaskToSprint = (newTask: MockTask) => {
+    setProject(prevProject => {
+      const updatedSprints = prevProject.sprints.map(sprint => {
+        if (sprint._id === newTask.sprint) {
+          sprint.tasks.push(newTask);
+        }
+        return sprint;
+      });
+
+      return { ...prevProject, sprints: updatedSprints };
+    });
+  };
+
   return (
     <div className='p-3'>
       {/* Header */}
@@ -38,11 +53,17 @@ export default function SprintPlanningPage() {
       />
 
       {/* Modals */}
-      <TaskCreationModal show={showCreateTaskModal} handleClose={handleCloseCreateTaskModal} />
+      <TaskCreationModal
+        show={showCreateTaskModal}
+        handleClose={handleCloseCreateTaskModal}
+        addTaskToSprint={addTaskToSprint}
+        project={project}
+      />
       <SprintCreationModal
         show={showCreateSprintModal}
         handleClose={handleCloseCreateSprintModal}
       />
+
       <TaskDeletionModal
         show={showDeleteTaskModal}
         handleClose={handleCloseDeleteTaskModal}

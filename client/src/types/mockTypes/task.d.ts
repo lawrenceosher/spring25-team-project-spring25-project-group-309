@@ -8,7 +8,7 @@ export interface MockTask {
   dependentTasks: string[];
   prereqForTasks: string[];
   project: string;
-  priority: number;
+  priority: string;
   taskPoints: number;
   relevantQuestions: string[];
   createdAt: Date;

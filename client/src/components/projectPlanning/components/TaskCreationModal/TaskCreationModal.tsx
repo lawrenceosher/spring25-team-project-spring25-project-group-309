@@ -1,12 +1,36 @@
+import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import { MockTask } from '../../../../types/mockTypes/task';
+import { MockProject } from '../../../../types/mockTypes/project';
 
 export default function TaskCreationModal({
   show,
   handleClose,
+  addTaskToSprint,
+  project,
 }: {
   show: boolean;
   handleClose: () => void;
+  addTaskToSprint: (newTask: MockTask) => void;
+  project: MockProject;
 }) {
+  const [createdTask, setCreatedTask] = useState<MockTask>({
+    _id: new Date().getTime().toString(),
+    assigned_user: '',
+    description: '',
+    name: '',
+    sprint: '',
+    status: '',
+    dependentTasks: [],
+    prereqForTasks: [],
+    project: project._id,
+    priority: '',
+    taskPoints: 0,
+    relevantQuestions: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
   return (
     <div>
       <Modal show={show} onHide={handleClose}>
@@ -17,28 +41,51 @@ export default function TaskCreationModal({
           <Form>
             <Form.Group controlId='taskTitle'>
               <Form.Label>Title</Form.Label>
-              <Form.Control type='text' placeholder='Enter Task Title' />
+              <Form.Control
+                type='text'
+                placeholder='Enter Task Title'
+                defaultValue={createdTask.name}
+                onChange={e => setCreatedTask({ ...createdTask, name: e.target.value })}
+              />
             </Form.Group>
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select>
-                <option value='Backlog'>Backlog</option>
-                <option value='1'>Sprint 1</option>
-                <option value='2'>Sprint 2</option>
-                <option value='3'>Sprint 3</option>
+                <option value={project.backlog._id}>Backlog</option>
+                {project.sprints.map(sprint => (
+                  <option key={sprint._id} value={sprint._id}>
+                    {sprint.name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group controlId='taskPriority'>
+              <Form.Label>Priority</Form.Label>
+              <Form.Select
+                defaultValue='Low'
+                onChange={e => setCreatedTask({ ...createdTask, priority: e.target.value })}>
+                <option value='Low'>Low</option>
+                <option value='Medium'>Medium</option>
+                <option value='High'>High</option>
               </Form.Select>
             </Form.Group>
             <Form.Group controlId='taskUser'>
               <Form.Label>User</Form.Label>
-              <Form.Select>
-                <option value='1'>User1</option>
-                <option value='2'>User2</option>
-                <option value='3'>User3</option>
+              <Form.Select
+                defaultValue={project.assignedUsers[0]}
+                onChange={e => setCreatedTask({ ...createdTask, assigned_user: e.target.value })}>
+                {project.assignedUsers.map(user => (
+                  <option key={user} value={user}>
+                    {user}
+                  </option>
+                ))}
               </Form.Select>
             </Form.Group>
             <Form.Group controlId='taskStatus'>
               <Form.Label>Status</Form.Label>
-              <Form.Select>
+              <Form.Select
+                defaultValue='To-Do'
+                onChange={e => setCreatedTask({ ...createdTask, status: e.target.value })}>
                 <option value='To-Do'>To-Do</option>
                 <option value='In Progress'>In Progress</option>
                 <option value='Done'>Done</option>
@@ -46,7 +93,12 @@ export default function TaskCreationModal({
             </Form.Group>
             <Form.Group controlId='taskPoints'>
               <Form.Label>Task Points</Form.Label>
-              <Form.Control type='number' placeholder='Enter Task Points' />
+              <Form.Control
+                type='number'
+                placeholder='Enter Task Points'
+                defaultValue={1}
+                onChange={e => setCreatedTask({ ...createdTask, taskPoints: +e.target.value })}
+              />
             </Form.Group>
             <Form.Group controlId='taskDescription'>
               <Form.Label>Description</Form.Label>
@@ -54,7 +106,7 @@ export default function TaskCreationModal({
             </Form.Group>
 
             <Form.Group controlId='taskQuestions'>
-              <Form.Label>Relevant FaleStackOverflow Questions</Form.Label>
+              <Form.Label>Relevant FakeStackOverflow Questions</Form.Label>
               <Form.Select multiple>
                 <option value='1'>Question 1</option>
                 <option value='2'>Question 2</option>
@@ -62,12 +114,43 @@ export default function TaskCreationModal({
               </Form.Select>
             </Form.Group>
 
+            <Form.Group className='mb-3' controlId='taskPrerequisites'>
+              <Form.Label>Task Prerequisites</Form.Label>
+              <Form.Select
+                multiple
+                onChange={e =>
+                  setCreatedTask({
+                    ...createdTask,
+                    prereqForTasks: Array.from(e.target.selectedOptions, option => option.value),
+                  })
+                }>
+                {project.sprints.map(sprint =>
+                  sprint.tasks.map(task => (
+                    <option key={task._id} value={task._id}>
+                      {task.name}
+                    </option>
+                  )),
+                )}
+              </Form.Select>
+            </Form.Group>
+
             <Form.Group className='mb-3' controlId='taskDependencies'>
               <Form.Label>Task Dependencies</Form.Label>
-              <Form.Select multiple>
-                <option value='1'>Task 1</option>
-                <option value='2'>Task 2</option>
-                <option value='3'>Task 3</option>
+              <Form.Select
+                multiple
+                onChange={e =>
+                  setCreatedTask({
+                    ...createdTask,
+                    dependentTasks: Array.from(e.target.selectedOptions, option => option.value),
+                  })
+                }>
+                {project.sprints.map(sprint =>
+                  sprint.tasks.map(task => (
+                    <option key={task._id} value={task._id}>
+                      {task.name}
+                    </option>
+                  )),
+                )}
               </Form.Select>
             </Form.Group>
           </Form>
@@ -80,6 +163,7 @@ export default function TaskCreationModal({
           <Button
             variant='success'
             onClick={() => {
+              addTaskToSprint(createdTask);
               handleClose();
             }}>
             Create Task
