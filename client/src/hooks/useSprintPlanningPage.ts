@@ -1,10 +1,6 @@
 import { useState } from 'react';
-import { MockProject } from '../types/mockTypes/project';
-import { project1 } from '../mockData/mockData';
 
 const useSprintPlanningPage = () => {
-  const [project, setProject] = useState<MockProject>(project1);
-
   // Task Creation Modal
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const handleCloseCreateTaskModal = () => setShowCreateTaskModal(false);
@@ -26,8 +22,6 @@ const useSprintPlanningPage = () => {
   const handleShowDeleteTaskModal = () => setShowDeleteTaskModal(true);
 
   return {
-    project,
-    setProject,
     showCreateTaskModal,
     handleCloseCreateTaskModal,
     handleShowCreateTaskModal,

@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
+import { useSelector } from 'react-redux';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
@@ -9,12 +11,10 @@ import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 import Backlog from '../components/Backlog/Backlog';
-import { MockTask } from '../../../types/mockTypes/task';
+import { MockSprint } from '../../../types/mockTypes/sprint';
 
 export default function SprintPlanningPage() {
   const {
-    project,
-    setProject,
     showCreateTaskModal,
     handleCloseCreateTaskModal,
     handleShowCreateTaskModal,
@@ -29,18 +29,7 @@ export default function SprintPlanningPage() {
     handleShowDeleteTaskModal,
   } = useSprintPlanningPage();
 
-  const addTaskToSprint = (newTask: MockTask) => {
-    setProject(prevProject => {
-      const updatedSprints = prevProject.sprints.map(sprint => {
-        if (sprint._id === newTask.sprint) {
-          sprint.tasks.push(newTask);
-        }
-        return sprint;
-      });
-
-      return { ...prevProject, sprints: updatedSprints };
-    });
-  };
+  const { project } = useSelector((state: any) => state.projectReducer);
 
   return (
     <div className='p-3'>
@@ -56,7 +45,6 @@ export default function SprintPlanningPage() {
       <TaskCreationModal
         show={showCreateTaskModal}
         handleClose={handleCloseCreateTaskModal}
-        addTaskToSprint={addTaskToSprint}
         project={project}
       />
       <SprintCreationModal
@@ -78,7 +66,7 @@ export default function SprintPlanningPage() {
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
-          {project.sprints.map(sprint => (
+          {project.sprints.map((sprint: MockSprint) => (
             <SprintListGroup
               key={sprint._id}
               sprint={sprint}

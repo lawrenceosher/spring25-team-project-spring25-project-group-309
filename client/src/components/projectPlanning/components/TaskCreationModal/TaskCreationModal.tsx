@@ -1,31 +1,33 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 import { MockTask } from '../../../../types/mockTypes/task';
 import { MockProject } from '../../../../types/mockTypes/project';
+import { addNewTask } from '../../../../redux/projectReducer/projectReducer';
 
 export default function TaskCreationModal({
   show,
   handleClose,
-  addTaskToSprint,
   project,
 }: {
   show: boolean;
   handleClose: () => void;
-  addTaskToSprint: (newTask: MockTask) => void;
   project: MockProject;
 }) {
+  const dispatch = useDispatch();
+
   const [createdTask, setCreatedTask] = useState<MockTask>({
     _id: new Date().getTime().toString(),
-    assigned_user: '',
+    assigned_user: project.assignedUsers[0],
     description: '',
     name: '',
-    sprint: '',
-    status: '',
+    sprint: project.backlog._id,
+    status: 'To-Do',
     dependentTasks: [],
     prereqForTasks: [],
     project: project._id,
-    priority: '',
-    taskPoints: 0,
+    priority: 'Low',
+    taskPoints: 1,
     relevantQuestions: [],
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -50,7 +52,9 @@ export default function TaskCreationModal({
             </Form.Group>
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
-              <Form.Select>
+              <Form.Select
+                value={createdTask.sprint}
+                onChange={e => setCreatedTask({ ...createdTask, sprint: e.target.value })}>
                 <option value={project.backlog._id}>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id} value={sprint._id}>
@@ -102,12 +106,27 @@ export default function TaskCreationModal({
             </Form.Group>
             <Form.Group controlId='taskDescription'>
               <Form.Label>Description</Form.Label>
-              <Form.Control as='textarea' rows={5} cols={50} placeholder='Enter Task Description' />
+              <Form.Control
+                as='textarea'
+                rows={5}
+                cols={50}
+                placeholder='Enter Task Description'
+                defaultValue=''
+                onChange={e => setCreatedTask({ ...createdTask, description: e.target.value })}
+              />
             </Form.Group>
 
             <Form.Group controlId='taskQuestions'>
               <Form.Label>Relevant FakeStackOverflow Questions</Form.Label>
-              <Form.Select multiple>
+              <Form.Select
+                multiple
+                defaultValue={[]}
+                onChange={e =>
+                  setCreatedTask({
+                    ...createdTask,
+                    relevantQuestions: Array.from(e.target.selectedOptions, option => option.value),
+                  })
+                }>
                 <option value='1'>Question 1</option>
                 <option value='2'>Question 2</option>
                 <option value='3'>Question 3</option>
@@ -118,6 +137,7 @@ export default function TaskCreationModal({
               <Form.Label>Task Prerequisites</Form.Label>
               <Form.Select
                 multiple
+                defaultValue={[]}
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
@@ -138,6 +158,7 @@ export default function TaskCreationModal({
               <Form.Label>Task Dependencies</Form.Label>
               <Form.Select
                 multiple
+                defaultValue={[]}
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
@@ -163,7 +184,23 @@ export default function TaskCreationModal({
           <Button
             variant='success'
             onClick={() => {
-              addTaskToSprint(createdTask);
+              dispatch(addNewTask(createdTask));
+              setCreatedTask({
+                _id: new Date().getTime().toString(),
+                assigned_user: project.assignedUsers[0],
+                description: '',
+                name: '',
+                sprint: project.backlog._id,
+                status: 'To-Do',
+                dependentTasks: [],
+                prereqForTasks: [],
+                project: project._id,
+                priority: 'Low',
+                taskPoints: 1,
+                relevantQuestions: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              }); // Resetting the form
               handleClose();
             }}>
             Create Task

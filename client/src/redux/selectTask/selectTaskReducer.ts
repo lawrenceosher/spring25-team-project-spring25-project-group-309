@@ -10,8 +10,8 @@ const selectedTaskSlice = createSlice({
   name: 'selectedTask',
   initialState,
   reducers: {
-    setSelectedTask: (state, { payload: newTask }) => {
-      state.selectedTask = newTask;
+    setSelectedTask: (state, { payload: clickedTask }) => {
+      state.selectedTask = clickedTask;
     },
   },
 });
