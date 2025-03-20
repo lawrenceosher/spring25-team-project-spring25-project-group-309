@@ -67,7 +67,7 @@ export default function TaskDetailsCard({
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.prereqForTasks.map((preReqTask: any) => (
               <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
-                <Card.Link href='#'>{preReqTask.name}</Card.Link>
+                <Card.Link href='#'>{preReqTask}</Card.Link>
               </ListGroup.Item>
             ))}
           </ListGroup>
