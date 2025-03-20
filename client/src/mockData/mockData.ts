@@ -1,6 +1,12 @@
+import { MockBacklog } from '../types/mockTypes/backlog';
 import { MockProject } from '../types/mockTypes/project';
 import { MockSprint } from '../types/mockTypes/sprint';
 import { MockTask } from '../types/mockTypes/task';
+
+const backlog: MockBacklog = {
+  _id: 'B1',
+  tasks: [],
+};
 
 const project1: MockProject = {
   _id: 'P1',
@@ -8,6 +14,7 @@ const project1: MockProject = {
   description: '',
   name: 'Example Project',
   sprints: [],
+  backlog,
 };
 
 const sprint1: MockSprint = {
@@ -215,8 +222,62 @@ const task10: MockTask = {
   updatedAt: new Date(),
 };
 
+const task11: MockTask = {
+  _id: 'T11',
+  assigned_user: 'jasonl',
+  description: 'PUT Endpoint for moving tasks from one sprint to another. Include unit tests',
+  name: '[API] PUT Endpoint - TaskSprint',
+  sprint: sprint3._id,
+  status: 'In Progress',
+  dependentTasks: [],
+  prereqForTasks: ['T1', 'T5'],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task12: MockTask = {
+  _id: 'T12',
+  assigned_user: 'losher',
+  description:
+    'React Drag and Drop to move tasks from one sprint to another, and tasks from one progress column to another',
+  name: '[UI] React Drag and Drop',
+  sprint: backlog._id,
+  status: 'In Progress',
+  dependentTasks: [],
+  prereqForTasks: ['T1', 'T5'],
+  project: project1._id,
+  priority: 5,
+  taskPoints: 2,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+const task13: MockTask = {
+  _id: 'T13',
+  assigned_user: 'losher',
+  description: 'Make Sprint Planning and Board screens more dynamic to ready connection to API',
+  name: '[UI] Dynamic Sprint Planning and Board',
+  sprint: backlog._id,
+  status: 'In Progress',
+  dependentTasks: [],
+  prereqForTasks: ['T1', 'T5'],
+  project: project1._id,
+  priority: 3,
+  taskPoints: 1,
+  relevantQuestions: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
 sprint1.tasks = [task1, task2, task3, task4, task5, task6];
 sprint2.tasks = [task7, task8, task9, task10];
+sprint3.tasks = [task11];
+backlog.tasks = [task12, task13];
 
 export {
   project1,
@@ -233,4 +294,5 @@ export {
   task8,
   task9,
   task10,
+  backlog,
 };

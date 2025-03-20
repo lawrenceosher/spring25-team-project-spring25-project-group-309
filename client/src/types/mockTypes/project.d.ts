@@ -1,3 +1,4 @@
+import { MockBacklog } from './backlog';
 import { MockSprint } from './sprint';
 
 export interface MockProject {
@@ -6,4 +7,5 @@ export interface MockProject {
   description: string;
   name: string;
   sprints: MockSprint[];
+  backlog: MockBacklog;
 }

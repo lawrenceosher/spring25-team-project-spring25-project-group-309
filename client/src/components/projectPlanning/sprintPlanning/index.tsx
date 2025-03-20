@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { ListGroup } from 'react-bootstrap';
 import './index.css';
 import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
@@ -10,6 +9,7 @@ import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
 import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
+import Backlog from '../components/Backlog/Backlog';
 
 export default function SprintPlanningPage() {
   const { project } = useSprintPlanningPage();
@@ -36,6 +36,7 @@ export default function SprintPlanningPage() {
 
   return (
     <div className='p-3'>
+      {/* Header */}
       <SprintPlanningHeader
         projectName={project.name}
         users={project.assignedUsers}
@@ -43,6 +44,7 @@ export default function SprintPlanningPage() {
         handleShowCreateTaskModal={handleShowCreateTaskModal}
       />
 
+      {/* Modals */}
       <TaskCreationModal show={showCreateTaskModal} handleClose={handleCloseCreateTaskModal} />
       <SprintCreationModal
         show={showCreateSprintModal}
@@ -59,6 +61,7 @@ export default function SprintPlanningPage() {
         sprintTitle='Sprint 1'
       />
 
+      {/* Sprints */}
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
           {project.sprints.map(sprint => (
@@ -69,38 +72,10 @@ export default function SprintPlanningPage() {
             />
           ))}
 
-          <ListGroup className='rounded-0 '>
-            <ListGroup.Item className='p-0 mb-5 fs-5 border-gray'>
-              <div id='sprint-header' className='p-3 ps-2 bg-light'>
-                <span>Backlog</span>
-                <div className='float-end'>
-                  <span className='bg-primary-subtle p-2 rounded-pill'>20</span>
-                </div>
-              </div>
-              <ListGroup className='rounded-0'>
-                <ListGroup.Item>
-                  <span>Backlog Task 1</span>
-                  <div className='float-end'>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>10</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Backlog Task 2</span>
-                  <div className='float-end'>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>5</span>
-                  </div>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <span>Backlog Task 3</span>
-                  <div className='float-end'>
-                    <span className='bg-primary-subtle p-2 rounded-pill fs-6'>5</span>
-                  </div>
-                </ListGroup.Item>
-              </ListGroup>
-            </ListGroup.Item>
-          </ListGroup>
+          <Backlog backlog={project.backlog} />
         </div>
 
+        {/* Task Details */}
         <div id='task-details' className='ms-3'>
           <TaskDetailsCard handleShowDeleteTaskModal={handleShowDeleteTaskModal} />
         </div>
