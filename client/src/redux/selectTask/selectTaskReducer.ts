@@ -10,11 +10,11 @@ const selectedTaskSlice = createSlice({
   name: 'selectedTask',
   initialState,
   reducers: {
-    updateSelectedTask: (state, { payload: newTask }) => {
+    setSelectedTask: (state, { payload: newTask }) => {
       state.selectedTask = newTask;
     },
   },
 });
 
-export const { updateSelectedTask } = selectedTaskSlice.actions;
+export const { setSelectedTask } = selectedTaskSlice.actions;
 export default selectedTaskSlice.reducer;
