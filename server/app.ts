@@ -18,6 +18,9 @@ import userController from './controllers/user.controller';
 import messageController from './controllers/message.controller';
 import chatController from './controllers/chat.controller';
 import gameController from './controllers/game.controller';
+import sprintController from './controllers/sprint.controller';   
+import taskController from './controllers/task.controller';
+import projectController from './controllers/project.controller';
 
 dotenv.config();
 
@@ -82,6 +85,9 @@ app.use('/messaging', messageController(socket));
 app.use('/user', userController(socket));
 app.use('/chat', chatController(socket));
 app.use('/games', gameController(socket));
+app.use('/sprint', sprintController(socket));
+app.use('/task', taskController(socket)); 
+app.use('/project', projectController(socket));
 
 // Export the app instance
 export { app, server, startServer };
