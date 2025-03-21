@@ -3,7 +3,9 @@ import {
   DatabaseAnswer,
   DatabaseComment,
   DatabaseQuestion,
+  DatabaseSprint,
   DatabaseTag,
+  DatabaseTask,
   PopulatedDatabaseQuestion,
   SafeDatabaseUser,
   User,
@@ -194,4 +196,31 @@ export const safeUser: SafeDatabaseUser = {
   _id: new ObjectId(),
   username: 'user1',
   dateJoined: new Date('2024-12-03'),
+};
+
+export const databaseSprint: DatabaseSprint = {
+  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  endDate: new Date('2023-11-18T09:24:00'),
+  name: 'Test',
+  project: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  startDate: new Date('2023-11-18T09:24:00'),
+  status: 'active',
+  tasks: [new ObjectId('15e9b58310afe6e94fc6e6dc'), new ObjectId('25e9b58910afe7e94fc6e6dc')],
+};
+
+export const databaseTask: DatabaseTask = {
+  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  assignedUser: 'user123',
+  description: 'Complete the sprint task.',
+  name: 'Task 1',
+  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  status: 'Done',
+  dependentTasks: [],
+  prereqForTasks: [],
+  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
+  priority: 'low',
+  taskPoints: 5,
+  relevantQuestions: [],
+  createdAt: new Date('2023-11-18T09:24:00'),
+  updatedAt: new Date('2023-11-18T09:24:00'),
 };

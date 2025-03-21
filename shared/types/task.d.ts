@@ -1,10 +1,11 @@
 import { ObjectId } from 'mongodb';
+import { Request } from 'express';
 import { Project } from './project';
 import { DatabaseQuestion } from './question';
 import { Sprint } from './sprint';
 
 export interface Task {
-  assigned_user: string;
+  assignedUser: string;
   description: string;
   name: string;
   sprint: ObjectId;
@@ -12,7 +13,7 @@ export interface Task {
   dependentTasks: ObjectId[];
   prereqTasks: ObjectId[];
   project: ObjectId;
-  priority: number;
+  priority: string;
   taskPoints: number;
   relevantQuestions: ObjectId[];
   createdAt: Date;
@@ -33,6 +34,18 @@ export interface PopulatedDatabaseTask
   prereqTasks: Task[];
   project: Project;
   relevantQuestions: DatabaseQuestion[];
+}
+export interface AddDependentsRequest extends Request {
+  body: {
+    taskId: string;
+    dependentTaskIds: string[];
+  };
+}
+
+export interface TasksByUsernameRequest extends Request {
+  params: {
+    username: string;
+  };
 }
 
 export type TaskResponse = DatabaseTask | { error: string };
