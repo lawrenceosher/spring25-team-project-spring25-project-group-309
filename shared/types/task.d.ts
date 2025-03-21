@@ -21,7 +21,7 @@ export interface DatabaseTask extends Task {
   _id: ObjectId;
 }
 
-export interface AddDepedentsRequest extends Request {
+export interface AddDependentsRequest extends Request {
   body: {
     taskId: string;
     dependentTaskIds: string[];

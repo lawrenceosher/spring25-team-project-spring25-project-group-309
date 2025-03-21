@@ -214,7 +214,7 @@ export const databaseTask: DatabaseTask = {
   description: 'Complete the sprint task.',
   name: 'Task 1',
   sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
-  status: 'todo',
+  status: 'Done',
   dependentTasks: [],
   prereqForTasks: [],
   project: new ObjectId('15e9b58310afe6e94fc6e6dc'),

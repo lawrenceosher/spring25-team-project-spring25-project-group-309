@@ -34,11 +34,13 @@ const sprintController = (socket: FakeSOSocket) => {
         throw new Error(updatedSprint.error);
       }
 
-      // socket.emit('TASKUpdate', { msg: msgFromDb }); TODO: ADD SOCKET EMISSION HERE
+      // socket.emit('SprintUpdate', { tasks}); TODO: ADD SOCKET EMISSION HERE
 
       res.json(updatedSprint);
     } catch (err: unknown) {
-      res.status(500).send(`Error when adding a message: ${(err as Error).message}`);
+      res
+        .status(500)
+        .send(`Error when updating a sprint with new tasks : ${(err as Error).message}`);
     }
   };
 

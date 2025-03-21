@@ -1,11 +1,11 @@
 import express, { Response, Request } from 'express';
-import { FakeSOSocket, AddDepedentsRequest, TasksByUsernameRequest } from '../types/types';
+import { FakeSOSocket, AddDependentsRequest, TasksByUsernameRequest } from '../types/types';
 import { addDependentTasks, getAllTasksByUser } from '../services/task.service';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
 
-  const isAddDependentRequestValid = (req: AddDepedentsRequest): boolean =>
+  const isAddDependentRequestValid = (req: AddDependentsRequest): boolean =>
     !!req.body.taskId && !!req.body.dependentTaskIds;
 
   const createTask = async (req: Request, res: Response): Promise<void> => {
@@ -24,7 +24,7 @@ const taskController = (socket: FakeSOSocket) => {
 
       res.status(200).json(tasks);
     } catch (error) {
-      res.status(500).send(`Error when getting user by username: ${(error as Error).message}`);
+      res.status(500).send(`Error when getting a task by username: ${(error as Error).message}`);
     }
   };
 
@@ -37,7 +37,7 @@ const taskController = (socket: FakeSOSocket) => {
   };
 
   const addDependentTasksToTicket = async (
-    req: AddDepedentsRequest,
+    req: AddDependentsRequest,
     res: Response,
   ): Promise<void> => {
     if (!isAddDependentRequestValid(req)) {
@@ -58,7 +58,9 @@ const taskController = (socket: FakeSOSocket) => {
 
       res.json(updatedTask);
     } catch (err: unknown) {
-      res.status(500).send(`Error when adding a message: ${(err as Error).message}`);
+      res
+        .status(500)
+        .send(`Error when adding dependent tasks to a ticket ${(err as Error).message}`);
     }
   };
 
