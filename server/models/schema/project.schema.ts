@@ -5,7 +5,7 @@ import { Schema } from 'mongoose';
  *
  * This schema defines the structure for storing projects in the database.
  * Each Project includes the following fields:
- * - `assigned_users`: The users assigned to the project.
+ * - `assignedUsers`: The users assigned to the project.
  * - `description`: The description of the project.
  * - `name`: The name of the project.
  * - `sprints`: The sprints associated with the project.
