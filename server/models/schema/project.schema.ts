@@ -9,6 +9,7 @@ import { Schema } from 'mongoose';
  * - `description`: The description of the project.
  * - `name`: The name of the project.
  * - `sprints`: The sprints associated with the project.
+ * - `backlog`: The backlog associated with the project.
  * - Timestamps store `createdAt` & `updatedAt`.
  */
 const projectSchema: Schema = new Schema(
@@ -32,6 +33,10 @@ const projectSchema: Schema = new Schema(
         ref: 'Sprint',
       },
     ],
+    backlog: {
+      type: Schema.Types.ObjectId,
+      ref: 'Backlog',
+    },
   },
   {
     collection: 'Project',

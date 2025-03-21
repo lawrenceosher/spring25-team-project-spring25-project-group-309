@@ -5,6 +5,7 @@ export interface Project {
   description: string;
   name: string;
   sprints: ObjectId[];
+  backlog: ObjectId;
 }
 export interface DatabaseProject extends Project {
   _id: ObjectId;
