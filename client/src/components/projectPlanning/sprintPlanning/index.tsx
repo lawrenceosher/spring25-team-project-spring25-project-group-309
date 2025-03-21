@@ -3,9 +3,9 @@
 import './index.css';
 import { useSelector } from 'react-redux';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
-import SprintCreationModal from '../components/SprintCreationModal/SprintCreationModal';
+import SprintCreationModal from '../components/SprintPlanningModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
-import SprintDeletionModal from '../components/SprintCreationModal/SprintDeletionModal';
+import SprintDeletionModal from '../components/SprintPlanningModals/SprintDeletionModal';
 import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
 import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
