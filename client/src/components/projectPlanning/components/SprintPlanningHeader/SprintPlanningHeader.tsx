@@ -21,6 +21,8 @@ export default function SprintPlanningHeader({
           <div>
             <FormLabel>Filter by User:</FormLabel>
             <FormSelect>
+              {/* onChange call the endpoint to retrieve tasks by username */}
+              <option value=''>All</option>
               {users.map(user => (
                 <option key={user} value={user}>
                   {user}
