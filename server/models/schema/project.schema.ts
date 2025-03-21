@@ -33,10 +33,12 @@ const projectSchema: Schema = new Schema(
         ref: 'Sprint',
       },
     ],
-    backlog: {
-      type: Schema.Types.ObjectId,
-      ref: 'Backlog',
-    },
+    backlogTasks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Task',
+      },
+    ],
   },
   {
     collection: 'Project',
