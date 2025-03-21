@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb';
+import { Request } from 'express';
 
 export interface Task {
-  assigned_user: string;
+  assignedUser: string;
   description: string;
   name: string;
   sprint: ObjectId;
@@ -9,7 +10,7 @@ export interface Task {
   dependentTasks: ObjectId[];
   prereqForTasks: ObjectId[];
   project: ObjectId;
-  priority: number;
+  priority: string;
   taskPoints: number;
   relevantQuestions: ObjectId[];
   createdAt: Date;
@@ -18,6 +19,19 @@ export interface Task {
 
 export interface DatabaseTask extends Task {
   _id: ObjectId;
+}
+
+export interface AddDependentsRequest extends Request {
+  body: {
+    taskId: string;
+    dependentTaskIds: string[];
+  };
+}
+
+export interface TasksByUsernameRequest extends Request {
+  params: {
+    username: string;
+  };
 }
 
 export type TaskResponse = DatabaseTask | { error: string };

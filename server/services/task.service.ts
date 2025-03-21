@@ -8,7 +8,7 @@ import { Task, TaskResponse } from '../types/types';
  */
 const getTasksByCriteria = async (criteria: object): Promise<TaskResponse[]> => {
   try {
-    const tasks = await TaskModel.find(criteria);
+    const tasks = await TaskModel.find(criteria).lean();
     return tasks;
   } catch (error) {
     return [{ error: 'Error when getting tasks' }];
@@ -19,7 +19,7 @@ const getTasksByCriteria = async (criteria: object): Promise<TaskResponse[]> => 
  * @param userId The user ID to get tasks for
  * @returns A list of tasks or an error message.
  */
-export const getTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
+export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
   getTasksByCriteria({ assigned_user: userId });
 
 /**
@@ -67,15 +67,40 @@ export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
  * @param updates The new information to update the task with.
  * @returns The updated task or an error message.
  */
-export const updatetask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
+export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
   try {
-    const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true });
+    const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true }).lean();
     if (!updatedtask) {
       throw Error('task not found');
     }
     return updatedtask;
   } catch (error) {
     return { error: 'Error when updating a task' };
+  }
+};
+
+/**
+ * Updates a list of tasks with new information.
+ * @param taskId The ID of the task to add to.
+ * @param dependentTaskIds The IDs of the tasks to add as dependencies.
+ * @returns The Updated Task
+ */
+export const addDependentTasks = async (
+  taskId: string,
+  dependentTaskIds: string[],
+): Promise<TaskResponse> => {
+  try {
+    const updatedTask = await TaskModel.findByIdAndUpdate(
+      taskId,
+      { $addToSet: { dependentTasks: { $each: dependentTaskIds } } },
+      { new: true },
+    ).lean();
+    if (!updatedTask) {
+      throw new Error('Task not found');
+    }
+    return updatedTask;
+  } catch (error) {
+    return { error: 'Error when adding dependent tasks' };
   }
 };
 /**

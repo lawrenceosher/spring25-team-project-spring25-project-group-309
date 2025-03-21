@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb';
 import { Sprint, SprintResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
 
@@ -63,6 +64,31 @@ export const updateSprint = async (
     return updatedSprint;
   } catch (error) {
     return { error: 'Error when updating a sprint' };
+  }
+};
+
+/**
+ * Adds a lists of tasks to a sprint.
+ * @param sprintId The spring to add the tasks to.
+ * @param taskIds The list of tasks to add to the sprint.
+ * @returns The updated sprint or an error message.
+ */
+export const addTasksToSprint = async (
+  sprintId: string,
+  taskIds: string[],
+): Promise<SprintResponse> => {
+  try {
+    const updatedSprint = await SprintModel.findOneAndUpdate(
+      { _id: new ObjectId(sprintId) },
+      { $addToSet: { tasks: { $each: taskIds } } },
+      { new: true },
+    ).lean();
+    if (!updatedSprint) {
+      throw new Error('Sprint not found');
+    }
+    return updatedSprint;
+  } catch (error) {
+    return { error: 'Error updating sprint' };
   }
 };
 
