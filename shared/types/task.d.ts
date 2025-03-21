@@ -1,4 +1,7 @@
 import { ObjectId } from 'mongodb';
+import { Project } from './project';
+import { DatabaseQuestion } from './question';
+import { Sprint } from './sprint';
 
 export interface Task {
   assigned_user: string;
@@ -18,6 +21,18 @@ export interface Task {
 
 export interface DatabaseTask extends Task {
   _id: ObjectId;
+}
+
+export interface PopulatedDatabaseTask
+  extends Omit<
+    DatabaseTask,
+    'sprint' | 'dependentTasks' | 'prereqTasks' | 'project' | 'relevantQuestions'
+  > {
+  sprint: Sprint;
+  dependentTasks: Task[];
+  prereqTasks: Task[];
+  project: Project;
+  relevantQuestions: DatabaseQuestion[];
 }
 
 export type TaskResponse = DatabaseTask | { error: string };
