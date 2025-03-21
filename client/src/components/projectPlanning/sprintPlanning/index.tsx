@@ -13,6 +13,7 @@ import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 import Backlog from '../components/Backlog/Backlog';
 import { MockSprint } from '../../../types/mockTypes/sprint';
+import { MockTask } from '../../../types/mockTypes/task';
 
 export default function SprintPlanningPage() {
   const {
@@ -32,6 +33,7 @@ export default function SprintPlanningPage() {
 
   const { project } = useSelector((state: any) => state.projectReducer);
   const [sprintForModal, setSprintForModal] = useState<MockSprint | null>(null);
+  const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
 
   return (
     <div className='p-3'>
@@ -58,7 +60,7 @@ export default function SprintPlanningPage() {
       <TaskDeletionModal
         show={showDeleteTaskModal}
         handleClose={handleCloseDeleteTaskModal}
-        taskTitle='Task 1'
+        taskTitle={taskForModal?.name || ''}
       />
       <SprintDeletionModal
         show={showDeleteSprintModal}
@@ -83,7 +85,10 @@ export default function SprintPlanningPage() {
 
         {/* Task Details */}
         <div id='task-details' className='ms-3'>
-          <TaskDetailsCard handleShowDeleteTaskModal={handleShowDeleteTaskModal} />
+          <TaskDetailsCard
+            handleShowDeleteTaskModal={handleShowDeleteTaskModal}
+            setTaskForModal={setTaskForModal}
+          />
         </div>
       </div>
     </div>

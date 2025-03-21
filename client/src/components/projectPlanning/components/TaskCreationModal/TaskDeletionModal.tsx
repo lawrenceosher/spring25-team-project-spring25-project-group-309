@@ -23,6 +23,7 @@ export default function TaskDeletionModal({
           <Button
             variant='danger'
             onClick={() => {
+              // Call the service that will delete Task
               handleClose();
             }}>
             Yes

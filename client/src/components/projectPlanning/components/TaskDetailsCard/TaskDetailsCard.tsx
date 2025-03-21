@@ -4,11 +4,14 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
+import { MockTask } from '../../../../types/mockTypes/task';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
+  setTaskForModal,
 }: {
   handleShowDeleteTaskModal: () => void;
+  setTaskForModal: (task: MockTask) => void;
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
@@ -19,7 +22,13 @@ export default function TaskDetailsCard({
           {selectedTask.name}
           <span className='float-end'>
             <FaPencil className='text-primary me-3' />
-            <FaTrash className='text-danger me-1' onClick={handleShowDeleteTaskModal} />
+            <FaTrash
+              className='text-danger me-1'
+              onClick={() => {
+                setTaskForModal({ ...selectedTask });
+                handleShowDeleteTaskModal();
+              }}
+            />
           </span>
         </Card.Title>
         <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint}</Card.Subtitle>
