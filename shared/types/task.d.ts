@@ -1,8 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Request } from 'express';
-import { Project } from './project';
 import { DatabaseQuestion } from './question';
-import { Sprint } from './sprint';
 
 export interface Task {
   assignedUser: string;
@@ -25,14 +23,9 @@ export interface DatabaseTask extends Task {
 }
 
 export interface PopulatedDatabaseTask
-  extends Omit<
-    DatabaseTask,
-    'sprint' | 'dependentTasks' | 'prereqTasks' | 'project' | 'relevantQuestions'
-  > {
-  sprint: Sprint;
+  extends Omit<DatabaseTask, 'dependentTasks' | 'prereqTasks' | 'relevantQuestions'> {
   dependentTasks: Task[];
   prereqTasks: Task[];
-  project: Project;
   relevantQuestions: DatabaseQuestion[];
 }
 export interface AddDependentsRequest extends Request {
