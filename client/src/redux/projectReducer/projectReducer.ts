@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { project1 } from '../../mockData/mockData';
 import { MockTask } from '../../types/mockTypes/task';
+import { MockSprint } from '../../types/mockTypes/sprint';
 
 const initialState = {
   project: project1,
@@ -28,8 +29,12 @@ const projectSlice = createSlice({
 
       state.project = { ...state.project, sprints: updatedSprints };
     },
+
+    addNewSprint: (state, { payload: newSprint }: { payload: MockSprint }) => {
+      state.project.sprints = [...state.project.sprints, newSprint];
+    },
   },
 });
 
-export const { addNewTask } = projectSlice.actions;
+export const { addNewTask, addNewSprint } = projectSlice.actions;
 export default projectSlice.reducer;

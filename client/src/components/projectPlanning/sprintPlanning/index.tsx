@@ -50,6 +50,7 @@ export default function SprintPlanningPage() {
       <SprintCreationModal
         show={showCreateSprintModal}
         handleClose={handleCloseCreateSprintModal}
+        project={project}
       />
 
       <TaskDeletionModal
