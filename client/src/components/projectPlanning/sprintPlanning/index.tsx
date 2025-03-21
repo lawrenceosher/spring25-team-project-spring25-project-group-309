@@ -2,6 +2,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
 import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import TaskCreationModal from '../components/TaskCreationModal/TaskCreationModal';
 import SprintCreationModal from '../components/SprintPlanningModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskCreationModal/TaskDeletionModal';
@@ -30,6 +31,7 @@ export default function SprintPlanningPage() {
   } = useSprintPlanningPage();
 
   const { project } = useSelector((state: any) => state.projectReducer);
+  const [sprintForModal, setSprintForModal] = useState<MockSprint | null>(null);
 
   return (
     <div className='p-3'>
@@ -61,7 +63,7 @@ export default function SprintPlanningPage() {
       <SprintDeletionModal
         show={showDeleteSprintModal}
         handleClose={handleCloseDeleteSprintModal}
-        sprintTitle='Sprint 1'
+        sprintTitle={sprintForModal?.name || ''}
       />
 
       {/* Sprints and Backlog */}
@@ -72,6 +74,7 @@ export default function SprintPlanningPage() {
               key={sprint._id}
               sprint={sprint}
               handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+              setSprintForModal={setSprintForModal}
             />
           ))}
 

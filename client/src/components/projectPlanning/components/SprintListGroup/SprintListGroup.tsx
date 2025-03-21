@@ -9,9 +9,11 @@ import { getFullDate, getStatusColor } from '../../../../tool';
 export default function SprintListGroup({
   sprint,
   handleShowDeleteSprintModal,
+  setSprintForModal,
 }: {
   sprint: MockSprint;
   handleShowDeleteSprintModal: () => void;
+  setSprintForModal: (sprint: MockSprint) => void;
 }) {
   const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
 
@@ -29,7 +31,13 @@ export default function SprintListGroup({
             </span>
             <span className='me-3 bg-primary-subtle p-2 rounded-pill'>{totalSprintTaskPoints}</span>
             <FaPencil className='text-primary me-3' />
-            <FaTrash className='text-danger me-1' onClick={handleShowDeleteSprintModal} />
+            <FaTrash
+              className='text-danger me-1'
+              onClick={() => {
+                setSprintForModal({ ...sprint });
+                handleShowDeleteSprintModal();
+              }}
+            />
           </div>
         </div>
         <ListGroup className='rounded-0'>

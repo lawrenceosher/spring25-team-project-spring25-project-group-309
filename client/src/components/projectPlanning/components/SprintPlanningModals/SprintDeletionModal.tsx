@@ -23,6 +23,7 @@ export default function SprintDeletionModal({
           <Button
             variant='danger'
             onClick={() => {
+              // Call the service that will delete Sprint
               handleClose();
             }}>
             Yes
