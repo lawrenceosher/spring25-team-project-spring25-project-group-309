@@ -7,7 +7,7 @@ export interface Task {
   sprint: ObjectId;
   status: string;
   dependentTasks: ObjectId[];
-  prereqForTasks: ObjectId[];
+  prereqTasks: ObjectId[];
   project: ObjectId;
   priority: number;
   taskPoints: number;

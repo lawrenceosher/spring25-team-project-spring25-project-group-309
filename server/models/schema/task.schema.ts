@@ -44,7 +44,7 @@ const taskSchema: Schema = new Schema(
         ref: 'Task',
       },
     ],
-    prereqForTasks: [
+    prereqTasks: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Task',
