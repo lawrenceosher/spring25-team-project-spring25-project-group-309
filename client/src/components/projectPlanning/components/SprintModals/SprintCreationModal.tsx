@@ -108,6 +108,7 @@ export default function SprintCreationModal({
           <Button
             variant='primary'
             onClick={() => {
+              // Need to call the service to create a new Sprint
               dispatch(addNewSprint(createdSprint));
               setCreatedSprint({
                 _id: new Date().getTime().toString(),

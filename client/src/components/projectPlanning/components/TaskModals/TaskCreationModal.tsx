@@ -184,6 +184,7 @@ export default function TaskCreationModal({
           <Button
             variant='success'
             onClick={() => {
+              // Need to call the service to create a new Task
               dispatch(addNewTask(createdTask));
               setCreatedTask({
                 _id: new Date().getTime().toString(),
