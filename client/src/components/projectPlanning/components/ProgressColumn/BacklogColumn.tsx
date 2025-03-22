@@ -11,11 +11,7 @@ export default function BacklogColumn({ projectBacklog }: { projectBacklog: Mock
         </h5>
         <ListGroup id='column-tasks' className='mt-0'>
           {projectBacklog.map(task => (
-            <TaskItemProgressColumn
-              key={task._id}
-              taskName={task.name}
-              taskPoints={task.taskPoints}
-            />
+            <TaskItemProgressColumn key={task._id} task={task} />
           ))}
         </ListGroup>
       </div>

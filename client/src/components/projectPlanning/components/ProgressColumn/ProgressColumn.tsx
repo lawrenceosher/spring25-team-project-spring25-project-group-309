@@ -12,11 +12,7 @@ export default function ProgressColumn({ sprint, column }: { sprint: MockSprint;
         </h5>
         <ListGroup id='column-tasks' className='mt-0'>
           {tasks.map(task => (
-            <TaskItemProgressColumn
-              key={task._id}
-              taskName={task.name}
-              taskPoints={task.taskPoints}
-            />
+            <TaskItemProgressColumn key={task._id} task={task} />
           ))}
         </ListGroup>
       </div>

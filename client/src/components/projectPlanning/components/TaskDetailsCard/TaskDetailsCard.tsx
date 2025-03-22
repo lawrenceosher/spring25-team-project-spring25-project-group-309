@@ -11,9 +11,9 @@ export default function TaskDetailsCard({
   handleShowTaskUpdateModal,
   setTaskForModal,
 }: {
-  handleShowDeleteTaskModal: () => void;
-  handleShowTaskUpdateModal: () => void;
-  setTaskForModal: (task: MockTask) => void;
+  handleShowDeleteTaskModal?: () => void;
+  handleShowTaskUpdateModal?: () => void;
+  setTaskForModal?: (task: MockTask) => void;
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
@@ -22,16 +22,18 @@ export default function TaskDetailsCard({
       <Card.Body>
         <Card.Title className='fs-4'>
           {selectedTask.name}
-          <span className='float-end'>
-            <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
-            <FaTrash
-              className='text-danger me-1'
-              onClick={() => {
-                setTaskForModal({ ...selectedTask });
-                handleShowDeleteTaskModal();
-              }}
-            />
-          </span>
+          {handleShowTaskUpdateModal && handleShowDeleteTaskModal && setTaskForModal && (
+            <span className='float-end'>
+              <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
+              <FaTrash
+                className='text-danger me-1'
+                onClick={() => {
+                  setTaskForModal({ ...selectedTask });
+                  handleShowDeleteTaskModal();
+                }}
+              />
+            </span>
+          )}
         </Card.Title>
         <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
