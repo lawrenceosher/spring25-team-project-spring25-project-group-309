@@ -8,10 +8,12 @@ import { getFullDate, getStatusColor } from '../../../../tool';
 
 export default function SprintListGroup({
   sprint,
+  handleShowSprintUpdateModal,
   handleShowDeleteSprintModal,
   setSprintForModal,
 }: {
   sprint: MockSprint;
+  handleShowSprintUpdateModal: () => void;
   handleShowDeleteSprintModal: () => void;
   setSprintForModal: (sprint: MockSprint) => void;
 }) {
@@ -30,7 +32,13 @@ export default function SprintListGroup({
               {sprint.status}
             </span>
             <span className='me-3 bg-primary-subtle p-2 rounded-pill'>{totalSprintTaskPoints}</span>
-            <FaPencil className='text-primary me-3' />
+            <FaPencil
+              className='text-primary me-3'
+              onClick={() => {
+                setSprintForModal({ ...sprint });
+                handleShowSprintUpdateModal();
+              }}
+            />
             <FaTrash
               className='text-danger me-1'
               onClick={() => {

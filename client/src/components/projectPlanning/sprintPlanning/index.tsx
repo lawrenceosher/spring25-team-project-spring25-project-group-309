@@ -15,6 +15,7 @@ import Backlog from '../components/Backlog/Backlog';
 import { MockSprint } from '../../../types/mockTypes/sprint';
 import { MockTask } from '../../../types/mockTypes/task';
 import TaskUpdateModal from '../components/TaskModals/TaskUpdateModal';
+import SprintUpdateModal from '../components/SprintModals/SprintUpdateModal';
 
 export default function SprintPlanningPage() {
   const {
@@ -33,12 +34,16 @@ export default function SprintPlanningPage() {
   } = useSprintPlanningPage();
 
   const { project } = useSelector((state: any) => state.projectReducer);
-  const [sprintForModal, setSprintForModal] = useState<MockSprint | null>(null);
+  const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
   const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
 
   const [showTaskUpdateModal, setShowTaskUpdateModal] = useState(false);
   const handleCloseTaskUpdateModal = () => setShowTaskUpdateModal(false);
   const handleShowTaskUpdateModal = () => setShowTaskUpdateModal(true);
+
+  const [showSprintUpdateModal, setShowSprintUpdateModal] = useState(false);
+  const handleCloseSprintUpdateModal = () => setShowSprintUpdateModal(false);
+  const handleShowSprintUpdateModal = () => setShowSprintUpdateModal(true);
 
   return (
     <div className='p-3'>
@@ -78,6 +83,11 @@ export default function SprintPlanningPage() {
         handleClose={handleCloseTaskUpdateModal}
         project={project}
       />
+      <SprintUpdateModal
+        show={showSprintUpdateModal}
+        handleClose={handleCloseSprintUpdateModal}
+        sprintToUpdate={sprintForModal}
+      />
 
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
@@ -86,6 +96,7 @@ export default function SprintPlanningPage() {
             <SprintListGroup
               key={sprint._id}
               sprint={sprint}
+              handleShowSprintUpdateModal={handleShowSprintUpdateModal}
               handleShowDeleteSprintModal={handleShowDeleteSprintModal}
               setSprintForModal={setSprintForModal}
             />
