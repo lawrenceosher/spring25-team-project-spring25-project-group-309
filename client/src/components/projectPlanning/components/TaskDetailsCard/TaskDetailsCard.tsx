@@ -8,9 +8,11 @@ import { MockTask } from '../../../../types/mockTypes/task';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
+  handleShowTaskUpdateModal,
   setTaskForModal,
 }: {
   handleShowDeleteTaskModal: () => void;
+  handleShowTaskUpdateModal: () => void;
   setTaskForModal: (task: MockTask) => void;
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
@@ -21,7 +23,7 @@ export default function TaskDetailsCard({
         <Card.Title className='fs-4'>
           {selectedTask.name}
           <span className='float-end'>
-            <FaPencil className='text-primary me-3' />
+            <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
             <FaTrash
               className='text-danger me-1'
               onClick={() => {

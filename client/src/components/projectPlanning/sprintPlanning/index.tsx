@@ -14,6 +14,7 @@ import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlann
 import Backlog from '../components/Backlog/Backlog';
 import { MockSprint } from '../../../types/mockTypes/sprint';
 import { MockTask } from '../../../types/mockTypes/task';
+import TaskUpdateModal from '../components/TaskModals/TaskUpdateModal';
 
 export default function SprintPlanningPage() {
   const {
@@ -34,6 +35,10 @@ export default function SprintPlanningPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
   const [sprintForModal, setSprintForModal] = useState<MockSprint | null>(null);
   const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
+
+  const [showTaskUpdateModal, setShowTaskUpdateModal] = useState(false);
+  const handleCloseTaskUpdateModal = () => setShowTaskUpdateModal(false);
+  const handleShowTaskUpdateModal = () => setShowTaskUpdateModal(true);
 
   return (
     <div className='p-3'>
@@ -68,6 +73,12 @@ export default function SprintPlanningPage() {
         sprintTitle={sprintForModal?.name || ''}
       />
 
+      <TaskUpdateModal
+        show={showTaskUpdateModal}
+        handleClose={handleCloseTaskUpdateModal}
+        project={project}
+      />
+
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
@@ -87,6 +98,7 @@ export default function SprintPlanningPage() {
         <div id='task-details' className='ms-3'>
           <TaskDetailsCard
             handleShowDeleteTaskModal={handleShowDeleteTaskModal}
+            handleShowTaskUpdateModal={handleShowTaskUpdateModal}
             setTaskForModal={setTaskForModal}
           />
         </div>
