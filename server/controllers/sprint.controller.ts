@@ -1,14 +1,50 @@
 import express, { Response, Request } from 'express';
-import { AddTaskToSprintRequest, FakeSOSocket } from '../types/types';
-import { addTasksToSprint } from '../services/sprint.service';
+import { AddTaskToSprintRequest, FakeSOSocket, CreateSprintRequest } from '../types/types';
+import { saveSprint, addTasksToSprint } from '../services/sprint.service';
+import SprintModel from '../models/sprint.model';
 
 const sprintController = (socket: FakeSOSocket) => {
-  const isAddTaskstoSprintRequestValid = (req: AddTaskToSprintRequest): boolean =>
-    !!req.body.sprintId && !!req.body.taskIds;
   const router = express.Router();
 
-  const createSprint = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+  const isCreateSprintRequestValid = (req: CreateSprintRequest): boolean =>
+    !!req.body.name &&
+    !!req.body.project &&
+    !!req.body.status &&
+    !!req.body.startDate &&
+    !!req.body.endDate &&
+    Array.isArray(req.body.tasks);
+
+  const isAddTaskstoSprintRequestValid = (req: AddTaskToSprintRequest): boolean =>
+    !!req.body.sprintId && !!req.body.taskIds;
+
+  const createSprint = async (req: CreateSprintRequest, res: Response): Promise<void> => {
+    if (!isCreateSprintRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+
+    try {
+      const { tasks, name, project, status, startDate, endDate } = req.body;
+
+      const newSprint = new SprintModel({
+        tasks: tasks ?? [],
+        name,
+        project,
+        status,
+        startDate,
+        endDate,
+      });
+
+      const sprint = await saveSprint(newSprint);
+
+      if ('error' in sprint) {
+        throw new Error(sprint.error);
+      }
+
+      res.status(201).json(sprint);
+    } catch (err: unknown) {
+      res.status(500).send(`Error when creating a sprint: ${(err as Error).message}`);
+    }
   };
 
   const getSprint = async (req: Request, res: Response): Promise<void> => {
@@ -48,6 +84,7 @@ const sprintController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
+  router.post('/createSprint', createSprint);
   router.put('/addTasks', updatedSprintTasks);
   return router;
 };

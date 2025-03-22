@@ -20,4 +20,15 @@ export interface AddTaskToSprintRequest extends Request {
   };
 }
 
+export interface CreateSprintRequest extends Request {
+  body: {
+    tasks: ObjectId[];
+    name: string;
+    project: ObjectId;
+    status: string;
+    startDate: Date;
+    endDate: Date;
+  };
+}
+
 export type SprintResponse = DatabaseSprint | { error: string };
