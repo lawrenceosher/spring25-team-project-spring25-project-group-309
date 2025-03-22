@@ -8,7 +8,7 @@ import SprintCreationModal from '../components/SprintModals/SprintCreationModal'
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
 import SprintDeletionModal from '../components/SprintModals/SprintDeletionModal';
 import SprintListGroup from '../components/SprintListGroup/SprintListGroup';
-import useSprintPlanningPage from '../../../hooks/useSprintPlanningPage';
+import useSprintPlanningPageModals from '../../../hooks/useSprintPlanningPageModals';
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 import Backlog from '../components/Backlog/Backlog';
@@ -31,19 +31,17 @@ export default function SprintPlanningPage() {
     showDeleteTaskModal,
     handleCloseDeleteTaskModal,
     handleShowDeleteTaskModal,
-  } = useSprintPlanningPage();
+    showTaskUpdateModal,
+    handleCloseTaskUpdateModal,
+    handleShowTaskUpdateModal,
+    showSprintUpdateModal,
+    handleCloseSprintUpdateModal,
+    handleShowSprintUpdateModal,
+  } = useSprintPlanningPageModals();
 
   const { project } = useSelector((state: any) => state.projectReducer);
   const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
   const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
-
-  const [showTaskUpdateModal, setShowTaskUpdateModal] = useState(false);
-  const handleCloseTaskUpdateModal = () => setShowTaskUpdateModal(false);
-  const handleShowTaskUpdateModal = () => setShowTaskUpdateModal(true);
-
-  const [showSprintUpdateModal, setShowSprintUpdateModal] = useState(false);
-  const handleCloseSprintUpdateModal = () => setShowSprintUpdateModal(false);
-  const handleShowSprintUpdateModal = () => setShowSprintUpdateModal(true);
 
   return (
     <div className='p-3'>

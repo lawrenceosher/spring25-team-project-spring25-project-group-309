@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const useSprintPlanningPage = () => {
+const useSprintPlanningPageModals = () => {
   // Task Creation Modal
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const handleCloseCreateTaskModal = () => setShowCreateTaskModal(false);
@@ -21,6 +21,16 @@ const useSprintPlanningPage = () => {
   const handleCloseDeleteTaskModal = () => setShowDeleteTaskModal(false);
   const handleShowDeleteTaskModal = () => setShowDeleteTaskModal(true);
 
+  // Task Update Modal
+  const [showTaskUpdateModal, setShowTaskUpdateModal] = useState(false);
+  const handleCloseTaskUpdateModal = () => setShowTaskUpdateModal(false);
+  const handleShowTaskUpdateModal = () => setShowTaskUpdateModal(true);
+
+  // Task Update Modal
+  const [showSprintUpdateModal, setShowSprintUpdateModal] = useState(false);
+  const handleCloseSprintUpdateModal = () => setShowSprintUpdateModal(false);
+  const handleShowSprintUpdateModal = () => setShowSprintUpdateModal(true);
+
   return {
     showCreateTaskModal,
     handleCloseCreateTaskModal,
@@ -34,7 +44,13 @@ const useSprintPlanningPage = () => {
     showDeleteTaskModal,
     handleCloseDeleteTaskModal,
     handleShowDeleteTaskModal,
+    showTaskUpdateModal,
+    handleCloseTaskUpdateModal,
+    handleShowTaskUpdateModal,
+    showSprintUpdateModal,
+    handleCloseSprintUpdateModal,
+    handleShowSprintUpdateModal,
   };
 };
 
-export default useSprintPlanningPage;
+export default useSprintPlanningPageModals;
