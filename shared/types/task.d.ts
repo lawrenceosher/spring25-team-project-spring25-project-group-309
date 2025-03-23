@@ -57,7 +57,7 @@ export interface CreateTaskRequest extends Request {
     assignedUser: string;
     description: string;
     name: string;
-    sprint?: ObjectId;
+    sprint: ObjectId;
     status: string;
     dependentTasks?: ObjectId[];
     prereqForTasks?: ObjectId[];

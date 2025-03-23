@@ -49,7 +49,7 @@ const taskController = (socket: FakeSOSocket) => {
    */
   const createTask = async (req: CreateTaskRequest, res: Response): Promise<void> => {
     if (!isCreateTaskRequestValid(req)) {
-      res.status(400).send('Invalid task creation request');
+      res.status(400).send('Invalid request');
       return;
     }
     try {
@@ -121,7 +121,7 @@ const taskController = (socket: FakeSOSocket) => {
       const error = tasks.find(task => 'error' in task);
 
       if (error) {
-        throw new Error(error.error);
+        throw new Error(`${error}`);
       }
 
       res.status(200).json(tasks);

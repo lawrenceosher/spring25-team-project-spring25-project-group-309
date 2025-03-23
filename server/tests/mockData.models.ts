@@ -1,4 +1,5 @@
 import { ObjectId } from 'mongodb';
+import { Data } from 'vis-network';
 import {
   DatabaseAnswer,
   DatabaseComment,
@@ -221,6 +222,43 @@ export const databaseTask: DatabaseTask = {
   priority: 'low',
   taskPoints: 5,
   relevantQuestions: [],
+  createdAt: new Date('2023-11-18T09:24:00'),
+  updatedAt: new Date('2023-11-18T09:24:00'),
+};
+
+export const databaseTaskWithDependencies: DatabaseTask = {
+  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  assignedUser: 'owner',
+  description: 'Main task',
+  name: 'Main Task',
+  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  status: 'in progress',
+  dependentTasks: [
+    new ObjectId('65e9b58910afe6e94fc6e6dc'),
+    new ObjectId('65e9b58910afe6e94fc6e6df'),
+  ],
+  prereqForTasks: [],
+  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
+  priority: 'low',
+  taskPoints: 8,
+  relevantQuestions: [],
+  createdAt: new Date('2023-11-18T09:24:00'),
+  updatedAt: new Date('2023-11-18T09:24:00'),
+};
+
+export const databaseTaskWithAllFields: DatabaseTask = {
+  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  assignedUser: 'owner',
+  description: 'Main task',
+  name: 'Main Task',
+  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  status: 'active',
+  dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6dd')],
+  prereqForTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
+  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
+  priority: 'high',
+  taskPoints: 8,
+  relevantQuestions: [new ObjectId('65e9b58910afe6e94fc6e6df')],
   createdAt: new Date('2023-11-18T09:24:00'),
   updatedAt: new Date('2023-11-18T09:24:00'),
 };
