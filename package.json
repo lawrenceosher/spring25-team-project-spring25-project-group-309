@@ -10,5 +10,8 @@
   "dependencies": {
     "vis-data": "^7.1.9",
     "vis-network": "^9.1.9"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.12"
   }
 }

@@ -1,5 +1,10 @@
 import express, { Response, Request } from 'express';
 import { AddTaskToSprintRequest, FakeSOSocket } from '../types/types';
+import { populateDocument } from '../utils/database.util';
+import {
+  getSprintbyId,
+} from '../services/sprint.services';
+import { get } from 'http';
 import { addTasksToSprint } from '../services/sprint.service';
 
 const sprintController = (socket: FakeSOSocket) => {
@@ -11,8 +16,26 @@ const sprintController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
-  const getSprint = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+  const getTasksForSprint = async (req: Request, res: Response): Promise<void> => {
+    const { sprintId } = req.params;
+    
+    try {
+      const foundSprint = await getSprintbyId(sprintId);
+
+      if ('error' in foundSprint) {
+        throw new Error(foundSprint.error);
+      }
+
+      const populatedChat = await populateDocument(foundSprint._id.toString(), 'sprint');
+
+      if ('error' in populatedChat) {
+        throw new Error(populatedChat.error);
+      }
+
+      res.json(populatedChat);
+    } catch (err: unknown) {
+      res.status(500).send(`Error retrieving chat: ${(err as Error).message}`);
+    }
   };
 
   const getSprints = async (req: Request, res: Response): Promise<void> => {
@@ -49,6 +72,9 @@ const sprintController = (socket: FakeSOSocket) => {
   };
 
   router.put('/addTasks', updatedSprintTasks);
+
+  router.get('/:sprintId', getTasksForSprint);
+
   return router;
 };
 

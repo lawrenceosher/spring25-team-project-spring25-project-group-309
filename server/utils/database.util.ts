@@ -3,10 +3,13 @@ import {
   DatabaseMessage,
   DatabaseTag,
   DatabaseUser,
+  DatabaseTask,
   MessageInChat,
   PopulatedDatabaseAnswer,
   PopulatedDatabaseChat,
   PopulatedDatabaseQuestion,
+  PopulatedDatabaseSprint,
+  Task,
 } from '../types/types';
 import AnswerModel from '../models/answers.model';
 import QuestionModel from '../models/questions.model';
@@ -15,6 +18,8 @@ import CommentModel from '../models/comments.model';
 import ChatModel from '../models/chat.model';
 import UserModel from '../models/users.model';
 import MessageModel from '../models/messages.model';
+import SprintModel from '../models/sprint.model';
+import TaskModel from '../models/task.model';
 
 /**
  * Fetches and populates a question document with its related tags, answers, and comments.
@@ -106,6 +111,53 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
   return transformedChat;
 };
 
+const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint | null> => {
+  const sprintDoc = await SprintModel.findOne({ _id: sprintId }).populate<{
+    tasks: DatabaseTask[];
+  }>([{ path: 'tasks', model: TaskModel }]);
+
+  if (!sprintDoc) {
+    throw new Error('Chat not found');
+  }
+
+  const sprintTasks: Array<Task | null> = await Promise.all(
+    sprintDoc.tasks.map(async (taskDoc: DatabaseTask) => {
+      if (!taskDoc) return null;
+
+      let userDoc: DatabaseUser | null = null;
+
+      if (taskDoc.assigned_user) {
+        userDoc = await UserModel.findOne({ username: taskDoc.assigned_user });
+      }
+
+      return {
+        assigned_user: taskDoc.assigned_user,
+        description: taskDoc.description,
+        name: taskDoc.name,
+        sprint: taskDoc.sprint,
+        status: taskDoc.status,
+        dependentTasks: taskDoc.dependentTasks,
+        prereqForTasks: taskDoc.prereqForTasks,
+        project: taskDoc.project,
+        priority: taskDoc.priority,
+        taskPoints: taskDoc.taskPoints,
+        relevantQuestions: taskDoc.relevantQuestions,
+        createdAt: taskDoc.createdAt,
+        updatedAt: taskDoc.updatedAt,
+      };
+    }),
+  );
+
+  // Filters out null values
+  const enrichedTasks = sprintTasks.filter(Boolean);
+  const transformedSprint: PopulatedDatabaseSprint = {
+    ...sprintDoc.toObject(),
+    tasks: enrichedTasks as Task[],
+  };
+
+  return transformedSprint;
+};
+
 /**
  * Fetches and populates a question, answer, or chat document based on the provided ID and type.
  *
@@ -117,7 +169,7 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
 // eslint-disable-next-line import/prefer-default-export
 export const populateDocument = async (
   id: string,
-  type: 'question' | 'answer' | 'chat',
+  type: 'question' | 'answer' | 'chat' | 'sprint',
 ): Promise<
   PopulatedDatabaseAnswer | PopulatedDatabaseChat | PopulatedDatabaseQuestion | { error: string }
 > => {
@@ -138,6 +190,8 @@ export const populateDocument = async (
       case 'chat':
         result = await populateChat(id);
         break;
+      case 'sprint':
+        result = await populateSprint(id);
       default:
         throw new Error('Invalid type provided.');
     }
