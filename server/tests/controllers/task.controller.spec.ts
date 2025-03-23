@@ -81,7 +81,7 @@ const mockTaskResponseAllFields = {
   updatedAt: new Date('2023-11-18T09:24:00').toISOString(),
 };
 
-const createUserSpy = jest.spyOn(TaskModel.prototype, 'save');
+const createUserSpy = jest.spyOn(util, 'saveTask');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const addDependentTasksSpy = jest.spyOn(util, 'addDependentTasks');
 const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');

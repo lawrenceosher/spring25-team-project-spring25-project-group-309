@@ -8,7 +8,7 @@ export interface Task {
   sprint: ObjectId;
   status: string;
   dependentTasks: ObjectId[];
-  prereqForTasks: ObjectId[];
+  prereqTasks: ObjectId[];
   project: ObjectId;
   priority: string;
   taskPoints: number;
@@ -43,10 +43,10 @@ export interface GetDependentsRequest extends Request {
  * - `assignedUser`: The user assigned to the task (body).
  * - `description`: The description of the task (body).
  * - `name`: The name of the task (body).
- * - `sprint`: The sprint the task belongs to (body). (Optional)
+ * - `sprint`: The sprint the task belongs to (body).
  * - `status`: The status of the task (body).
  * - `dependentTasks`: The tasks that this task is dependent on (body). (Optional)
- * - `prereqForTasks`: The tasks that depend on this task (body). (Optional)
+ * - `prereqTasks`: The tasks that depend on this task (body). (Optional)
  * - `project`: The project the task belongs to (body).
  * - `priority`: The priority of the task (body).
  * - `taskPoints`: The number of points for the task (body).
@@ -60,7 +60,7 @@ export interface CreateTaskRequest extends Request {
     sprint: ObjectId;
     status: string;
     dependentTasks?: ObjectId[];
-    prereqForTasks?: ObjectId[];
+    prereqTasks?: ObjectId[];
     project: ObjectId;
     priority: string;
     taskPoints: number;

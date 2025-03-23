@@ -1,5 +1,6 @@
 import express, { Response, Request } from 'express';
 import { ObjectId } from 'mongodb';
+import { create } from 'domain';
 import {
   FakeSOSocket,
   AddDependentsRequest,
@@ -11,6 +12,7 @@ import {
   addDependentTasks,
   getAllTasksByUser,
   getDependentTasksById,
+  saveTask,
 } from '../services/task.service';
 import TaskModel from '../models/task.model';
 
@@ -60,7 +62,7 @@ const taskController = (socket: FakeSOSocket) => {
         sprint,
         status,
         dependentTasks,
-        prereqForTasks,
+        prereqTasks,
         project,
         priority,
         taskPoints,
@@ -74,14 +76,20 @@ const taskController = (socket: FakeSOSocket) => {
         sprint,
         status,
         dependentTasks: dependentTasks ?? [],
-        prereqForTasks: prereqForTasks ?? [],
+        prereqTasks: prereqTasks ?? [],
         project,
         priority,
         taskPoints,
         relevantQuestions: relevantQuestions ?? [],
       });
 
-      const savedTask = await newTask.save();
+      const savedTask = await saveTask(newTask);
+
+      if ('error' in savedTask) {
+        throw new Error(savedTask.error);
+      }
+
+      // socket.emit('TASKUpdate', { msg: msgFromDb }); TODO: ADD SOCKET EMISSION HERE
       res.status(201).json(savedTask);
     } catch (error) {
       res.status(500).send(`Error when creating a task: ${(error as Error).message}`);
