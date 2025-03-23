@@ -1,5 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import './index.css';
 import { io } from 'socket.io-client';
 import { useEffect, useState } from 'react';
@@ -7,6 +9,7 @@ import FakeStackOverflow from './components/fakestackoverflow';
 import { FakeSOSocket } from './types/types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'bootstrap/dist/css/bootstrap.min.css';
+import store from './redux/store';
 
 const container = document.getElementById('root');
 
@@ -33,7 +36,9 @@ const App = () => {
 
   return (
     <Router>
-      <FakeStackOverflow socket={socket} />
+      <Provider store={store}>
+        <FakeStackOverflow socket={socket} />
+      </Provider>
     </Router>
   );
 };

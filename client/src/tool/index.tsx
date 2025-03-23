@@ -33,6 +33,18 @@ const getDateHelper = (date: Date): string => {
 };
 
 /**
+ * Helper function to format the date in MM/DD/YY format
+ *
+ * @param date - The date object to format.
+ */
+const getFullDate = (date: Date): string => {
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = getDateHelper(date);
+  const year = date.getFullYear().toString().slice(-2);
+  return `${month}/${day}/${year}`;
+};
+
+/**
  * Function to get a human-readable metadata string representing the time difference
  * between now and the given date.
  *
@@ -131,4 +143,24 @@ const handleHyperlink = (text: string) => {
   return <div>{content}</div>;
 };
 
-export { getMetaData, handleHyperlink, validateHyperlink };
+/**
+ * Function to return the proper Bootstrap CSS class depending on which status is given.
+ *
+ * @param status - The status of a sprint or task.
+ */
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'Done':
+      return 'bg-success-subtle';
+    case 'In Progress':
+      return 'bg-info-subtle';
+    case 'Not Started':
+      return 'bg-danger-subtle';
+    case 'To-Do':
+      return 'bg-danger-subtle';
+    default:
+      return '';
+  }
+};
+
+export { getMetaData, handleHyperlink, validateHyperlink, getStatusColor, getFullDate };

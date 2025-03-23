@@ -1,21 +1,21 @@
 import { Button, Modal } from 'react-bootstrap';
 
-export default function TaskDeletionModal({
+export default function SprintDeletionModal({
   show,
   handleClose,
-  taskTitle,
+  sprintTitle,
 }: {
   show: boolean;
   handleClose: () => void;
-  taskTitle: string;
+  sprintTitle: string;
 }) {
   return (
     <div>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Delete Task</Modal.Title>
+          <Modal.Title>Delete Sprint</Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete this task: {taskTitle}?</Modal.Body>
+        <Modal.Body>Are you sure you want to delete this sprint: {sprintTitle}?</Modal.Body>
         <Modal.Footer>
           <Button variant='secondary' onClick={handleClose}>
             Cancel
@@ -23,6 +23,7 @@ export default function TaskDeletionModal({
           <Button
             variant='danger'
             onClick={() => {
+              // Call the service that will delete Sprint
               handleClose();
             }}>
             Yes
