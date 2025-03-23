@@ -11,8 +11,8 @@ import { Schema } from 'mongoose';
  * - `sprint`: The sprint associated with the task.
  * - `status`: The status of the task.
  * - Timestamps store `createdAt` & `updatedAt`.
- * - 'dependent_tasks': The tasks that this task is dependent on.
- * - 'prereq_for_tasks': The tasks that are dependent on this task.
+ * - 'dependentTasks': The tasks that this task is dependent on.
+ * - 'prereqTasks': The tasks that are dependent on this task.
  * - 'project': The project the task belongs to.
  * - 'priority': The priority of the task.
  */
@@ -44,7 +44,7 @@ const taskSchema: Schema = new Schema(
         ref: 'Task',
       },
     ],
-    prereqForTasks: [
+    prereqTasks: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Task',

@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Request } from 'express';
+import { PopulatedDatabaseTask } from './task';
 
 export interface Sprint {
   tasks: ObjectId[];
@@ -18,6 +19,10 @@ export interface AddTaskToSprintRequest extends Request {
     sprintId: string;
     taskIds: string[];
   };
+}
+
+export interface PopulatedDatabaseSprint extends Omit<DatabaseSprint, 'tasks'> {
+  tasks: PopulatedDatabaseTask[];
 }
 
 export type SprintResponse = DatabaseSprint | { error: string };

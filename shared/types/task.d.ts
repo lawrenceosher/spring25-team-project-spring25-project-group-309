@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { Request } from 'express';
+import { DatabaseQuestion } from './question';
 
 export interface Task {
   assignedUser: string;
@@ -8,7 +9,7 @@ export interface Task {
   sprint: ObjectId;
   status: string;
   dependentTasks: ObjectId[];
-  prereqForTasks: ObjectId[];
+  prereqTasks: ObjectId[];
   project: ObjectId;
   priority: string;
   taskPoints: number;
@@ -21,6 +22,12 @@ export interface DatabaseTask extends Task {
   _id: ObjectId;
 }
 
+export interface PopulatedDatabaseTask
+  extends Omit<DatabaseTask, 'dependentTasks' | 'prereqTasks' | 'relevantQuestions'> {
+  dependentTasks: Task[];
+  prereqTasks: Task[];
+  relevantQuestions: DatabaseQuestion[];
+}
 export interface AddDependentsRequest extends Request {
   body: {
     taskId: string;
