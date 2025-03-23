@@ -13,11 +13,16 @@ export interface Sprint {
 export interface DatabaseSprint extends Sprint {
   _id: ObjectId;
 }
+
 export interface AddTaskToSprintRequest extends Request {
   body: {
     sprintId: string;
     taskIds: string[];
   };
+}
+
+export interface PopulatedDatabaseSprint extends Omit<DatabaseSprint, 'tasks'> {
+  tasks: PopulatedDatabaseTask[];
 }
 
 /**
