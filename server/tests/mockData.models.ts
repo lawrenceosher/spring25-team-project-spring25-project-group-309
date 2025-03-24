@@ -206,6 +206,7 @@ export const project: Project = {
   description: 'A project to test the project model.',
   name: 'Test Project',
   sprints: [new ObjectId('65e9b58910afe6e94fc6e6dc')],
+  backlogTasks: [],
 };
 
 export const databaseProject: DatabaseProject = {
