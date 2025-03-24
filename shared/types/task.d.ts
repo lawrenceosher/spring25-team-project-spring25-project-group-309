@@ -28,12 +28,6 @@ export interface PopulatedDatabaseTask
   prereqTasks: Task[];
   relevantQuestions: DatabaseQuestion[];
 }
-export interface AddDependentsRequest extends Request {
-  body: {
-    taskId: string;
-    dependentTaskIds: string[];
-  };
-}
 
 export interface TasksByUsernameRequest extends Request {
   params: {

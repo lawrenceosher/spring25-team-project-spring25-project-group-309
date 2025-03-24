@@ -9,15 +9,15 @@ const projectController = (socket: FakeSOSocket) => {
     try {
       const { username } = req.params;
 
-      const tasks = await getAllProjectsByUser(username);
-      const errorTask = tasks.find(task => 'error' in task);
-      if (errorTask) {
-        throw new Error(`${errorTask}`);
+      const projects = await getAllProjectsByUser(username);
+      const errorProject = projects.find(project => 'error' in projects);
+      if (errorProject) {
+        throw new Error(`${errorProject}`);
       }
 
-      res.status(200).json(tasks);
+      res.status(200).json(projects);
     } catch (error) {
-      res.status(500).send(`Error when getting a task by username: ${(error as Error).message}`);
+      res.status(500).send(`Error when getting a project by username: ${(error as Error).message}`);
     }
   };
   router.get('/:username', getProjectsByUser);

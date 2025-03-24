@@ -1,6 +1,5 @@
 import { Project, ProjectResponse } from '../types/types';
 import ProjectModel from '../models/project.model';
-import { user } from '../tests/mockData.models';
 
 /**
  * Creates and saves a project to the database.

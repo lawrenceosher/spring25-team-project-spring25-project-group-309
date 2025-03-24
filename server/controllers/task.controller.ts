@@ -1,9 +1,6 @@
-import express, { Response, Request } from 'express';
-import { ObjectId } from 'mongodb';
-import { create } from 'domain';
+import express, { Response } from 'express';
 import {
   FakeSOSocket,
-  AddDependentsRequest,
   TasksByUsernameRequest,
   TaskIdRequest,
   CreateTaskRequest,
@@ -11,27 +8,15 @@ import {
   UpdateDependencyRequest,
 } from '../types/types';
 import {
-  addDependentTasks,
   deleteTaskById,
   getAllTasksByUser,
   getDependentTasksById,
   saveTask,
   updateTask,
 } from '../services/task.service';
-import TaskModel from '../models/task.model';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
-
-  const isAddDependentRequestValid = (req: AddDependentsRequest): boolean =>
-    !!req.body.taskId && !!req.body.dependentTaskIds;
-
-  /**
-   * Validates the given GetDependentsRequest object to ensure it contains all required fields.
-   * @param req The GetDependentsRequest containing task data.
-   * @returns 'true' if the request is valid; otherwise, 'false'.
-   */
-  const isGetDependentsRequestValid = (req: TaskIdRequest): boolean => !!req.params.taskId;
 
   /**
    * Vaidates the given CreateTaskRequest object to ensure it contains all required fields.
@@ -126,11 +111,6 @@ const taskController = (socket: FakeSOSocket) => {
   };
 
   const getDependentTasks = async (req: TaskIdRequest, res: Response): Promise<void> => {
-    if (!isGetDependentsRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-
     try {
       const { taskId } = req.params;
 
@@ -144,37 +124,6 @@ const taskController = (socket: FakeSOSocket) => {
       res.status(200).json(tasks);
     } catch (error) {
       res.status(500).send(`Error when getting dependent tasks: ${(error as Error).message}`);
-    }
-  };
-
-  const addDependentTasksToTicket = async (
-    req: AddDependentsRequest,
-    res: Response,
-  ): Promise<void> => {
-    if (!isAddDependentRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-
-    const { taskId, dependentTaskIds } = req.body;
-
-    try {
-      const updatedTask = await addDependentTasks(taskId, dependentTaskIds);
-
-      if ('error' in updatedTask) {
-        throw new Error(updatedTask.error);
-      }
-
-      socket.emit('taskUpdate', {
-        task: updatedTask,
-        type: 'updated',
-      });
-
-      res.json(updatedTask);
-    } catch (err: unknown) {
-      res
-        .status(500)
-        .send(`Error when adding dependent tasks to a ticket ${(err as Error).message}`);
     }
   };
 
@@ -198,7 +147,7 @@ const taskController = (socket: FakeSOSocket) => {
         type: 'deleted',
       });
 
-      res.json(deleteTask);
+      res.json(deletedTask);
     } catch (err: unknown) {
       res
         .status(500)
@@ -238,7 +187,6 @@ const taskController = (socket: FakeSOSocket) => {
   router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
   router.put('/updateTaskDependency', updateTaskDependency);
-  router.put('/addDependentTasks', addDependentTasksToTicket);
   router.get('/getDependentTasks/:taskId', getDependentTasks);
   router.delete('/deleteTask/:taskId', deleteTask);
   return router;

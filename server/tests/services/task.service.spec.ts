@@ -1,9 +1,10 @@
 import { ObjectId } from 'mongodb';
 import TaskModel from '../../models/task.model';
 import {
-  addDependentTasks,
+  deleteTaskById,
   getAllTasksByUser,
   getDependentTasksById,
+  updateTask,
 } from '../../services/task.service';
 import { databaseTask, databaseTaskWithDependency } from '../mockData.models';
 import { DatabaseTask } from '../../types/types';
@@ -61,23 +62,61 @@ describe('Task model', () => {
       const tasks = await getAllTasksByUser('test');
       expect(tasks).toEqual([databaseTask]);
     });
+
+    it('should return an error if the user is not found', async () => {
+      mockingoose(TaskModel).toReturn(null, 'find');
+      const tasks = await getAllTasksByUser('test');
+      expect(tasks).toEqual([{ error: 'Error when getting tasks' }]);
+    });
   });
 
-  describe('addDependentTasksToTicket', () => {
+  describe('updateTasks', () => {
     beforeEach(() => {
       mockingoose.resetAll();
     });
 
-    it('should return the updated task', async () => {
+    it('should return the updated task when adding tasks', async () => {
+      mockingoose(TaskModel).toReturn(databaseTaskWithDependency, 'findOneAndUpdate');
+      const updatedTask = await updateTask('65e9b58910afe6e94fc6e6dc', {
+        dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
+      });
+      expect(updatedTask).toEqual(databaseTaskWithDependency);
+    });
+
+    it('should return the updated task when removing tasks', async () => {
       mockingoose(TaskModel).toReturn(databaseTask, 'findOneAndUpdate');
-      const updatedTask = await addDependentTasks('65e9b58910afe6e94fc6e6dc', ['testTask']);
+      const updatedTask = await updateTask('65e9b58910afe6e94fc6e6dc', {
+        dependentTasks: [],
+      });
+      expect(updatedTask).not.toEqual(databaseTaskWithDependency);
+
       expect(updatedTask).toEqual(databaseTask);
     });
 
     it('should return an error if the task is not found', async () => {
       mockingoose(TaskModel).toReturn(null, 'findOneAndUpdate');
-      const updatedTask = await addDependentTasks('test', ['testTask']);
+      const updatedTask = await updateTask('test', {
+        dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
+      });
       expect('error' in updatedTask).toBe(true);
+    });
+  });
+
+  describe('deleteTasks', () => {
+    beforeEach(() => {
+      mockingoose.resetAll();
+    });
+
+    it('should return the deletedTask when succesfully deleting them', async () => {
+      mockingoose(TaskModel).toReturn(databaseTask, 'findOneAndDelete');
+      const deletedTask = await deleteTaskById('65e9b58910afe6e94fc6e6dc');
+      expect(deletedTask).toEqual(databaseTask);
+    });
+
+    it('should return an error if the task is not found', async () => {
+      mockingoose(TaskModel).toReturn(null, 'findOneAndDelete');
+      const deletedTask = await deleteTaskById('test');
+      expect('error' in deletedTask).toBe(true);
     });
   });
 
