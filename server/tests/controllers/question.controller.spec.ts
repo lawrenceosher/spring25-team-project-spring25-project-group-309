@@ -165,6 +165,9 @@ const simplifyQuestion = (question: PopulatedDatabaseQuestion) => ({
 const EXPECTED_QUESTIONS = MOCK_POPULATED_QUESTIONS.map(question => simplifyQuestion(question));
 
 describe('Test questionController', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   describe('POST /addQuestion', () => {
     it('should add a new question', async () => {
       jest.spyOn(tagUtil, 'processTags').mockResolvedValue([dbTag1, dbTag2]);
