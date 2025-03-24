@@ -232,7 +232,7 @@ export const databaseTask: DatabaseTask = {
   status: 'Done',
   dependentTasks: [],
   prereqTasks: [],
-  project: databaseProject._id,
+  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
   priority: 'low',
   taskPoints: 5,
   relevantQuestions: [],
