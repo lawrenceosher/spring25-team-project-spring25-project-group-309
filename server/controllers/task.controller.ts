@@ -1,6 +1,21 @@
 import express, { Response, Request } from 'express';
-import { FakeSOSocket, AddDependentsRequest, TasksByUsernameRequest } from '../types/types';
-import { addDependentTasks, getAllTasksByUser } from '../services/task.service';
+import { ObjectId } from 'mongodb';
+import { create } from 'domain';
+import {
+  FakeSOSocket,
+  AddDependentsRequest,
+  TasksByUsernameRequest,
+  GetDependentsRequest,
+  CreateTaskRequest,
+  Task,
+} from '../types/types';
+import {
+  addDependentTasks,
+  getAllTasksByUser,
+  getDependentTasksById,
+  saveTask,
+} from '../services/task.service';
+import TaskModel from '../models/task.model';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -8,8 +23,80 @@ const taskController = (socket: FakeSOSocket) => {
   const isAddDependentRequestValid = (req: AddDependentsRequest): boolean =>
     !!req.body.taskId && !!req.body.dependentTaskIds;
 
-  const createTask = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+  /**
+   * Validates the given GetDependentsRequest object to ensure it contains all required fields.
+   * @param req The GetDependentsRequest containing task data.
+   * @returns 'true' if the request is valid; otherwise, 'false'.
+   */
+  const isGetDependentsRequestValid = (req: GetDependentsRequest): boolean => !!req.params.taskId;
+
+  /**
+   * Vaidates the given CreateTaskRequest object to ensure it contains all required fields.
+   * @param req The CreateTaskRequest object to validate.
+   * @returns 'true' if the request is valid; otherwise, 'false'.
+   */
+  const isCreateTaskRequestValid = (req: CreateTaskRequest): boolean =>
+    !!req.body.assignedUser &&
+    !!req.body.description &&
+    !!req.body.name &&
+    !!req.body.status &&
+    !!req.body.priority &&
+    !!req.body.project &&
+    req.body.taskPoints !== undefined;
+
+  /**
+   * Creates a new task with the given details to be saved to the database.
+   * @param req The CreateTaskRequest containing the task data.
+   * @param res The HTTP response object used to send back the result of the operation.
+   * @returns A Promise that resolves to void.
+   */
+  const createTask = async (req: CreateTaskRequest, res: Response): Promise<void> => {
+    if (!isCreateTaskRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    try {
+      const {
+        assignedUser,
+        description,
+        name,
+        sprint,
+        status,
+        dependentTasks,
+        prereqTasks,
+        project,
+        priority,
+        taskPoints,
+        relevantQuestions,
+      } = req.body;
+
+      const newTask: Task = {
+        assignedUser,
+        description,
+        name,
+        sprint,
+        status,
+        dependentTasks: dependentTasks ?? [],
+        prereqTasks: prereqTasks ?? [],
+        project,
+        priority,
+        taskPoints,
+        relevantQuestions: relevantQuestions ?? [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const savedTask = await saveTask(newTask);
+
+      if ('error' in savedTask) {
+        throw new Error(savedTask.error);
+      }
+
+      // socket.emit('TASKUpdate', { msg: msgFromDb }); TODO: ADD SOCKET EMISSION HERE
+      res.status(201).json(savedTask);
+    } catch (error) {
+      res.status(500).send(`Error when creating a task: ${(error as Error).message}`);
+    }
   };
 
   const getTasksByUser = async (req: TasksByUsernameRequest, res: Response): Promise<void> => {
@@ -32,8 +119,26 @@ const taskController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
-  const getDependentTasks = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+  const getDependentTasks = async (req: GetDependentsRequest, res: Response): Promise<void> => {
+    if (!isGetDependentsRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+
+    try {
+      const { taskId } = req.params;
+
+      const tasks = await getDependentTasksById(taskId);
+      const error = tasks.find(task => 'error' in task);
+
+      if (error) {
+        throw new Error(`${error}`);
+      }
+
+      res.status(200).json(tasks);
+    } catch (error) {
+      res.status(500).send(`Error when getting dependent tasks: ${(error as Error).message}`);
+    }
   };
 
   const addDependentTasksToTicket = async (
@@ -68,8 +173,10 @@ const taskController = (socket: FakeSOSocket) => {
     res.status(501).send('Not implemented');
   };
 
+  router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
   router.put('/addDependentTasks', addDependentTasksToTicket);
+  router.get('/getDependentTasks/:taskId', getDependentTasks);
   return router;
 };
 

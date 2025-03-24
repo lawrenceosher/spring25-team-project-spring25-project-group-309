@@ -1,12 +1,13 @@
+import { ObjectId } from 'mongodb';
 import TaskModel from '../models/task.model';
-import { Task, TaskResponse } from '../types/types';
+import { DatabaseTask, Task, TaskResponse } from '../types/types';
 
 /**
  * Gets all that match a specific criteria.
  * @param criteria The provided criteria to filter by
  * @returns A list of tasks or an error message.
  */
-const getTasksByCriteria = async (criteria: object): Promise<TaskResponse[]> => {
+export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse[]> => {
   try {
     const tasks = await TaskModel.find(criteria).lean();
     return tasks;
@@ -29,6 +30,25 @@ export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]>
  */
 export const getTasksBySprint = async (sprintId: string): Promise<TaskResponse[]> =>
   getTasksByCriteria({ sprint: sprintId });
+
+/**
+ * Gets the dependent tasks of a task by its ID.
+ * @param taskId The ID of the task to get dependent tasks for.
+ * @returns An array of dependent tasks or an error message. If the task is not found, an empty array is returned.
+ */
+export const getDependentTasksById = async (taskId: string): Promise<TaskResponse[]> => {
+  try {
+    const task = await TaskModel.findById(taskId)
+      .populate<{ dependentTasks: DatabaseTask[] }>('dependentTasks')
+      .lean();
+    if (!task) {
+      throw new Error('Task not found');
+    }
+    return task.dependentTasks;
+  } catch (error) {
+    return [];
+  }
+};
 
 /**
  * Saves a task to the database.
