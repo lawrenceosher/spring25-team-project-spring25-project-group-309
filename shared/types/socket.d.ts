@@ -4,6 +4,7 @@ import { DatabaseMessage } from './message';
 import { PopulatedDatabaseQuestion } from './question';
 import { SafeDatabaseUser } from './user';
 import { BaseMove, GameInstance, GameInstanceID, GameMove, GameState } from './game';
+import { PopulatedDatabaseProject } from './project';
 
 /**
  * Payload for an answer update event.
@@ -83,6 +84,21 @@ export interface UserUpdatePayload {
   type: 'created' | 'deleted' | 'updated';
 }
 
+export interface TaskUpdatePayload {
+  task: PopulatedDatabaseTask;
+  type: 'created' | 'deleted' | 'updated';
+}
+
+export interface ProjectUpdatePayload {
+  project: PopulatedDatabaseProject;
+  type: 'created' | 'deleted' | 'updated';
+}
+
+export interface SprintUpdatePayload {
+  sprint: PopulatedDatabaseSprint;
+  type: 'created' | 'deleted' | 'updated';
+} 
+
 /**
  * Interface representing the payload for a game move operation, which contains:
  * - `gameID`: The ID of the game being played.
@@ -133,4 +149,7 @@ export interface ServerToClientEvents {
   gameUpdate: (game: GameUpdatePayload) => void;
   gameError: (error: GameErrorPayload) => void;
   chatUpdate: (chat: ChatUpdatePayload) => void;
+  sprintUpdate: (sprint: SprintUpdatePayload) => void;
+  taskUpdate: (task: TaskUpdatePayload) => void;
+  projectUpdate: (project: ProjectUpdatePayload) => void;
 }

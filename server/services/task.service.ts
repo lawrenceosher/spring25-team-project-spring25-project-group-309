@@ -128,7 +128,7 @@ export const addDependentTasks = async (
  * @param taskId The ID of the task to be deleted.
  * @returns The deleted task or an error.
  */
-export const deleteTask = async (taskId: string): Promise<TaskResponse> => {
+export const deleteTaskById = async (taskId: string): Promise<TaskResponse> => {
   try {
     const result = await TaskModel.findByIdAndDelete(taskId);
     if (!result) {

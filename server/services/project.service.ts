@@ -1,5 +1,6 @@
 import { Project, ProjectResponse } from '../types/types';
 import ProjectModel from '../models/project.model';
+import { user } from '../tests/mockData.models';
 
 /**
  * Creates and saves a project to the database.
@@ -29,6 +30,24 @@ export const getProjectById = async (projectId: string): Promise<ProjectResponse
     return project;
   } catch (error) {
     return { error: 'Error when getting a project' };
+  }
+};
+
+/**
+ * Finds a project by its ID.
+ * @param projectId The project ID to search for.
+ * @returns The found project or an error message.
+ */
+export const getAllProjectsByUser = async (username: string): Promise<ProjectResponse[]> => {
+  try {
+    const projects = await ProjectModel.find({ assignedUsers: { $in: [username] } }).lean();
+
+    if (!projects) {
+      throw new Error('No project found');
+    }
+    return projects;
+  } catch (error) {
+    return [{ error: 'Error when getting a project' }];
   }
 };
 

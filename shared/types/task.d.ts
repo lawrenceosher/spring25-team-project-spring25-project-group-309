@@ -47,9 +47,16 @@ export type TaskResponse = DatabaseTask | { error: string };
  * Express request for creating a new task.
  * - `taskId`: The ID of the task to retrieve dependents for (route parameter).
  */
-export interface GetDependentsRequest extends Request {
+export interface TaskIdRequest extends Request {
   params: {
     taskId: string;
+  };
+}
+
+export interface UpdateDependencyRequest extends Request {
+  body: {
+    taskId: string;
+    dependentTaskIds: ObjectId[];
   };
 }
 
