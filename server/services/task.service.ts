@@ -41,7 +41,6 @@ export const getDependentTasksById = async (taskId: string): Promise<TaskRespons
     const task = await TaskModel.findById(taskId)
       .populate<{ dependentTasks: DatabaseTask[] }>('dependentTasks')
       .lean();
-
     if (!task) {
       throw new Error('Task not found');
     }

@@ -25,6 +25,8 @@ export interface PopulatedDatabaseSprint extends Omit<DatabaseSprint, 'tasks'> {
   tasks: PopulatedDatabaseTask[];
 }
 
+export type SprintResponse = DatabaseSprint | { error: string };
+
 /**
  * Express request for creating a new sprint.
  * - `tasks`: The list of task IDs to include in the sprint (body).
@@ -44,5 +46,3 @@ export interface CreateSprintRequest extends Request {
     endDate: Date;
   };
 }
-
-export type SprintResponse = DatabaseSprint | { error: string };

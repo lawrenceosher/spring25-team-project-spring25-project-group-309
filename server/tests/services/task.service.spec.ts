@@ -5,7 +5,7 @@ import {
   getAllTasksByUser,
   getDependentTasksById,
 } from '../../services/task.service';
-import { databaseTask, databaseTaskWithDependencies } from '../mockData.models';
+import { databaseTask, databaseTaskWithDependency } from '../mockData.models';
 import { DatabaseTask } from '../../types/types';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -21,7 +21,7 @@ const mockDependentTasks: DatabaseTask[] = [
     sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
     status: 'todo',
     dependentTasks: [],
-    prereqForTasks: [],
+    prereqTasks: [],
     project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
     priority: 'high',
     taskPoints: 3,
@@ -37,7 +37,7 @@ const mockDependentTasks: DatabaseTask[] = [
     sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
     status: 'in progress',
     dependentTasks: [],
-    prereqForTasks: [],
+    prereqTasks: [],
     project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
     priority: 'medium',
     taskPoints: 5,
@@ -87,12 +87,9 @@ describe('Task model', () => {
     });
 
     it('should return the dependent tasks from the given taskId (1 dependency)', async () => {
-      mockingoose(TaskModel).toReturn(
-        { ...databaseTaskWithDependencies, dependentTasks: mockDependentTasks },
-        'findOne',
-      );
-      const result = await getDependentTasksById(databaseTaskWithDependencies._id.toString());
-      expect(result).toEqual(databaseTaskWithDependencies.dependentTasks);
+      mockingoose(TaskModel).toReturn({ ...databaseTaskWithDependency }, 'findOne');
+      const result = await getDependentTasksById(databaseTaskWithDependency._id.toString());
+      expect(result).toEqual(databaseTaskWithDependency.dependentTasks);
     });
 
     it('should return an empty array if the task has no dependencies', async () => {

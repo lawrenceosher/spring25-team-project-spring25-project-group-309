@@ -28,6 +28,14 @@ export interface AddDependentsRequest extends Request {
   };
 }
 
+export interface TasksByUsernameRequest extends Request {
+  params: {
+    username: string;
+  };
+}
+
+export type TaskResponse = DatabaseTask | { error: string };
+
 /**
  * Express request for creating a new task.
  * - `taskId`: The ID of the task to retrieve dependents for (route parameter).
@@ -67,11 +75,3 @@ export interface CreateTaskRequest extends Request {
     relevantQuestions?: ObjectId[];
   };
 }
-
-export interface TasksByUsernameRequest extends Request {
-  params: {
-    username: string;
-  };
-}
-
-export type TaskResponse = DatabaseTask | { error: string };

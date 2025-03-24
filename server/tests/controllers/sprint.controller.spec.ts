@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import { ObjectId } from 'mongodb';
-import { CreateSprintRequest } from '../../types/types';
+import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/sprint.service';
 import { databaseSprint } from '../mockData.models';
@@ -9,16 +9,13 @@ const createSprintSpy = jest.spyOn(util, 'saveSprint');
 const addTasksToSprintSpy = jest.spyOn(util, 'addTasksToSprint');
 
 const mockSprintResponse = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-  name: 'Test',
-  project: new ObjectId('47e9b58310afe6e94fc2e9dc').toString(),
-  startDate: new Date('2023-11-18T09:24:00').toISOString(),
-  endDate: new Date('2023-11-18T09:24:00').toISOString(),
-  status: 'active',
-  tasks: [
-    new ObjectId('15e9b58310afe6e94fc6e6dc').toString(),
-    new ObjectId('25e9b58910afe7e94fc6e6dc').toString(),
-  ],
+  _id: databaseSprint._id.toString(),
+  name: databaseSprint.name,
+  project: databaseSprint.project.toString(),
+  startDate: databaseSprint.startDate.toISOString(),
+  endDate: databaseSprint.endDate.toISOString(),
+  status: databaseSprint.status,
+  tasks: databaseSprint.tasks.map(task => task.toString()),
 };
 
 const sprintNoTasksRequest = {

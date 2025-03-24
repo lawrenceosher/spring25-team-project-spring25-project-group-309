@@ -7,6 +7,7 @@ import {
   TasksByUsernameRequest,
   GetDependentsRequest,
   CreateTaskRequest,
+  Task,
 } from '../types/types';
 import {
   addDependentTasks,
@@ -69,7 +70,7 @@ const taskController = (socket: FakeSOSocket) => {
         relevantQuestions,
       } = req.body;
 
-      const newTask = new TaskModel({
+      const newTask: Task = {
         assignedUser,
         description,
         name,
@@ -81,7 +82,9 @@ const taskController = (socket: FakeSOSocket) => {
         priority,
         taskPoints,
         relevantQuestions: relevantQuestions ?? [],
-      });
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
       const savedTask = await saveTask(newTask);
 

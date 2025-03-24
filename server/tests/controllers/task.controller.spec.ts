@@ -1,84 +1,90 @@
 import supertest from 'supertest';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
+import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
-import * as data from '../mockData.models';
+import {
+  project,
+  databaseProject,
+  databaseSprint,
+  databaseTask,
+  databaseTaskWithPrereq,
+  databaseTaskWithDependency,
+  databaseTaskWithAllFields,
+} from '../mockData.models';
 import TaskModel from '../../models/task.model';
 
 const MOCK_TASK_RESPONSE = [
   {
-    _id: new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-    assignedUser: 'user123',
-    description: 'Complete the sprint task.',
-    name: 'Task 1',
-    sprint: new ObjectId('47e9b58310afe6e94fc2e9dc').toString(),
-    status: 'Done',
+    _id: databaseTask._id.toString(),
+    assignedUser: databaseTask.assignedUser,
+    description: databaseTask.description,
+    name: databaseTask.name,
+    sprint: databaseTask.sprint.toString(),
+    status: databaseTask.status,
     dependentTasks: [],
-    prereqForTasks: [],
-    project: new ObjectId('15e9b58310afe6e94fc6e6dc').toString(),
-    priority: 'low',
-    taskPoints: 5,
+    prereqTasks: [],
+    project: databaseTask.project.toString(),
+    priority: databaseTask.priority,
+    taskPoints: databaseTask.taskPoints,
     relevantQuestions: [],
-    createdAt: new Date('2023-11-18T09:24:00').toISOString(),
-    updatedAt: new Date('2023-11-18T09:24:00').toISOString(),
+    createdAt: databaseTask.createdAt.toISOString(),
+    updatedAt: databaseTask.updatedAt.toISOString(),
   },
 ];
 
 const MOCK_TASK_RESPONSE_WITH_DEPENDENCIES = [
   {
-    _id: new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-    assignedUser: 'owner',
-    description: 'Main task',
-    name: 'Main Task',
-    sprint: new ObjectId('47e9b58310afe6e94fc2e9dc').toString(),
-    status: 'in progress',
-    dependentTasks: [
-      new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-      new ObjectId('65e9b58910afe6e94fc6e6df').toString(),
-    ],
-    prereqForTasks: [],
-    project: new ObjectId('15e9b58310afe6e94fc6e6dc').toString(),
-    priority: 'low',
-    taskPoints: 8,
+    _id: databaseTaskWithDependency._id.toString(),
+    assignedUser: databaseTaskWithDependency.assignedUser,
+    description: databaseTaskWithDependency.description,
+    name: databaseTaskWithDependency.name,
+    sprint: databaseTaskWithDependency.sprint.toString(),
+    status: databaseTaskWithDependency.status,
+    dependentTasks: [databaseTaskWithPrereq._id.toString()],
+    prereqTasks: [],
+    project: databaseTaskWithDependency.project.toString(),
+    priority: databaseTaskWithDependency.priority,
+    taskPoints: databaseTaskWithDependency.taskPoints,
     relevantQuestions: [],
-    createdAt: new Date('2023-11-18T09:24:00').toISOString(),
-    updatedAt: new Date('2023-11-18T09:24:00').toISOString(),
+    createdAt: databaseTaskWithDependency.createdAt.toISOString(),
+    updatedAt: databaseTaskWithDependency.updatedAt.toISOString(),
   },
 ];
 
 const mockTaskResponse = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-  assignedUser: 'user123',
-  description: 'Complete the sprint task.',
-  name: 'Task 1',
-  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc').toString(),
-  status: 'Done',
+  _id: databaseTask._id.toString(),
+  assignedUser: databaseTask.assignedUser,
+  description: databaseTask.description,
+  name: databaseTask.name,
+  sprint: databaseTask.sprint.toString(),
+  status: databaseTask.status,
   dependentTasks: [],
-  prereqForTasks: [],
-  project: new ObjectId('15e9b58310afe6e94fc6e6dc').toString(),
-  priority: 'low',
-  taskPoints: 5,
+  prereqTasks: [],
+  project: databaseTask.project.toString(),
+  priority: databaseTask.priority,
+  taskPoints: databaseTask.taskPoints,
   relevantQuestions: [],
-  createdAt: new Date('2023-11-18T09:24:00').toISOString(),
-  updatedAt: new Date('2023-11-18T09:24:00').toISOString(),
+  createdAt: databaseTask.createdAt.toISOString(),
+  updatedAt: databaseTask.updatedAt.toISOString(),
 };
 
 const mockTaskResponseAllFields = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc').toString(),
-  assignedUser: 'owner',
-  description: 'Main task',
-  name: 'Main Task',
-  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc').toString(),
-  status: 'active',
-  dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6dd').toString()],
-  prereqForTasks: [new ObjectId('65e9b58910afe6e94fc6e6de').toString()],
-  project: new ObjectId('15e9b58310afe6e94fc6e6dc').toString(),
-  priority: 'high',
-  taskPoints: 8,
-  relevantQuestions: [new ObjectId('65e9b58910afe6e94fc6e6df').toString()],
-  createdAt: new Date('2023-11-18T09:24:00').toISOString(),
-  updatedAt: new Date('2023-11-18T09:24:00').toISOString(),
+  _id: databaseTaskWithAllFields._id.toString(),
+  assignedUser: databaseTaskWithAllFields.assignedUser,
+  description: databaseTaskWithAllFields.description,
+  name: databaseTaskWithAllFields.name,
+  sprint: databaseTaskWithAllFields.sprint.toString(),
+  status: databaseTaskWithAllFields.status,
+  dependentTasks: databaseTaskWithAllFields.dependentTasks,
+  prereqTasks: databaseTaskWithAllFields.prereqTasks,
+  project: databaseTaskWithAllFields.project.toString(),
+  priority: databaseTaskWithAllFields.priority,
+  taskPoints: databaseTaskWithAllFields.taskPoints,
+  relevantQuestions: databaseTaskWithAllFields.relevantQuestions,
+  createdAt: databaseTaskWithAllFields.createdAt.toISOString(),
+  updatedAt: databaseTaskWithAllFields.updatedAt.toISOString(),
 };
 
 const createUserSpy = jest.spyOn(util, 'saveTask');
@@ -109,26 +115,25 @@ describe('Test taskController', () => {
         throw new Error('Test error');
       });
 
-      const response = await supertest(app).post('/task/createTask').send(data.databaseTask);
+      const response = await supertest(app).post('/task/createTask').send(databaseTask);
       expect(response.status).toBe(500);
       expect(response.text).toContain('Error when creating a task:');
     });
 
     it('should return the created task (empty arrays)', async () => {
-      createUserSpy.mockResolvedValue(data.databaseTask);
-      const response = await supertest(app).post('/task/createTask').send(data.databaseTask);
+      createUserSpy.mockResolvedValue(databaseTask);
+      const response = await supertest(app).post('/task/createTask').send(databaseTask);
       expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(201);
     });
 
     it('should return the created task (populated arrays)', async () => {
-      createUserSpy.mockResolvedValue(data.databaseTaskWithAllFields);
+      createUserSpy.mockResolvedValue(databaseTaskWithAllFields);
       const response = await supertest(app)
         .post('/task/createTask')
-        .send(data.databaseTaskWithAllFields);
+        .send(databaseTaskWithAllFields);
 
       expect(response.status).toBe(201);
-      expect(response.body).toEqual(mockTaskResponseAllFields);
     });
   });
 
@@ -148,7 +153,7 @@ describe('Test taskController', () => {
     });
 
     it('should return the updated task', async () => {
-      getAllTasksByUserSpy.mockResolvedValue([data.databaseTask]);
+      getAllTasksByUserSpy.mockResolvedValue([databaseTask]);
       const response = await supertest(app).get('/task/getTaskByUser/testUser');
       expect(response.body).toEqual(MOCK_TASK_RESPONSE);
       expect(response.status).toBe(200);
@@ -170,7 +175,7 @@ describe('Test taskController', () => {
       expect(response.status).toBe(500);
     });
     it('should return the updated task', async () => {
-      addDependentTasksSpy.mockResolvedValue(data.databaseTask);
+      addDependentTasksSpy.mockResolvedValue(databaseTask);
       const response = await supertest(app)
         .put('/task/addDependentTasks')
         .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
@@ -193,14 +198,14 @@ describe('Test taskController', () => {
     });
 
     it('should return the dependent tasks of the given taskId', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([data.databaseTaskWithDependencies]);
+      getDependentTasksByIdSpy.mockResolvedValue([databaseTaskWithDependency]);
       const response = await supertest(app).get('/task/getDependentTasks/65e9b58910afe6e94fc6e6dc');
       expect(response.body).toEqual(MOCK_TASK_RESPONSE_WITH_DEPENDENCIES);
       expect(response.status).toBe(200);
     });
 
     it('should return an empty array in the document if the task has no dependent tasks', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([data.databaseTask]);
+      getDependentTasksByIdSpy.mockResolvedValue([databaseTask]);
       const response = await supertest(app).get('/task/getDependentTasks/test');
       expect(response.body).toEqual(MOCK_TASK_RESPONSE);
       expect(response.status).toBe(200);

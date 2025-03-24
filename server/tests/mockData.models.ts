@@ -1,13 +1,15 @@
 import { ObjectId } from 'mongodb';
-import { Data } from 'vis-network';
+import { data, Data } from 'vis-network';
 import {
   DatabaseAnswer,
   DatabaseComment,
+  DatabaseProject,
   DatabaseQuestion,
   DatabaseSprint,
   DatabaseTag,
   DatabaseTask,
   PopulatedDatabaseQuestion,
+  Project,
   SafeDatabaseUser,
   User,
 } from '../types/types';
@@ -199,26 +201,38 @@ export const safeUser: SafeDatabaseUser = {
   dateJoined: new Date('2024-12-03'),
 };
 
-export const databaseSprint: DatabaseSprint = {
+export const project: Project = {
+  assignedUsers: ['user1', 'user2'],
+  description: 'A project to test the project model.',
+  name: 'Test Project',
+  sprints: [new ObjectId('65e9b58910afe6e94fc6e6dc')],
+};
+
+export const databaseProject: DatabaseProject = {
   _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
-  endDate: new Date('2023-11-18T09:24:00'),
+  ...project,
+};
+
+export const databaseSprint: DatabaseSprint = {
+  _id: databaseProject.sprints[0],
   name: 'Test',
-  project: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  project: databaseProject._id,
   startDate: new Date('2023-11-18T09:24:00'),
+  endDate: new Date('2023-11-18T09:24:00'),
   status: 'active',
   tasks: [new ObjectId('15e9b58310afe6e94fc6e6dc'), new ObjectId('25e9b58910afe7e94fc6e6dc')],
 };
 
 export const databaseTask: DatabaseTask = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  _id: databaseSprint.tasks[0],
   assignedUser: 'user123',
   description: 'Complete the sprint task.',
   name: 'Task 1',
-  sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
+  sprint: databaseSprint._id,
   status: 'Done',
   dependentTasks: [],
-  prereqForTasks: [],
-  project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
+  prereqTasks: [],
+  project: databaseProject._id,
   priority: 'low',
   taskPoints: 5,
   relevantQuestions: [],
@@ -226,18 +240,32 @@ export const databaseTask: DatabaseTask = {
   updatedAt: new Date('2023-11-18T09:24:00'),
 };
 
-export const databaseTaskWithDependencies: DatabaseTask = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+export const databaseTaskWithPrereq: DatabaseTask = {
+  _id: databaseSprint.tasks[1],
+  assignedUser: 'user123',
+  description: 'Complete the sprint task.',
+  name: 'Task 2',
+  sprint: databaseSprint._id,
+  status: 'Done',
+  dependentTasks: [],
+  prereqTasks: [new ObjectId('35e9b58310afe6e94fc6e6dc')],
+  project: databaseProject._id,
+  priority: 'low',
+  taskPoints: 5,
+  relevantQuestions: [],
+  createdAt: new Date('2023-11-18T09:24:00'),
+  updatedAt: new Date('2023-11-18T09:24:00'),
+};
+
+export const databaseTaskWithDependency: DatabaseTask = {
+  _id: new ObjectId('35e9b58310afe6e94fc6e6dc'),
   assignedUser: 'owner',
   description: 'Main task',
   name: 'Main Task',
   sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
   status: 'in progress',
-  dependentTasks: [
-    new ObjectId('65e9b58910afe6e94fc6e6dc'),
-    new ObjectId('65e9b58910afe6e94fc6e6df'),
-  ],
-  prereqForTasks: [],
+  dependentTasks: [databaseTaskWithPrereq._id],
+  prereqTasks: [],
   project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
   priority: 'low',
   taskPoints: 8,
@@ -247,14 +275,14 @@ export const databaseTaskWithDependencies: DatabaseTask = {
 };
 
 export const databaseTaskWithAllFields: DatabaseTask = {
-  _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
+  _id: new ObjectId('45e9b58310afe6e94fc6e6dc'),
   assignedUser: 'owner',
   description: 'Main task',
   name: 'Main Task',
   sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
   status: 'active',
   dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6dd')],
-  prereqForTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
+  prereqTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
   project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
   priority: 'high',
   taskPoints: 8,
