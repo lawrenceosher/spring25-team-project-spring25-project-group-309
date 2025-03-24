@@ -97,7 +97,7 @@ export interface ProjectUpdatePayload {
 export interface SprintUpdatePayload {
   sprint: PopulatedDatabaseSprint;
   type: 'created' | 'deleted' | 'updated';
-} 
+}
 
 /**
  * Interface representing the payload for a game move operation, which contains:
