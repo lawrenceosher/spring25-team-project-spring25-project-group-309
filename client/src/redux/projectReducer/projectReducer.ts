@@ -33,8 +33,41 @@ const projectSlice = createSlice({
     addNewSprint: (state, { payload: newSprint }: { payload: MockSprint }) => {
       state.project.sprints = [...state.project.sprints, newSprint];
     },
+
+    updateTaskStatus: (
+      state,
+      { payload: { task, newStatus } }: { payload: { task: MockTask; newStatus: string } },
+    ) => {
+      // Find the sprint containing the task
+      const correspondingSprint = state.project.sprints.find(s => s._id === task.sprint);
+      if (!correspondingSprint) {
+        return;
+      }
+
+      // Update the task's status
+      const updatedTask: MockTask = { ...task, status: newStatus };
+
+      // Update the tasks in the sprint
+      const updatedTasks = correspondingSprint.tasks.map(t =>
+        t._id === updatedTask._id ? updatedTask : t,
+      );
+
+      // Update the sprints in the project
+      const updatedSprints = state.project.sprints.map(sprint => {
+        if (sprint._id === updatedTask.sprint) {
+          return {
+            ...sprint,
+            tasks: updatedTasks,
+          };
+        }
+        return sprint;
+      });
+
+      // Update the project state
+      state.project = { ...state.project, sprints: updatedSprints };
+    },
   },
 });
 
-export const { addNewTask, addNewSprint } = projectSlice.actions;
+export const { addNewTask, addNewSprint, updateTaskStatus } = projectSlice.actions;
 export default projectSlice.reducer;
