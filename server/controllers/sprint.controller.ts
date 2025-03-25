@@ -1,6 +1,12 @@
 import express, { Response, Request } from 'express';
 import { AddTaskToSprintRequest, FakeSOSocket, CreateSprintRequest } from '../types/types';
-import { saveSprint, addTasksToSprint, getSprintbyId, deleteSprintById, getSprintsByProjectId } from '../services/sprint.service';
+import {
+  saveSprint,
+  addTasksToSprint,
+  getSprintbyId,
+  deleteSprintById,
+  getSprintsByProjectId,
+} from '../services/sprint.service';
 import SprintModel from '../models/sprint.model';
 import { populateDocument } from '../utils/database.util';
 
@@ -69,7 +75,7 @@ const sprintController = (socket: FakeSOSocket) => {
     }
 
     const { sprintId } = req.body;
-    
+
     try {
       const foundSprint = await getSprintbyId(sprintId);
 
@@ -130,9 +136,9 @@ const sprintController = (socket: FakeSOSocket) => {
     const { sprintId } = req.body;
 
     try {
-      const deletedSprint = deleteSprintById(sprintId);
+      const deletedSprint = await deleteSprintById(sprintId);
 
-      res.json(deletedSprint);
+      res.status(200).json(deletedSprint);
     } catch (error) {
       res.status(500).send(`Error when deleting a sprint: ${error}`);
     }

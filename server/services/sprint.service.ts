@@ -94,7 +94,7 @@ export const addTasksToSprint = async (
 
 export const deleteSprintById = async (sprintId: string): Promise<SprintResponse> => {
   try {
-    const deletedSprint = await SprintModel.findByIdAndDelete(sprintId);
+    const deletedSprint: DatabaseSprint | null = await SprintModel.findByIdAndDelete(sprintId);
     if (!deletedSprint) {
       throw Error('Sprint not found');
     }

@@ -117,7 +117,7 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
 const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint | null> => {
   const sprintDoc = await SprintModel.findOne({ _id: sprintId }).populate<{
     tasks: DatabaseTask[];
-  }>([{ path: 'tasks', model: TaskModel }]); 
+  }>([{ path: 'tasks', model: TaskModel }]);
 
   if (!sprintDoc) {
     throw new Error('Chat not found');
@@ -131,7 +131,7 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
         dependentTasks: DatabaseTask[];
         prereqTasks: DatabaseTask[];
         relevantQuestions: DatabaseQuestion[];
-      }>([{ path: 'tasks', model: TaskModel }]); 
+      }>([{ path: 'tasks', model: TaskModel }]);
 
       if (!newTaskDoc) return null;
 
@@ -177,7 +177,11 @@ export const populateDocument = async (
   id: string,
   type: 'question' | 'answer' | 'chat' | 'sprint',
 ): Promise<
-  PopulatedDatabaseAnswer | PopulatedDatabaseChat | PopulatedDatabaseQuestion | PopulatedDatabaseSprint |{ error: string }
+  | PopulatedDatabaseAnswer
+  | PopulatedDatabaseChat
+  | PopulatedDatabaseQuestion
+  | PopulatedDatabaseSprint
+  | { error: string }
 > => {
   try {
     if (!id) {
