@@ -24,8 +24,8 @@ export interface DatabaseTask extends Task {
 
 export interface PopulatedDatabaseTask
   extends Omit<DatabaseTask, 'dependentTasks' | 'prereqTasks' | 'relevantQuestions'> {
-  dependentTasks: Task[];
-  prereqTasks: Task[];
+  dependentTasks: DatabaseTask[];
+  prereqTasks: DatabaseTask[];
   relevantQuestions: DatabaseQuestion[];
 }
 
