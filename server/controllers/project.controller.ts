@@ -1,16 +1,26 @@
 import express, { Response, Request } from 'express';
 import { FakeSOSocket } from '../types/types';
+import { getAllProjectsByUser } from '../services/project.service';
 
 const projectController = (socket: FakeSOSocket) => {
   const router = express.Router();
 
-  const createProject = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
-  };
+  const getProjectsByUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { username } = req.params;
 
-  const getProject = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+      const projects = await getAllProjectsByUser(username);
+      const errorProject = projects.find(project => 'error' in projects);
+      if (errorProject) {
+        throw new Error(`${errorProject}`);
+      }
+
+      res.status(200).json(projects);
+    } catch (error) {
+      res.status(500).send(`Error when getting a project by username: ${(error as Error).message}`);
+    }
   };
+  router.get('/:username', getProjectsByUser);
   return router;
 };
 

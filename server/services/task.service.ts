@@ -10,6 +10,9 @@ import { DatabaseTask, Task, TaskResponse } from '../types/types';
 export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse[]> => {
   try {
     const tasks = await TaskModel.find(criteria).lean();
+    if (!tasks) {
+      throw new Error('No tasks found');
+    }
     return tasks;
   } catch (error) {
     return [{ error: 'Error when getting tasks' }];
@@ -128,9 +131,9 @@ export const addDependentTasks = async (
  * @param taskId The ID of the task to be deleted.
  * @returns The deleted task or an error.
  */
-export const deleteTask = async (taskId: string): Promise<TaskResponse> => {
+export const deleteTaskById = async (taskId: string): Promise<TaskResponse> => {
   try {
-    const result = await TaskModel.findByIdAndDelete(taskId);
+    const result = await TaskModel.findByIdAndDelete(taskId).lean();
     if (!result) {
       throw new Error('Task not found');
     }

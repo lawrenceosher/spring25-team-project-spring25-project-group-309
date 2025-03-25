@@ -1,34 +1,22 @@
-import express, { Response, Request } from 'express';
-import { ObjectId } from 'mongodb';
-import { create } from 'domain';
+import express, { Response } from 'express';
 import {
   FakeSOSocket,
-  AddDependentsRequest,
   TasksByUsernameRequest,
-  GetDependentsRequest,
+  TaskIdRequest,
   CreateTaskRequest,
   Task,
+  UpdateDependencyRequest,
 } from '../types/types';
 import {
-  addDependentTasks,
+  deleteTaskById,
   getAllTasksByUser,
   getDependentTasksById,
   saveTask,
+  updateTask,
 } from '../services/task.service';
-import TaskModel from '../models/task.model';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
-
-  const isAddDependentRequestValid = (req: AddDependentsRequest): boolean =>
-    !!req.body.taskId && !!req.body.dependentTaskIds;
-
-  /**
-   * Validates the given GetDependentsRequest object to ensure it contains all required fields.
-   * @param req The GetDependentsRequest containing task data.
-   * @returns 'true' if the request is valid; otherwise, 'false'.
-   */
-  const isGetDependentsRequestValid = (req: GetDependentsRequest): boolean => !!req.params.taskId;
 
   /**
    * Vaidates the given CreateTaskRequest object to ensure it contains all required fields.
@@ -43,6 +31,9 @@ const taskController = (socket: FakeSOSocket) => {
     !!req.body.priority &&
     !!req.body.project &&
     req.body.taskPoints !== undefined;
+
+  const isUpdateDependencyRequestValid = (req: UpdateDependencyRequest): boolean =>
+    !!req.body.taskId && !!req.body.dependentTaskIds;
 
   /**
    * Creates a new task with the given details to be saved to the database.
@@ -92,7 +83,11 @@ const taskController = (socket: FakeSOSocket) => {
         throw new Error(savedTask.error);
       }
 
-      // socket.emit('TASKUpdate', { msg: msgFromDb }); TODO: ADD SOCKET EMISSION HERE
+      socket.emit('taskUpdate', {
+        task: savedTask,
+        type: 'created',
+      });
+
       res.status(201).json(savedTask);
     } catch (error) {
       res.status(500).send(`Error when creating a task: ${(error as Error).message}`);
@@ -115,16 +110,7 @@ const taskController = (socket: FakeSOSocket) => {
     }
   };
 
-  const getPrerequisiteTasks = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
-  };
-
-  const getDependentTasks = async (req: GetDependentsRequest, res: Response): Promise<void> => {
-    if (!isGetDependentsRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-
+  const getDependentTasks = async (req: TaskIdRequest, res: Response): Promise<void> => {
     try {
       const { taskId } = req.params;
 
@@ -141,27 +127,27 @@ const taskController = (socket: FakeSOSocket) => {
     }
   };
 
-  const addDependentTasksToTicket = async (
-    req: AddDependentsRequest,
-    res: Response,
-  ): Promise<void> => {
-    if (!isAddDependentRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-
-    const { taskId, dependentTaskIds } = req.body;
+  /**
+   * Deletes a task by its ID.
+   * @param req The request containing the task ID.
+   * @param res The deleted task.
+   */
+  const deleteTask = async (req: TaskIdRequest, res: Response): Promise<void> => {
+    const { taskId } = req.body;
 
     try {
-      const updatedTask = await addDependentTasks(taskId, dependentTaskIds);
+      const deletedTask = await deleteTaskById(taskId);
 
-      if ('error' in updatedTask) {
-        throw new Error(updatedTask.error);
+      if ('error' in deletedTask) {
+        throw new Error(deletedTask.error);
       }
 
-      // socket.emit('TASKUpdate', { msg: msgFromDb }); TODO: ADD SOCKET EMISSION HERE
+      socket.emit('taskUpdate', {
+        task: deletedTask,
+        type: 'deleted',
+      });
 
-      res.json(updatedTask);
+      res.json(deletedTask);
     } catch (err: unknown) {
       res
         .status(500)
@@ -169,14 +155,40 @@ const taskController = (socket: FakeSOSocket) => {
     }
   };
 
-  const deleteTask = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+  /**
+   * Updates the dependencies of a task.
+   * @param req The request containing the task ID and dependent task IDs.
+   * @param res The response.
+   */
+  const updateTaskDependency = async (
+    req: UpdateDependencyRequest,
+    res: Response,
+  ): Promise<void> => {
+    if (!isUpdateDependencyRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const { taskId, dependentTaskIds } = req.body;
+    try {
+      const updatedTask = await updateTask(taskId, { dependentTasks: dependentTaskIds });
+      if ('error' in updatedTask) {
+        throw new Error(updatedTask.error);
+      }
+      socket.emit('taskUpdate', {
+        task: updatedTask,
+        type: 'updated',
+      });
+      res.json(updatedTask);
+    } catch (error) {
+      res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
+    }
   };
 
   router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
-  router.put('/addDependentTasks', addDependentTasksToTicket);
+  router.put('/updateTaskDependency', updateTaskDependency);
   router.get('/getDependentTasks/:taskId', getDependentTasks);
+  router.delete('/deleteTask/:taskId', deleteTask);
   return router;
 };
 

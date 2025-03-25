@@ -5,15 +5,11 @@ import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
 import {
-  project,
-  databaseProject,
-  databaseSprint,
   databaseTask,
   databaseTaskWithPrereq,
   databaseTaskWithDependency,
   databaseTaskWithAllFields,
 } from '../mockData.models';
-import TaskModel from '../../models/task.model';
 
 const MOCK_TASK_RESPONSE = [
   {
@@ -87,9 +83,10 @@ const mockTaskResponseAllFields = {
   updatedAt: databaseTaskWithAllFields.updatedAt.toISOString(),
 };
 
-const createUserSpy = jest.spyOn(util, 'saveTask');
+const createTaskSpy = jest.spyOn(util, 'saveTask');
+const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
-const addDependentTasksSpy = jest.spyOn(util, 'addDependentTasks');
+const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
 const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -111,7 +108,7 @@ describe('Test taskController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      createUserSpy.mockImplementation(() => {
+      createTaskSpy.mockImplementation(() => {
         throw new Error('Test error');
       });
 
@@ -121,14 +118,14 @@ describe('Test taskController', () => {
     });
 
     it('should return the created task (empty arrays)', async () => {
-      createUserSpy.mockResolvedValue(databaseTask);
+      createTaskSpy.mockResolvedValue(databaseTask);
       const response = await supertest(app).post('/task/createTask').send(databaseTask);
       expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(201);
     });
 
     it('should return the created task (populated arrays)', async () => {
-      createUserSpy.mockResolvedValue(databaseTaskWithAllFields);
+      createTaskSpy.mockResolvedValue(databaseTaskWithAllFields);
       const response = await supertest(app)
         .post('/task/createTask')
         .send(databaseTaskWithAllFields);
@@ -160,24 +157,26 @@ describe('Test taskController', () => {
     });
   });
 
-  describe('PUT /addDependentTasks', () => {
+  describe('PUT /updateTaskDependency', () => {
     it('should return 400 if the request is invalid', async () => {
-      const response = await supertest(app).put('/task/addDependentTasks').send({ taskId: 'test' });
+      const response = await supertest(app)
+        .put('/task/updateTaskDependency')
+        .send({ taskId: 'test' });
       expect(response.status).toBe(400);
     });
     it('should return 500 if there is an error', async () => {
-      addDependentTasksSpy.mockImplementation(() => {
+      updateTaskDependencySpy.mockImplementation(() => {
         throw new Error('Test error');
       });
       const response = await supertest(app)
-        .put('/task/addDependentTasks')
+        .put('/task/updateTaskDependency')
         .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
       expect(response.status).toBe(500);
     });
     it('should return the updated task', async () => {
-      addDependentTasksSpy.mockResolvedValue(databaseTask);
+      updateTaskDependencySpy.mockResolvedValue(databaseTask);
       const response = await supertest(app)
-        .put('/task/addDependentTasks')
+        .put('/task/updateTaskDependency')
         .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
       expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(200);
@@ -185,7 +184,7 @@ describe('Test taskController', () => {
   });
 
   describe('GET /getDependentTasks', () => {
-    it('should return 400 if the request is invalid', async () => {
+    it('should return 404 if the request is invalid', async () => {
       const response = await supertest(app).get('/task/getDependentTasks/');
       expect(response.status).toBe(404);
     });
@@ -208,6 +207,31 @@ describe('Test taskController', () => {
       getDependentTasksByIdSpy.mockResolvedValue([databaseTask]);
       const response = await supertest(app).get('/task/getDependentTasks/test');
       expect(response.body).toEqual(MOCK_TASK_RESPONSE);
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('DELETE /deleteTask', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return 404 if the request pathing is invalid', async () => {
+      const response = await supertest(app).delete('/task/deleteTask/');
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 500 if there is an error', async () => {
+      const error = new Error('Test error');
+      deleteTaskSpy.mockRejectedValue(error);
+      const response = await supertest(app).delete('/task/deleteTask/test');
+      expect(response.status).toBe(500);
+    });
+
+    it('should return the deleted task', async () => {
+      deleteTaskSpy.mockResolvedValue(databaseTask);
+      const response = await supertest(app).delete('/task/deleteTask/test');
+      expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(200);
     });
   });

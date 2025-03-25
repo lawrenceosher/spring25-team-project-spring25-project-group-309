@@ -33,6 +33,24 @@ export const getProjectById = async (projectId: string): Promise<ProjectResponse
 };
 
 /**
+ * Finds a project by its ID.
+ * @param projectId The project ID to search for.
+ * @returns The found project or an error message.
+ */
+export const getAllProjectsByUser = async (username: string): Promise<ProjectResponse[]> => {
+  try {
+    const projects = await ProjectModel.find({ assignedUsers: { $in: [username] } }).lean();
+
+    if (!projects) {
+      throw new Error('No project found');
+    }
+    return projects;
+  } catch (error) {
+    return [{ error: 'Error when getting a project' }];
+  }
+};
+
+/**
  * Updates a project with new information.
  * @param projectId The ID of the project to update.
  * @param updates The new information to update the project with.

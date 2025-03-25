@@ -83,8 +83,10 @@ const sprintController = (socket: FakeSOSocket) => {
       if ('error' in updatedSprint) {
         throw new Error(updatedSprint.error);
       }
-
-      // socket.emit('SprintUpdate', { tasks}); TODO: ADD SOCKET EMISSION HERE
+      socket.emit('sprintUpdate', {
+        sprint: updatedSprint,
+        type: 'updated',
+      });
 
       res.json(updatedSprint);
     } catch (err: unknown) {
