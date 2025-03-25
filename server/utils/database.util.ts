@@ -202,6 +202,7 @@ export const populateDocument = async (
         break;
       case 'sprint':
         result = await populateSprint(id);
+        break;
       default:
         throw new Error('Invalid type provided.');
     }
