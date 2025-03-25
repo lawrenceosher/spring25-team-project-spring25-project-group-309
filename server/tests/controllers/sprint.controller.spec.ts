@@ -1,12 +1,20 @@
 import supertest from 'supertest';
+import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/sprint.service';
 import { databaseSprint } from '../mockData.models';
+import { DatabaseSprint, PopulatedDatabaseSprint } from '../../types/types';
+import { mock } from 'node:test';
+import * as databaseUtil from '../../utils/database.util';
 
 const createSprintSpy = jest.spyOn(util, 'saveSprint');
 const addTasksToSprintSpy = jest.spyOn(util, 'addTasksToSprint');
+const getSprintSpy = jest.spyOn(util, 'getSprintbyId');
+const populateDocumentSpy = jest.spyOn(databaseUtil, 'populateDocument');
+const getSprintsByProjectIdSpy = jest.spyOn(util, 'getSprintsByProjectId');
+const deleteSprintByIdSpy = jest.spyOn(util, 'deleteSprintById');
 
 const mockSprintResponse = {
   _id: databaseSprint._id.toString(),
@@ -99,4 +107,171 @@ describe('Test sprintController', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('GET /getSprint', () => {
+    it('should return 400 if the request is invalid', async () => {
+      const response1 = await supertest(app).get('/sprint/getSprint').send({ test: 'Test' });
+      expect(response1.status).toBe(400);
+    });
+
+    it('should return 500 if there is an error', async () => {
+      getSprintSpy.mockImplementation(() => {
+        throw new Error('Test error');
+      });
+
+      const response = await supertest(app).get('/sprint/getSprint').send({ sprintId: 'test' });
+      expect(response.status).toBe(500);
+    });
+
+    it('should return the sprint', async () => {
+      // 1) Prepare a valid chatId param
+      const sprintId = new mongoose.Types.ObjectId().toString();
+
+      // 2) Mock a fully enriched chat
+      const mockFoundSprint: DatabaseSprint = {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'Test',
+        project: new mongoose.Types.ObjectId(),
+        startDate: new Date('2023-11-18T09:24:00Z'),
+        endDate: new Date('2023-11-18T09:24:00Z'),
+        status: 'active',
+        tasks: [new mongoose.Types.ObjectId()]
+      };
+
+      const mockPopulatedSprint: PopulatedDatabaseSprint = {
+        _id: mockFoundSprint._id,
+        name: 'Test',
+        project: mockFoundSprint.project,
+        startDate: new Date('2023-11-18T09:24:00Z'),
+        endDate: new Date('2023-11-18T09:24:00Z'),
+        status: 'active',
+        tasks: 
+        [
+          {
+            _id: new mongoose.Types.ObjectId(),
+            assignedUser: "test",
+            description: "test_desc",
+            name: "username",
+            sprint: mockFoundSprint._id,
+            status: "active",
+            dependentTasks: [new mongoose.Types.ObjectId()],
+            prereqTasks: [new mongoose.Types.ObjectId()],
+            project: new mongoose.Types.ObjectId(),
+            priority: "high",
+            taskPoints: 5,
+            relevantQuestions: [new mongoose.Types.ObjectId()],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        ]
+      };
+
+      // 3) Mock the service calls
+      getSprintSpy.mockResolvedValue(mockFoundSprint);
+      populateDocumentSpy.mockResolvedValue(mockPopulatedSprint);
+
+      // 4) Invoke the endpoint
+      const response = await supertest(app).get('/sprint/getSprint').send({ sprintId });
+
+      // 5) Assertions
+      expect(response.status).toBe(200);
+      expect(getSprintSpy).toHaveBeenCalledWith(sprintId);
+      expect(populateDocumentSpy).toHaveBeenCalledWith(mockFoundSprint._id.toString(), 'sprint');
+
+      // Convert ObjectIds and Dates for comparison
+      expect(response.body).toMatchObject(
+        JSON.parse(JSON.stringify(mockPopulatedSprint)),
+      );
+    });
+  });
+  describe('GET /sprint/getSprints', () => {
+      it('should return 200 with an array of sprints', async () => {
+        const projectId = new mongoose.Types.ObjectId().toString();
+
+      const mockFoundSprint: DatabaseSprint = {
+        _id: new mongoose.Types.ObjectId(),
+        name: 'Test',
+        project: new mongoose.Types.ObjectId(),
+        startDate: new Date('2023-11-18T09:24:00Z'),
+        endDate: new Date('2023-11-18T09:24:00Z'),
+        status: 'active',
+        tasks: [new mongoose.Types.ObjectId()]
+      };
+  
+        getSprintsByProjectIdSpy.mockResolvedValueOnce([mockFoundSprint]);
+  
+        const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
+  
+        expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
+        expect(response.status).toBe(200);
+        expect(response.body).toMatchObject([
+          {
+            _id: mockFoundSprint._id.toString(),
+            name: mockFoundSprint.name,
+            project: mockFoundSprint.project.toString(),
+            startDate: mockFoundSprint.startDate.toISOString(),
+            endDate: mockFoundSprint.endDate.toISOString(),
+            status: mockFoundSprint.status,
+            tasks: mockFoundSprint.tasks.map(task => task.toString()),
+          },
+        ]);
+      });
+  
+      it('should return 500 if fails for any sprint', async () => {
+        const projectId = new mongoose.Types.ObjectId().toString();
+        const mockFoundSprint: DatabaseSprint = {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'Test',
+          project: new mongoose.Types.ObjectId(),
+          startDate: new Date('2023-11-18T09:24:00Z'),
+          endDate: new Date('2023-11-18T09:24:00Z'),
+          status: 'active',
+          tasks: [new mongoose.Types.ObjectId()]
+        };
+  
+        getSprintsByProjectIdSpy.mockImplementation(() => {
+          throw new Error('Test error');
+        });
+  
+        const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
+  
+        expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
+        expect(response.status).toBe(500);
+      });
+    });
+
+    describe('DELETE /deleteUser', () => {
+      it('should return the deleted sprint given correct arguments', async () => {
+        const mockFoundSprint: DatabaseSprint = {
+          _id: new mongoose.Types.ObjectId(),
+          name: 'Test',
+          project: new mongoose.Types.ObjectId(),
+          startDate: new Date('2023-11-18T09:24:00Z'),
+          endDate: new Date('2023-11-18T09:24:00Z'),
+          status: 'active',
+          tasks: [new mongoose.Types.ObjectId()]
+        };
+
+        deleteSprintByIdSpy.mockResolvedValueOnce(mockFoundSprint);
+
+        const sprintId = mockFoundSprint._id.toString();
+  
+        const response = await supertest(app).delete(`/sprint/deleteSprint`).send({ sprintId });
+  
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockFoundSprint);
+        expect(deleteSprintByIdSpy).toHaveBeenCalledWith(mockFoundSprint._id.toString());
+      });
+  
+      it('should return 500 if database error while searching username', async () => {
+        deleteSprintByIdSpy.mockImplementation(() => {
+          throw new Error('Test error');
+        }
+        );
+  
+        const response = await supertest(app).delete(`/sprint/deleteSprint`).send({ sprintId: 'test' });
+  
+        expect(response.status).toBe(500);
+      });
+    });
 });

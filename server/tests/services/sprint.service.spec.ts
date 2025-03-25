@@ -1,5 +1,6 @@
 import SprintModel from '../../models/sprint.model';
-import { addTasksToSprint } from '../../services/sprint.service';
+import { addTasksToSprint, getSprintbyId } from '../../services/sprint.service';
+import { getTaskById } from '../../services/task.service';
 import { databaseSprint } from '../mockData.models';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -23,6 +24,27 @@ describe('Sprint model', () => {
     it('should return an error if the sprint is not found', async () => {
       mockingoose(SprintModel).toReturn(null, 'findOneAndUpdate');
       const updatedSprint = await addTasksToSprint('test', ['testTask']);
+      expect('error' in updatedSprint).toBe(true);
+    });
+  });
+
+  describe('getSprintById', () => {
+    beforeEach(() => {
+      mockingoose.resetAll();
+    });
+
+    it('Return sprint when invoked', async () => {
+      mockingoose(SprintModel).toReturn(databaseSprint, 'findOne');
+      const updatedSprint = await getSprintbyId(databaseSprint._id.toString());
+      if ('error' in updatedSprint) {
+        throw new Error('Expected a sprint, got an error');
+      }
+      expect(updatedSprint._id).toEqual(databaseSprint._id);
+    });
+
+    it('Throw error when necessary', async () => {
+      mockingoose(SprintModel).toReturn(null, 'findOne');
+      const updatedSprint = await getSprintbyId('test');
       expect('error' in updatedSprint).toBe(true);
     });
   });

@@ -23,7 +23,7 @@ export interface AddTaskToSprintRequest extends Request {
 }
 
 export interface PopulatedDatabaseSprint extends Omit<DatabaseSprint, 'tasks'> {
-  tasks: PopulatedDatabaseTask[];
+  tasks: DatabaseTask[];
 }
 
 export type SprintResponse = DatabaseSprint | { error: string };

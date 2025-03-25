@@ -4,9 +4,15 @@ import {
   DatabaseTag,
   DatabaseUser,
   MessageInChat,
+  DatabaseTask,
+  DatabaseQuestion,
   PopulatedDatabaseAnswer,
   PopulatedDatabaseChat,
   PopulatedDatabaseQuestion,
+  PopulatedDatabaseSprint,
+  Task,
+  PopulatedDatabaseTask,
+  SprintResponse,
 } from '../types/types';
 import AnswerModel from '../models/answers.model';
 import QuestionModel from '../models/questions.model';
@@ -15,6 +21,8 @@ import CommentModel from '../models/comments.model';
 import ChatModel from '../models/chat.model';
 import UserModel from '../models/users.model';
 import MessageModel from '../models/messages.model';
+import SprintModel from '../models/sprint.model';
+import TaskModel from '../models/task.model';
 
 /**
  * Fetches and populates a question document with its related tags, answers, and comments.
@@ -106,20 +114,70 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
   return transformedChat;
 };
 
+const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint | null> => {
+  const sprintDoc = await SprintModel.findOne({ _id: sprintId }).populate<{
+    tasks: DatabaseTask[];
+  }>([{ path: 'tasks', model: TaskModel }]); 
+
+  if (!sprintDoc) {
+    throw new Error('Chat not found');
+  }
+
+  const sprintTasks: Array<PopulatedDatabaseTask | null> = await Promise.all(
+    sprintDoc.tasks.map(async (taskDoc: DatabaseTask) => {
+      if (!taskDoc) return null;
+
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id }).populate<{
+        dependentTasks: DatabaseTask[];
+        prereqTasks: DatabaseTask[];
+        relevantQuestions: DatabaseQuestion[];
+      }>([{ path: 'tasks', model: TaskModel }]); 
+
+      if (!newTaskDoc) return null;
+
+      return {
+        _id: newTaskDoc._id,
+        assignedUser: newTaskDoc.assignedUser,
+        description: newTaskDoc.description,
+        name: newTaskDoc.name,
+        sprint: newTaskDoc.sprint,
+        status: newTaskDoc.status,
+        dependentTasks: newTaskDoc.dependentTasks,
+        prereqTasks: newTaskDoc.prereqTasks,
+        project: newTaskDoc.project,
+        priority: newTaskDoc.priority,
+        taskPoints: newTaskDoc.taskPoints,
+        relevantQuestions: newTaskDoc.relevantQuestions,
+        createdAt: newTaskDoc.createdAt,
+        updatedAt: newTaskDoc.updatedAt,
+      };
+    }),
+  );
+
+  // Filters out null values
+  const enrichedTasks = sprintTasks.filter(Boolean);
+  const transformedSprint: PopulatedDatabaseSprint = {
+    ...sprintDoc.toObject(),
+    tasks: enrichedTasks as PopulatedDatabaseTask[],
+  };
+
+  return transformedSprint;
+};
+
 /**
  * Fetches and populates a question, answer, or chat document based on the provided ID and type.
  *
  * @param {string | undefined} id - The ID of the document to fetch.
  * @param {'question' | 'answer' | 'chat'} type - Specifies the type of document to fetch.
- * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse>} - A promise resolving to the populated document or an error message if the operation fails.
+ * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse | SprintResponse>} - A promise resolving to the populated document or an error message if the operation fails.
  */
 // eslint-disable is for testing purposes only, so that Jest spy functions can be used.
 // eslint-disable-next-line import/prefer-default-export
 export const populateDocument = async (
   id: string,
-  type: 'question' | 'answer' | 'chat',
+  type: 'question' | 'answer' | 'chat' | 'sprint',
 ): Promise<
-  PopulatedDatabaseAnswer | PopulatedDatabaseChat | PopulatedDatabaseQuestion | { error: string }
+  PopulatedDatabaseAnswer | PopulatedDatabaseChat | PopulatedDatabaseQuestion | PopulatedDatabaseSprint |{ error: string }
 > => {
   try {
     if (!id) {
@@ -138,6 +196,8 @@ export const populateDocument = async (
       case 'chat':
         result = await populateChat(id);
         break;
+      case 'sprint':
+        result = await populateSprint(id);
       default:
         throw new Error('Invalid type provided.');
     }

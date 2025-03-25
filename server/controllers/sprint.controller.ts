@@ -1,7 +1,8 @@
 import express, { Response, Request } from 'express';
 import { AddTaskToSprintRequest, FakeSOSocket, CreateSprintRequest } from '../types/types';
-import { saveSprint, addTasksToSprint } from '../services/sprint.service';
+import { saveSprint, addTasksToSprint, getSprintbyId, deleteSprintById, getSprintsByProjectId } from '../services/sprint.service';
 import SprintModel from '../models/sprint.model';
+import { populateDocument } from '../utils/database.util';
 
 const sprintController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -62,11 +63,42 @@ const sprintController = (socket: FakeSOSocket) => {
   };
 
   const getSprint = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+    if (!req.body || !req.body.sprintId) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+
+    const { sprintId } = req.body;
+    
+    try {
+      const foundSprint = await getSprintbyId(sprintId);
+
+      if ('error' in foundSprint) {
+        throw new Error(foundSprint.error);
+      }
+
+      const populatedSprint = await populateDocument(foundSprint._id.toString(), 'sprint');
+
+      if ('error' in populatedSprint) {
+        throw new Error(populatedSprint.error);
+      }
+
+      res.json(populatedSprint);
+    } catch (err: unknown) {
+      res.status(500).send(`Error retrieving chat: ${(err as Error).message}`);
+    }
   };
 
   const getSprints = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+    const { projectId } = req.body;
+
+    try {
+      const sprints = await getSprintsByProjectId(projectId);
+
+      res.json(sprints);
+    } catch (error) {
+      res.status(500).send(`Error when getting sprints: ${error}`);
+    }
   };
 
   const updateSprintTasks = async (req: AddTaskToSprintRequest, res: Response): Promise<void> => {
@@ -95,11 +127,22 @@ const sprintController = (socket: FakeSOSocket) => {
   };
 
   const deleteSprint = async (req: Request, res: Response): Promise<void> => {
-    res.status(501).send('Not implemented');
+    const { sprintId } = req.body;
+
+    try {
+      const deletedSprint = deleteSprintById(sprintId);
+
+      res.json(deletedSprint);
+    } catch (error) {
+      res.status(500).send(`Error when deleting a sprint: ${error}`);
+    }
   };
 
   router.post('/createSprint', createSprint);
   router.put('/addTasks', updateSprintTasks);
+  router.get('/getSprint', getSprint);
+  router.delete('/deleteSprint', deleteSprint);
+  router.get('/getSprints', getSprints);
   return router;
 };
 
