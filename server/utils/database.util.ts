@@ -23,6 +23,8 @@ import UserModel from '../models/users.model';
 import MessageModel from '../models/messages.model';
 import SprintModel from '../models/sprint.model';
 import TaskModel from '../models/task.model';
+import ProjectModel from '../models/project.model';
+import { populate } from 'dotenv';
 
 /**
  * Fetches and populates a question document with its related tags, answers, and comments.
@@ -159,6 +161,52 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
   const transformedSprint: PopulatedDatabaseSprint = {
     ...sprintDoc.toObject(),
     tasks: enrichedTasks as PopulatedDatabaseTask[],
+  };
+
+  return transformedSprint;
+};
+
+const populateProject = async (projectId: string): Promise<PopulatedDatabaseProject | null> => {
+  const projectDoc = await ProjectModel.findOne({ _id: projectId }).populate<{
+    backlogTasks: DatabaseTask[];
+  }>([{ path: 'tasks', model: TaskModel }]);
+
+  if (!projectDoc) {
+    throw new Error('Chat not found');
+  }
+
+  const projectSprints: Array<PopulatedDatabaseSprint | null> = await Promise.all(
+    projectDoc.sprints.map(async (sprintDoc: DatabaseTask) => {
+      if (!sprintDoc) return null;
+
+      const newSprintDoc = await populateSprint(sprintDoc._id);
+
+      if (!newSprintDoc) return null;
+
+      return {
+        _id: newSprintDoc._id,
+        assignedUser: newSprintDoc.assignedUser,
+        description: newSprintDoc.description,
+        name: newSprintDoc.name,
+        sprint: newSprintDoc.sprint,
+        status: newSprintDoc.status,
+        dependentTasks: newSprintDoc.dependentTasks,
+        prereqTasks: newSprintDoc.prereqTasks,
+        project: newSprintDoc.project,
+        priority: newSprintDoc.priority,
+        taskPoints: newSprintDoc.taskPoints,
+        relevantQuestions: newSprintDoc.relevantQuestions,
+        createdAt: newSprintDoc.createdAt,
+        updatedAt: newSprintDoc.updatedAt,
+      };
+    }),
+  );
+
+  // Filters out null values
+  const enriched = projectSprints.filter(Boolean);
+  const transformedSprint: PopulatedDatabaseSprint = {
+    ... .toObject(),
+    tasks: enriched as PopulatedDatabaseTask[],
   };
 
   return transformedSprint;
