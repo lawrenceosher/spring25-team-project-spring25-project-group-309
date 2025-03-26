@@ -133,7 +133,7 @@ const taskController = (socket: FakeSOSocket) => {
    * @param res The deleted task.
    */
   const deleteTask = async (req: TaskIdRequest, res: Response): Promise<void> => {
-    const { taskId } = req.body;
+    const { taskId } = req.params;
 
     try {
       const deletedTask = await deleteTaskById(taskId);
@@ -149,9 +149,7 @@ const taskController = (socket: FakeSOSocket) => {
 
       res.json(deletedTask);
     } catch (err: unknown) {
-      res
-        .status(500)
-        .send(`Error when adding dependent tasks to a ticket ${(err as Error).message}`);
+      res.status(500).send(`Error when deleting a task: ${(err as Error).message}`);
     }
   };
 
