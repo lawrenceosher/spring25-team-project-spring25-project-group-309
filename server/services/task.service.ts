@@ -24,7 +24,7 @@ export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse
  * @returns A list of tasks or an error message.
  */
 export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
-  getTasksByCriteria({ assigned_user: userId });
+  getTasksByCriteria({ assignedUser: userId });
 
 /**
  * Get a list of tasks by sprint
