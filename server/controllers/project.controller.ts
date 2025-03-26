@@ -5,7 +5,6 @@ import { getAllProjectsByUser } from '../services/project.service';
 const projectController = (socket: FakeSOSocket) => {
   const router = express.Router();
 
-
   const getProjectsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const { username } = req.params;
