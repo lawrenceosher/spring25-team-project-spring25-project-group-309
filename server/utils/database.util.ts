@@ -1,4 +1,3 @@
-import { populate } from 'dotenv';
 import { ObjectId } from 'mongodb';
 import {
   DatabaseComment,
@@ -126,7 +125,7 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
   }>([{ path: 'tasks', model: TaskModel }]);
 
   if (!sprintDoc) {
-    throw new Error('Chat not found');
+    throw new Error('Sprint not found');
   }
 
   const sprintTasks: Array<PopulatedDatabaseTask | null> = await Promise.all(
@@ -163,7 +162,7 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
   // Filters out null values
   const enrichedTasks = sprintTasks.filter(Boolean);
   const transformedSprint: PopulatedDatabaseSprint = {
-    ...sprintDoc.toObject(),
+    ...(sprintDoc.toObject ? sprintDoc.toObject() : sprintDoc),
     tasks: enrichedTasks as PopulatedDatabaseTask[],
   };
 
@@ -176,7 +175,7 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
   }>([{ path: 'tasks', model: TaskModel }]);
 
   if (!projectDoc) {
-    throw new Error('Chat not found');
+    throw new Error('Project not found');
   }
 
   const newBacklog = await Promise.all(
@@ -233,7 +232,7 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
   // Filters out null values
   const enriched = projectSprints.filter(Boolean);
   const transformedProject: PopulatedDatabaseProject = {
-    ...projectDoc.toObject(),
+    ...(projectDoc.toObject ? projectDoc.toObject() : projectDoc),
     sprints: enriched as PopulatedDatabaseSprint[],
     backlogTasks: newBacklog as PopulatedDatabaseTask[],
   };
