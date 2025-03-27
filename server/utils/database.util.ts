@@ -1,3 +1,5 @@
+import { populate } from 'dotenv';
+import { ObjectId } from 'mongodb';
 import {
   DatabaseComment,
   DatabaseMessage,
@@ -13,6 +15,9 @@ import {
   Task,
   PopulatedDatabaseTask,
   SprintResponse,
+  PopulatedDatabaseProject,
+  DatabaseSprint,
+  ProjectResponse,
 } from '../types/types';
 import AnswerModel from '../models/answers.model';
 import QuestionModel from '../models/questions.model';
@@ -24,7 +29,6 @@ import MessageModel from '../models/messages.model';
 import SprintModel from '../models/sprint.model';
 import TaskModel from '../models/task.model';
 import ProjectModel from '../models/project.model';
-import { populate } from 'dotenv';
 
 /**
  * Fetches and populates a question document with its related tags, answers, and comments.
@@ -175,41 +179,66 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
     throw new Error('Chat not found');
   }
 
+  const newBacklog = await Promise.all(
+    projectDoc.backlogTasks.map(async (taskDoc: DatabaseTask) => {
+      if (!taskDoc) return null;
+
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id }).populate<{
+        dependentTasks: DatabaseTask[];
+        prereqTasks: DatabaseTask[];
+        relevantQuestions: DatabaseQuestion[];
+      }>([{ path: 'tasks', model: TaskModel }]);
+
+      if (!newTaskDoc) return null;
+
+      return {
+        _id: newTaskDoc._id,
+        assignedUser: newTaskDoc.assignedUser,
+        description: newTaskDoc.description,
+        name: newTaskDoc.name,
+        sprint: newTaskDoc.sprint,
+        status: newTaskDoc.status,
+        dependentTasks: newTaskDoc.dependentTasks,
+        prereqTasks: newTaskDoc.prereqTasks,
+        project: newTaskDoc.project,
+        priority: newTaskDoc.priority,
+        taskPoints: newTaskDoc.taskPoints,
+        relevantQuestions: newTaskDoc.relevantQuestions,
+        createdAt: newTaskDoc.createdAt,
+        updatedAt: newTaskDoc.updatedAt,
+      };
+    }),
+  );
+
   const projectSprints: Array<PopulatedDatabaseSprint | null> = await Promise.all(
-    projectDoc.sprints.map(async (sprintDoc: DatabaseTask) => {
+    projectDoc.sprints.map(async (sprintDoc: ObjectId) => {
       if (!sprintDoc) return null;
 
-      const newSprintDoc = await populateSprint(sprintDoc._id);
+      const newSprintDoc = await populateSprint(sprintDoc.toString());
 
       if (!newSprintDoc) return null;
 
       return {
         _id: newSprintDoc._id,
-        assignedUser: newSprintDoc.assignedUser,
-        description: newSprintDoc.description,
         name: newSprintDoc.name,
-        sprint: newSprintDoc.sprint,
-        status: newSprintDoc.status,
-        dependentTasks: newSprintDoc.dependentTasks,
-        prereqTasks: newSprintDoc.prereqTasks,
         project: newSprintDoc.project,
-        priority: newSprintDoc.priority,
-        taskPoints: newSprintDoc.taskPoints,
-        relevantQuestions: newSprintDoc.relevantQuestions,
-        createdAt: newSprintDoc.createdAt,
-        updatedAt: newSprintDoc.updatedAt,
+        status: newSprintDoc.status,
+        startDate: newSprintDoc.startDate,
+        endDate: newSprintDoc.endDate,
+        tasks: newSprintDoc.tasks,
       };
     }),
   );
 
   // Filters out null values
   const enriched = projectSprints.filter(Boolean);
-  const transformedSprint: PopulatedDatabaseSprint = {
-    ... .toObject(),
-    tasks: enriched as PopulatedDatabaseTask[],
+  const transformedProject: PopulatedDatabaseProject = {
+    ...projectDoc.toObject(),
+    sprints: enriched as PopulatedDatabaseSprint[],
+    backlogTasks: newBacklog as PopulatedDatabaseTask[],
   };
 
-  return transformedSprint;
+  return transformedProject;
 };
 
 /**
@@ -217,18 +246,19 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
  *
  * @param {string | undefined} id - The ID of the document to fetch.
  * @param {'question' | 'answer' | 'chat'} type - Specifies the type of document to fetch.
- * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse | SprintResponse>} - A promise resolving to the populated document or an error message if the operation fails.
+ * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse | SprintResponse | ProjectResponse>} - A promise resolving to the populated document or an error message if the operation fails.
  */
 // eslint-disable is for testing purposes only, so that Jest spy functions can be used.
 // eslint-disable-next-line import/prefer-default-export
 export const populateDocument = async (
   id: string,
-  type: 'question' | 'answer' | 'chat' | 'sprint',
+  type: 'question' | 'answer' | 'chat' | 'sprint' | 'project',
 ): Promise<
   | PopulatedDatabaseAnswer
   | PopulatedDatabaseChat
   | PopulatedDatabaseQuestion
   | PopulatedDatabaseSprint
+  | PopulatedDatabaseProject
   | { error: string }
 > => {
   try {
@@ -250,6 +280,9 @@ export const populateDocument = async (
         break;
       case 'sprint':
         result = await populateSprint(id);
+        break;
+      case 'project':
+        result = await populateProject(id);
         break;
       default:
         throw new Error('Invalid type provided.');
