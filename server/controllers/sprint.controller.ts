@@ -1,11 +1,17 @@
 import express, { Response, Request } from 'express';
-import { AddTaskToSprintRequest, FakeSOSocket, CreateSprintRequest } from '../types/types';
+import {
+  AddTaskToSprintRequest,
+  FakeSOSocket,
+  CreateSprintRequest,
+  SprintRequest,
+} from '../types/types';
 import {
   saveSprint,
   addTasksToSprint,
   getSprintbyId,
   deleteSprintById,
   getSprintsByProjectId,
+  updateSprint,
 } from '../services/sprint.service';
 import SprintModel from '../models/sprint.model';
 import { populateDocument } from '../utils/database.util';
@@ -29,6 +35,8 @@ const sprintController = (socket: FakeSOSocket) => {
 
   const isAddTaskstoSprintRequestValid = (req: AddTaskToSprintRequest): boolean =>
     !!req.body.sprintId && !!req.body.taskIds;
+
+  const isSprintRequestValid = (req: SprintRequest): boolean => !!req.body.sprintId;
 
   /**
    * Creates a new sprint with the given details to be saved to the database. 'Tasks' is an optional field. Will return an empty array if not provided.
@@ -107,6 +115,29 @@ const sprintController = (socket: FakeSOSocket) => {
     }
   };
 
+  const startSprint = async (req: SprintRequest, res: Response): Promise<void> => {
+    if (!isSprintRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+
+    const { sprintId } = req.body;
+
+    try {
+      const updatedSprint = await updateSprint(sprintId, { status: 'In Progress' });
+      if ('error' in updatedSprint) {
+        throw new Error(updatedSprint.error);
+      }
+      socket.emit('sprintUpdate', {
+        sprint: updatedSprint,
+        type: 'updated',
+      });
+      res.json(updatedSprint);
+    } catch (err: unknown) {
+      res.status(500).send(`Error when starting a sprint: ${(err as Error).message}`);
+    }
+  };
+
   const updateSprintTasks = async (req: AddTaskToSprintRequest, res: Response): Promise<void> => {
     if (!isAddTaskstoSprintRequestValid(req)) {
       res.status(400).send('Invalid request');
@@ -140,6 +171,7 @@ const sprintController = (socket: FakeSOSocket) => {
     try {
       const deletedSprint = await deleteSprintById(sprintId);
 
+      // should this have socket emit?
       res.status(200).json(deletedSprint);
     } catch (error) {
       res.status(500).send(`Error when deleting a sprint: ${error}`);
@@ -151,6 +183,8 @@ const sprintController = (socket: FakeSOSocket) => {
   router.get('/getSprint', getSprint);
   router.delete('/deleteSprint', deleteSprint);
   router.get('/getSprints', getSprints);
+  router.put('/startSprint', startSprint);
+
   return router;
 };
 

@@ -15,13 +15,6 @@ export interface DatabaseSprint extends Sprint {
   _id: ObjectId;
 }
 
-export interface AddTaskToSprintRequest extends Request {
-  body: {
-    sprintId: string;
-    taskIds: string[];
-  };
-}
-
 export interface PopulatedDatabaseSprint extends Omit<DatabaseSprint, 'tasks'> {
   tasks: DatabaseTask[];
 }
@@ -45,5 +38,25 @@ export interface CreateSprintRequest extends Request {
     status: string;
     startDate: Date;
     endDate: Date;
+  };
+}
+
+export interface SprintRequest extends Request {
+  body: {
+    sprintId: string;
+  };
+}
+
+export interface UpdateSprintRequest extends SprintRequest {
+  body: {
+    sprintId: string;
+    updates: Partial<Sprint>;
+  };
+}
+
+export interface AddTaskToSprintRequest extends SprintRequest {
+  body: {
+    sprintId: string;
+    taskIds: string[];
   };
 }
