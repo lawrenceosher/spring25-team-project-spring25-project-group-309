@@ -12,6 +12,8 @@ import {
   Project,
   SafeDatabaseUser,
   User,
+  PopulatedDatabaseSprint,
+  PopulatedDatabaseProject,
 } from '../types/types';
 import { T1_DESC, T2_DESC, T3_DESC } from '../data/posts_strings';
 
@@ -290,4 +292,68 @@ export const databaseTaskWithAllFields: DatabaseTask = {
   relevantQuestions: [new ObjectId('65e9b58910afe6e94fc6e6df')],
   createdAt: new Date('2023-11-18T09:24:00'),
   updatedAt: new Date('2023-11-18T09:24:00'),
+};
+
+export const databaseProjectwithAllFields: PopulatedDatabaseProject = {
+  ...databaseProject,
+  sprints: [
+    {
+      _id: databaseSprint._id,
+      name: databaseSprint.name,
+      project: databaseSprint.project,
+      startDate: databaseSprint.startDate,
+      endDate: databaseSprint.endDate,
+      status: databaseSprint.status,
+      tasks: [
+        {
+          _id: databaseTask._id,
+          assignedUser: databaseTask.assignedUser,
+          description: databaseTask.description,
+          name: databaseTask.name,
+          sprint: databaseSprint._id,
+          status: databaseTask.status,
+          dependentTasks: [],
+          prereqTasks: [
+            {
+              _id: databaseTaskWithPrereq._id,
+              assignedUser: databaseTaskWithPrereq.assignedUser,
+              description: databaseTaskWithPrereq.description,
+              name: databaseTaskWithPrereq.name,
+              sprint: databaseSprint._id,
+              status: databaseTaskWithPrereq.status,
+              dependentTasks: [],
+              prereqTasks: [new ObjectId('35e9b58310afe6e94fc6e6dc')],
+              project: databaseSprint.project,
+              priority: databaseTaskWithPrereq.priority,
+              taskPoints: databaseTaskWithPrereq.taskPoints,
+              relevantQuestions: [],
+              createdAt: databaseTaskWithPrereq.createdAt,
+              updatedAt: databaseTaskWithPrereq.updatedAt,
+            },
+          ],
+          project: databaseSprint.project,
+          priority: databaseTask.priority,
+          taskPoints: databaseTask.taskPoints,
+          relevantQuestions: [
+            {
+              _id: new ObjectId('65e9b58910afe6e94fc6e6df'),
+              title: 'Quick question about storage on android',
+              text: 'test_text',
+              tags: [tag3._id],
+              answers: [ans1._id],
+              askedBy: 'q_by1',
+              askDateTime: new Date('2023-11-16T09:24:00'),
+              views: ['question1_user', 'question2_user'],
+              upVotes: [],
+              downVotes: [],
+              comments: [],
+            },
+          ],
+          createdAt: databaseTask.createdAt,
+          updatedAt: databaseTask.updatedAt,
+        },
+      ],
+    },
+  ],
+  backlogTasks: [],
 };
