@@ -82,6 +82,11 @@ const sprintController = (socket: FakeSOSocket) => {
         throw new Error(sprint.error);
       }
 
+      socket.emit('sprintUpdate', {
+        sprint,
+        type: 'created',
+      });
+
       res.status(201).json(sprint);
     } catch (err: unknown) {
       res.status(500).send(`Error when creating a sprint: ${(err as Error).message}`);
@@ -227,6 +232,11 @@ const sprintController = (socket: FakeSOSocket) => {
       if ('error' in deletedSprint) {
         throw new Error(deletedSprint.error);
       }
+
+      socket.emit('sprintUpdate', {
+        sprint: deletedSprint,
+        type: 'deleted',
+      });
 
       res.status(200).json(deletedSprint);
     } catch (error) {
