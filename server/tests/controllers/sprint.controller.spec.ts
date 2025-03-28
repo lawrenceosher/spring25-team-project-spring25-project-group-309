@@ -46,6 +46,53 @@ const sprintNoTasksResponse = {
   tasks: [],
 };
 
+const mockFoundSprint: DatabaseSprint = {
+  _id: new mongoose.Types.ObjectId(),
+  name: 'Test',
+  project: new mongoose.Types.ObjectId(),
+  startDate: new Date('2023-11-18T09:24:00Z'),
+  endDate: new Date('2023-11-18T09:24:00Z'),
+  status: 'active',
+  tasks: [new mongoose.Types.ObjectId()],
+};
+
+const mockFoundSprintResponse = {
+  _id: mockFoundSprint._id.toString(),
+  name: 'Test',
+  project: mockFoundSprint.project.toString(),
+  startDate: new Date('2023-11-18T09:24:00Z').toISOString(),
+  endDate: new Date('2023-11-18T09:24:00Z').toISOString(),
+  status: 'active',
+  tasks: [mockFoundSprint.tasks[0].toString()],
+};
+
+const mockPopulatedSprint: PopulatedDatabaseSprint = {
+  _id: mockFoundSprint._id,
+  name: 'Test',
+  project: mockFoundSprint.project,
+  startDate: new Date('2023-11-18T09:24:00Z'),
+  endDate: new Date('2023-11-18T09:24:00Z'),
+  status: 'active',
+  tasks: [
+    {
+      _id: new mongoose.Types.ObjectId(),
+      assignedUser: 'test',
+      description: 'test_desc',
+      name: 'username',
+      sprint: mockFoundSprint._id,
+      status: 'active',
+      dependentTasks: [new mongoose.Types.ObjectId()],
+      prereqTasks: [new mongoose.Types.ObjectId()],
+      project: new mongoose.Types.ObjectId(),
+      priority: 'high',
+      taskPoints: 5,
+      relevantQuestions: [new mongoose.Types.ObjectId()],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ],
+};
+
 describe('Test sprintController', () => {
   beforeEach(() => {
     createSprintSpy.mockClear();
@@ -128,48 +175,11 @@ describe('Test sprintController', () => {
       const response = await supertest(app).get('/sprint/getSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
     });
-
     it('should return the sprint', async () => {
-      // 1) Prepare a valid chatId param
+      // 1) Prepare a valid sprint param
       const sprintId = new mongoose.Types.ObjectId().toString();
 
-      // 2) Mock a fully enriched chat
-      const mockFoundSprint: DatabaseSprint = {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'Test',
-        project: new mongoose.Types.ObjectId(),
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [new mongoose.Types.ObjectId()],
-      };
-
-      const mockPopulatedSprint: PopulatedDatabaseSprint = {
-        _id: mockFoundSprint._id,
-        name: 'Test',
-        project: mockFoundSprint.project,
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [
-          {
-            _id: new mongoose.Types.ObjectId(),
-            assignedUser: 'test',
-            description: 'test_desc',
-            name: 'username',
-            sprint: mockFoundSprint._id,
-            status: 'active',
-            dependentTasks: [new mongoose.Types.ObjectId()],
-            prereqTasks: [new mongoose.Types.ObjectId()],
-            project: new mongoose.Types.ObjectId(),
-            priority: 'high',
-            taskPoints: 5,
-            relevantQuestions: [new mongoose.Types.ObjectId()],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-      };
+      // 2) Mock a fully enriched sprint
 
       // 3) Mock the service calls
       getSprintSpy.mockResolvedValue(mockFoundSprint);
@@ -191,46 +201,17 @@ describe('Test sprintController', () => {
     it('should return 200 with an array of sprints', async () => {
       const projectId = new mongoose.Types.ObjectId().toString();
 
-      const mockFoundSprint: DatabaseSprint = {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'Test',
-        project: new mongoose.Types.ObjectId(),
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [new mongoose.Types.ObjectId()],
-      };
-
       getSprintsByProjectIdSpy.mockResolvedValueOnce([mockFoundSprint]);
 
       const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
 
       expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
       expect(response.status).toBe(200);
-      expect(response.body).toMatchObject([
-        {
-          _id: mockFoundSprint._id.toString(),
-          name: mockFoundSprint.name,
-          project: mockFoundSprint.project.toString(),
-          startDate: mockFoundSprint.startDate.toISOString(),
-          endDate: mockFoundSprint.endDate.toISOString(),
-          status: mockFoundSprint.status,
-          tasks: mockFoundSprint.tasks.map(task => task.toString()),
-        },
-      ]);
+      expect(response.body).toMatchObject([mockFoundSprintResponse]);
     });
 
     it('should return 500 if fails for any sprint', async () => {
       const projectId = new mongoose.Types.ObjectId().toString();
-      const mockFoundSprint: DatabaseSprint = {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'Test',
-        project: new mongoose.Types.ObjectId(),
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [new mongoose.Types.ObjectId()],
-      };
 
       getSprintsByProjectIdSpy.mockImplementation(() => {
         throw new Error('Test error');
@@ -245,26 +226,6 @@ describe('Test sprintController', () => {
 
   describe('DELETE /deleteUser', () => {
     it('should return the deleted sprint given correct arguments', async () => {
-      const mockFoundSprint = {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'Test',
-        project: new mongoose.Types.ObjectId(),
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [new mongoose.Types.ObjectId()],
-      };
-
-      const mockFoundSprintResponse = {
-        _id: mockFoundSprint._id.toString(),
-        name: 'Test',
-        project: mockFoundSprint.project.toString(),
-        startDate: new Date('2023-11-18T09:24:00Z').toISOString(),
-        endDate: new Date('2023-11-18T09:24:00Z').toISOString(),
-        status: 'active',
-        tasks: [mockFoundSprint.tasks[0].toString()],
-      };
-
       deleteSprintByIdSpy.mockResolvedValue(mockFoundSprint);
 
       const sprintId = mockFoundSprint._id.toString();
@@ -291,26 +252,6 @@ describe('Test sprintController', () => {
 
   describe('GET /getSprints', () => {
     it('should return the sprints given correct arguments', async () => {
-      const mockFoundSprint = {
-        _id: new mongoose.Types.ObjectId(),
-        name: 'Test',
-        project: new mongoose.Types.ObjectId(),
-        startDate: new Date('2023-11-18T09:24:00Z'),
-        endDate: new Date('2023-11-18T09:24:00Z'),
-        status: 'active',
-        tasks: [new mongoose.Types.ObjectId()],
-      };
-
-      const mockFoundSprintResponse = {
-        _id: mockFoundSprint._id.toString(),
-        name: 'Test',
-        project: mockFoundSprint.project.toString(),
-        startDate: new Date('2023-11-18T09:24:00Z').toISOString(),
-        endDate: new Date('2023-11-18T09:24:00Z').toISOString(),
-        status: 'active',
-        tasks: [mockFoundSprint.tasks[0].toString()],
-      };
-
       getSprintsSpy.mockResolvedValue([mockFoundSprint]);
 
       const projectId = mockFoundSprint.project.toString();
