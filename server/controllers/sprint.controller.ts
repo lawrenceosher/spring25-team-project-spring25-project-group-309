@@ -4,6 +4,8 @@ import {
   FakeSOSocket,
   CreateSprintRequest,
   SprintRequest,
+  UpdateSprintRequest,
+  UpdateStatusRequest,
 } from '../types/types';
 import {
   saveSprint,
@@ -37,6 +39,12 @@ const sprintController = (socket: FakeSOSocket) => {
     !!req.body.sprintId && !!req.body.taskIds;
 
   const isSprintRequestValid = (req: SprintRequest): boolean => !!req.body.sprintId;
+
+  const isUpdateSprintRequestValid = (req: UpdateStatusRequest): boolean =>
+    !!req.body.sprintId &&
+    req.body.sprintId !== undefined &&
+    !!req.body.status &&
+    req.body.status !== undefined;
 
   /**
    * Creates a new sprint with the given details to be saved to the database. 'Tasks' is an optional field. Will return an empty array if not provided.
@@ -115,16 +123,17 @@ const sprintController = (socket: FakeSOSocket) => {
     }
   };
 
-  const startSprint = async (req: SprintRequest, res: Response): Promise<void> => {
-    if (!isSprintRequestValid(req)) {
+  const updateSprintStatus = async (req: UpdateStatusRequest, res: Response): Promise<void> => {
+    if (!isUpdateSprintRequestValid(req)) {
       res.status(400).send('Invalid request');
       return;
     }
 
-    const { sprintId } = req.body;
+    const { sprintId, status } = req.body;
 
     try {
-      const updatedSprint = await updateSprint(sprintId, { status: 'In Progress' });
+      const updatedSprint = await updateSprint(sprintId, { status: status.toString() });
+
       if ('error' in updatedSprint) {
         throw new Error(updatedSprint.error);
       }
@@ -134,8 +143,19 @@ const sprintController = (socket: FakeSOSocket) => {
       });
       res.json(updatedSprint);
     } catch (err: unknown) {
-      res.status(500).send(`Error when starting a sprint: ${(err as Error).message}`);
+      res.status(500).send(`Error when updating sprint status: ${(err as Error).message}`);
     }
+  };
+
+  const startSprint = async (req: SprintRequest, res: Response): Promise<void> => {
+    if (!isSprintRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+
+    // add status update to request
+    req.body.status = 'In Progress';
+    updateSprintStatus(req, res);
   };
 
   const endSprint = async (req: SprintRequest, res: Response): Promise<void> => {
@@ -143,22 +163,10 @@ const sprintController = (socket: FakeSOSocket) => {
       res.status(400).send('Invalid request');
       return;
     }
-    const { sprintId } = req.body;
-    try {
-      const updatedSprint = await updateSprint(sprintId, { status: 'Done' });
 
-      if ('error' in updatedSprint) {
-        throw new Error(updatedSprint.error);
-      }
-
-      socket.emit('sprintUpdate', {
-        sprint: updatedSprint,
-        type: 'updated',
-      });
-      res.json(updatedSprint);
-    } catch (err: unknown) {
-      res.status(500).send(`Error when ending a sprint: ${(err as Error).message}`);
-    }
+    // add status update to request
+    req.body.status = 'Done';
+    updateSprintStatus(req, res);
   };
 
   const updateSprintTasks = async (req: AddTaskToSprintRequest, res: Response): Promise<void> => {

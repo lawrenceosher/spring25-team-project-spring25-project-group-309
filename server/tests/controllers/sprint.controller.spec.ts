@@ -347,7 +347,7 @@ describe('Test sprintController', () => {
 
       const response = await supertest(app).put('/sprint/startSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
-      expect(response.text).toBe('Error when starting a sprint: Test error');
+      expect(response.text).toBe('Error when updating sprint status: Test error');
     });
 
     it('should return 500 if updateSprint returns an error object', async () => {
@@ -358,7 +358,7 @@ describe('Test sprintController', () => {
         .send({ sprintId: 'fake-id' });
 
       expect(response.status).toBe(500);
-      expect(response.text).toBe('Error when starting a sprint: Something failed');
+      expect(response.text).toBe('Error when updating sprint status: Something failed');
     });
 
     it('should return 200 if the sprint is started successfully', async () => {
@@ -401,7 +401,7 @@ describe('Test sprintController', () => {
 
       const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
-      expect(response.text).toBe('Error when ending a sprint: Test error');
+      expect(response.text).toBe('Error when updating sprint status: Test error');
     });
 
     it('should return 500 if updateSprint returns an error object', async () => {
@@ -410,7 +410,7 @@ describe('Test sprintController', () => {
       const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'fake-id' });
 
       expect(response.status).toBe(500);
-      expect(response.text).toBe('Error when ending a sprint: Something failed');
+      expect(response.text).toBe('Error when updating sprint status: Something failed');
     });
 
     it('should return 200 if the sprint is ended successfully', async () => {

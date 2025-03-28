@@ -42,7 +42,7 @@ export interface CreateSprintRequest extends Request {
 }
 
 export interface SprintRequest extends Request {
-  body: {
+  params: {
     sprintId: string;
   };
 }
@@ -60,3 +60,12 @@ export interface AddTaskToSprintRequest extends SprintRequest {
     taskIds: string[];
   };
 }
+
+export interface UpdateStatusRequest extends Request {
+  body: {
+    sprintId: string;
+    status: SprintStatus;
+  };
+}
+
+export type SprintStatus = 'To Do' | 'In Progress' | 'Done';
