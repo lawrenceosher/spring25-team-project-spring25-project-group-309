@@ -1,6 +1,5 @@
 import { ObjectId } from 'mongodb';
 import { Request } from 'express';
-import { PopulatedDatabaseTask } from './task';
 
 export interface Sprint {
   tasks: ObjectId[];

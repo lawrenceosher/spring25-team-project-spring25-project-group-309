@@ -1,6 +1,5 @@
 import SprintModel from '../../models/sprint.model';
 import { addTasksToSprint, deleteSprintById, getSprintbyId } from '../../services/sprint.service';
-import { getTaskById } from '../../services/task.service';
 import { databaseSprint } from '../mockData.models';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

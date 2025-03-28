@@ -4,7 +4,6 @@ import {
   FakeSOSocket,
   CreateSprintRequest,
   SprintRequest,
-  UpdateSprintRequest,
   UpdateStatusRequest,
 } from '../types/types';
 import {

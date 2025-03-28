@@ -1,8 +1,6 @@
 import supertest from 'supertest';
 import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { data } from 'vis-network';
-import { mock } from 'node:test';
 import { app } from '../../app';
 import * as util from '../../services/sprint.service';
 import { databaseSprint } from '../mockData.models';
@@ -95,12 +93,7 @@ const mockPopulatedSprint: PopulatedDatabaseSprint = {
 
 describe('Test sprintController', () => {
   beforeEach(() => {
-    createSprintSpy.mockClear();
-    addTasksToSprintSpy.mockClear();
-    getSprintSpy.mockClear();
-    populateDocumentSpy.mockClear();
-    getSprintsByProjectIdSpy.mockClear();
-    deleteSprintByIdSpy.mockClear();
+    jest.clearAllMocks();
   });
 
   describe('POST /createSprint', () => {
