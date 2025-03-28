@@ -138,6 +138,29 @@ const sprintController = (socket: FakeSOSocket) => {
     }
   };
 
+  const endSprint = async (req: SprintRequest, res: Response): Promise<void> => {
+    if (!isSprintRequestValid(req)) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const { sprintId } = req.body;
+    try {
+      const updatedSprint = await updateSprint(sprintId, { status: 'Done' });
+
+      if ('error' in updatedSprint) {
+        throw new Error(updatedSprint.error);
+      }
+
+      socket.emit('sprintUpdate', {
+        sprint: updatedSprint,
+        type: 'updated',
+      });
+      res.json(updatedSprint);
+    } catch (err: unknown) {
+      res.status(500).send(`Error when ending a sprint: ${(err as Error).message}`);
+    }
+  };
+
   const updateSprintTasks = async (req: AddTaskToSprintRequest, res: Response): Promise<void> => {
     if (!isAddTaskstoSprintRequestValid(req)) {
       res.status(400).send('Invalid request');
@@ -184,7 +207,7 @@ const sprintController = (socket: FakeSOSocket) => {
   router.delete('/deleteSprint', deleteSprint);
   router.get('/getSprints', getSprints);
   router.put('/startSprint', startSprint);
-
+  router.put('/endSprint', endSprint);
   return router;
 };
 

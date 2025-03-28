@@ -386,4 +386,56 @@ describe('Test sprintController', () => {
       expect(response.body).toEqual(startedSprintResponse);
     });
   });
+
+  describe('PUT endSprint', () => {
+    it('should return 400 if the request is invalid', async () => {
+      const response = await supertest(app).put('/sprint/endSprint').send({});
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Invalid request');
+    });
+
+    it('should return 500 if there is an error', async () => {
+      updateSprintSpy.mockImplementation(() => {
+        throw new Error('Test error');
+      });
+
+      const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'test' });
+      expect(response.status).toBe(500);
+      expect(response.text).toBe('Error when ending a sprint: Test error');
+    });
+
+    it('should return 500 if updateSprint returns an error object', async () => {
+      updateSprintSpy.mockResolvedValue({ error: 'Something failed' });
+
+      const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'fake-id' });
+
+      expect(response.status).toBe(500);
+      expect(response.text).toBe('Error when ending a sprint: Something failed');
+    });
+
+    it('should return 200 if the sprint is ended successfully', async () => {
+      const sprintId = databaseSprint._id.toString();
+      const endedSprint: SprintResponse = {
+        ...databaseSprint,
+        status: 'Completed',
+      };
+
+      const endedSprintResponse = {
+        _id: endedSprint._id.toString(),
+        name: endedSprint.name,
+        project: endedSprint.project.toString(),
+        startDate: endedSprint.startDate.toISOString(),
+        endDate: endedSprint.endDate.toISOString(),
+        status: 'Completed',
+        tasks: endedSprint.tasks.map(task => task.toString()),
+      };
+
+      updateSprintSpy.mockResolvedValue(endedSprint);
+
+      const response = await supertest(app).put('/sprint/endSprint').send({ sprintId });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(endedSprintResponse);
+    });
+  });
 });
