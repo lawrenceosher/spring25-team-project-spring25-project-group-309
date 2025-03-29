@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
-import { MockSprint } from '../../../../types/mockTypes/sprint';
-import { MockProject } from '../../../../types/mockTypes/project';
+import { ObjectId } from 'mongodb';
+import { PopulatedDatabaseProject, PopulatedDatabaseSprint } from '../../../../types/types';
 
 export default function SprintCreationModal({
   show,
@@ -11,19 +10,17 @@ export default function SprintCreationModal({
 }: {
   show: boolean;
   handleClose: () => void;
-  project: MockProject;
+  project: PopulatedDatabaseProject;
 }) {
-  const [createdSprint, setCreatedSprint] = useState<MockSprint>({
-    _id: new Date().getTime().toString(),
+  const [createdSprint, setCreatedSprint] = useState<PopulatedDatabaseSprint>({
+    _id: new ObjectId(),
     name: '',
     project: project._id,
-    start_date: new Date(),
-    end_date: new Date(),
+    startDate: new Date(),
+    endDate: new Date(),
     status: 'Not Started',
     tasks: [],
   });
-
-  const dispatch = useDispatch();
 
   function formatDateForFormInput(myDate: Date) {
     // Code taken from GeeksForGeeks: https://www.geeksforgeeks.org/how-to-format-javascript-date-as-yyyy-mm-dd/
@@ -54,12 +51,12 @@ export default function SprintCreationModal({
               <Form.Label>Start Date</Form.Label>
               <Form.Control
                 type='date'
-                defaultValue={formatDateForFormInput(createdSprint.start_date)}
+                defaultValue={formatDateForFormInput(createdSprint.startDate)}
                 onChange={e =>
                   setCreatedSprint({
                     ...createdSprint,
                     // Had to add one day to the date to make it accurate - was always one day behind before
-                    start_date: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
+                    startDate: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
                   })
                 }
               />
@@ -68,11 +65,11 @@ export default function SprintCreationModal({
               <Form.Label>End Date</Form.Label>
               <Form.Control
                 type='date'
-                defaultValue={formatDateForFormInput(createdSprint.end_date)}
+                defaultValue={formatDateForFormInput(createdSprint.endDate)}
                 onChange={e =>
                   setCreatedSprint({
                     ...createdSprint,
-                    end_date: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
+                    endDate: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
                   })
                 }
               />
@@ -86,12 +83,12 @@ export default function SprintCreationModal({
                   setCreatedSprint({
                     ...createdSprint,
                     tasks: Array.from(e.target.selectedOptions, option =>
-                      project.backlog.tasks.find(task => task._id === option.value),
+                      project.backlogTasks.find(task => task._id.toString() === option.value),
                     ),
                   })
                 }>
-                {project.backlog.tasks.map(task => (
-                  <option key={task._id} value={task._id}>
+                {project.backlogTasks.map(task => (
+                  <option key={task._id.toString()} value={task._id.toString()}>
                     {task.name}
                   </option>
                 ))}
@@ -109,11 +106,11 @@ export default function SprintCreationModal({
             onClick={() => {
               // Need to call the service to create a new Sprint
               setCreatedSprint({
-                _id: new Date().getTime().toString(),
+                _id: new ObjectId(),
                 name: '',
                 project: project._id,
-                start_date: new Date(),
-                end_date: new Date(),
+                startDate: new Date(),
+                endDate: new Date(),
                 status: 'To-Do',
                 tasks: [],
               }); // Reset the form
