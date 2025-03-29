@@ -2,8 +2,8 @@ import { ListGroup, Button } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
+import { PopulatedDatabaseSprint } from '../../../../types/types';
 import TaskListItem from '../TaskListItem/TaskListItem';
-import { MockSprint } from '../../../../types/mockTypes/sprint';
 import { getFullDate, getStatusColor } from '../../../../tool';
 
 export default function SprintListGroup({
@@ -11,7 +11,7 @@ export default function SprintListGroup({
   handleShowSprintUpdateModal,
   handleShowDeleteSprintModal,
 }: {
-  sprint: MockSprint;
+  sprint: PopulatedDatabaseSprint;
   handleShowSprintUpdateModal: () => void;
   handleShowDeleteSprintModal: () => void;
 }) {
@@ -23,7 +23,7 @@ export default function SprintListGroup({
         <div id='sprint-header' className='p-3 ps-2 bg-light'>
           <span>{sprint.name}</span>
           <span className='ms-4 text-muted'>
-            {`${getFullDate(sprint.start_date)} - ${getFullDate(sprint.end_date)}`}
+            {`${getFullDate(sprint.startDate)} - ${getFullDate(sprint.endDate)}`}
           </span>
           <div className='float-end'>
             <span className={`me-3 rounded-pill p-2 ${getStatusColor(sprint.status)}`}>

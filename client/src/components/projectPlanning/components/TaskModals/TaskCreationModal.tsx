@@ -59,7 +59,9 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                defaultValue={'Backlog'}
+                value={
+                  createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : 'Backlog'
+                }
                 onChange={e =>
                   setCreatedTask({ ...createdTask, sprint: new ObjectId(e.target.value) })
                 }>
