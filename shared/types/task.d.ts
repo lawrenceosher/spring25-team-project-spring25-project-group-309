@@ -6,7 +6,7 @@ export interface Task {
   assignedUser: string;
   description: string;
   name: string;
-  sprint: ObjectId;
+  sprint: ObjectId | null;
   status: string;
   dependentTasks: ObjectId[];
   prereqTasks: ObjectId[];

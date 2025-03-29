@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { PopulatedDatabaseProject, Project } from '@fake-stack-overflow/shared';
 import { Button, Form } from 'react-bootstrap';
+import { PopulatedDatabaseProject, PopulatedDatabaseSprint, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
@@ -20,7 +20,6 @@ import TaskUpdateModal from '../components/TaskModals/TaskUpdateModal';
 import SprintUpdateModal from '../components/SprintModals/SprintUpdateModal';
 import useUsersListPage from '../../../hooks/useUsersListPage';
 import { createProject, getProjectByUser } from '../../../services/projectService';
-import { setProject } from '../../../redux/projectReducer/projectReducer';
 import useUserContext from '../../../hooks/useUserContext';
 
 export default function SprintPlanningPage() {
@@ -46,7 +45,8 @@ export default function SprintPlanningPage() {
   } = useSprintPlanningPageModals();
 
   const { userList } = useUsersListPage();
-  const { project } = useSelector((state: any) => state.projectReducer);
+  // const { project } = useSelector((state: any) => state.projectReducer);
+  const [project, setProject] = useState<PopulatedDatabaseProject | null>(null);
   const { user: currentUser } = useUserContext();
   const dispatch = useDispatch();
   // const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
@@ -62,7 +62,7 @@ export default function SprintPlanningPage() {
   const handleCreateProject = async (proj: Project) => {
     try {
       const result = await createProject(proj);
-      dispatch(setProject(result));
+      setProject(result);
     } catch (error) {
       console.error('Error creating project:', error);
     }
@@ -71,7 +71,7 @@ export default function SprintPlanningPage() {
   useEffect(() => {
     const fetchProject = async () => {
       const result = await getProjectByUser(currentUser.username);
-      dispatch(setProject(result));
+      setProject(result);
     };
 
     fetchProject();
@@ -122,7 +122,10 @@ export default function SprintPlanningPage() {
               ))}
             </Form.Select>
           </Form.Group>
-          <Button className='mt-3' variant='success'>
+          <Button
+            className='mt-3'
+            variant='success'
+            onClick={() => handleCreateProject(newProject)}>
             Create Project
           </Button>
         </Form>
@@ -181,9 +184,9 @@ export default function SprintPlanningPage() {
             <p className='text-muted'>No sprints available.</p>
           ) : (
             <>
-              {project.sprints.map((sprint: MockSprint) => (
+              {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
                 <SprintListGroup
-                  key={sprint._id}
+                  key={sprint._id.toString()}
                   sprint={sprint}
                   handleShowSprintUpdateModal={handleShowSprintUpdateModal}
                   handleShowDeleteSprintModal={handleShowDeleteSprintModal}

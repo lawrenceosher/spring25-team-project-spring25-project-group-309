@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
-import { MockTask } from '../../../../types/mockTypes/task';
-import { MockProject } from '../../../../types/mockTypes/project';
+import { ObjectId } from 'mongodb';
+import {
+  DatabaseQuestion,
+  DatabaseTag,
+  DatabaseTask,
+  PopulatedDatabaseProject,
+  PopulatedDatabaseQuestion,
+  PopulatedDatabaseTask,
+} from '../../../../types/types';
+import useQuestionPage from '../../../../hooks/useQuestionPage';
 
 export default function TaskCreationModal({
   show,
@@ -11,19 +18,19 @@ export default function TaskCreationModal({
 }: {
   show: boolean;
   handleClose: () => void;
-  project: MockProject;
+  project: PopulatedDatabaseProject;
 }) {
-  const dispatch = useDispatch();
+  const { qlist } = useQuestionPage();
 
-  const [createdTask, setCreatedTask] = useState<MockTask>({
-    _id: new Date().getTime().toString(),
-    assigned_user: project.assignedUsers[0],
+  const [createdTask, setCreatedTask] = useState<PopulatedDatabaseTask>({
+    _id: new ObjectId(),
+    assignedUser: project.assignedUsers[0],
     description: '',
     name: '',
-    sprint: project.backlog._id,
+    sprint: null,
     status: 'To-Do',
     dependentTasks: [],
-    prereqForTasks: [],
+    prereqTasks: [],
     project: project._id,
     priority: 'Low',
     taskPoints: 1,
@@ -52,11 +59,13 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={createdTask.sprint}
-                onChange={e => setCreatedTask({ ...createdTask, sprint: e.target.value })}>
-                <option value={project.backlog._id}>Backlog</option>
+                defaultValue={'Backlog'}
+                onChange={e =>
+                  setCreatedTask({ ...createdTask, sprint: new ObjectId(e.target.value) })
+                }>
+                <option value={undefined}>Backlog</option>
                 {project.sprints.map(sprint => (
-                  <option key={sprint._id} value={sprint._id}>
+                  <option key={sprint._id.toString()} value={sprint._id.toString()}>
                     {sprint.name}
                   </option>
                 ))}
@@ -76,7 +85,7 @@ export default function TaskCreationModal({
               <Form.Label>User</Form.Label>
               <Form.Select
                 defaultValue={project.assignedUsers[0]}
-                onChange={e => setCreatedTask({ ...createdTask, assigned_user: e.target.value })}>
+                onChange={e => setCreatedTask({ ...createdTask, assignedUser: e.target.value })}>
                 {project.assignedUsers.map(user => (
                   <option key={user} value={user}>
                     {user}
@@ -123,12 +132,26 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    relevantQuestions: Array.from(e.target.selectedOptions, option => option.value),
+                    relevantQuestions: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        qlist.find(
+                          (question: PopulatedDatabaseQuestion) =>
+                            question._id.toString() === option.value,
+                        ) || null,
+                    )
+                      .filter(question => question !== null)
+                      .map(question => ({
+                        ...question,
+                        tags: question.tags.map((tag: DatabaseTag) => tag._id),
+                      })) as unknown as DatabaseQuestion[],
                   })
                 }>
-                <option value='1'>Question 1</option>
-                <option value='2'>Question 2</option>
-                <option value='3'>Question 3</option>
+                {qlist.map((question: PopulatedDatabaseQuestion) => (
+                  <option key={question._id.toString()} value={question._id.toString()}>
+                    {question.title}
+                  </option>
+                ))}
               </Form.Select>
             </Form.Group>
 
@@ -140,7 +163,13 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    prereqForTasks: Array.from(e.target.selectedOptions, option => option.value),
+                    prereqTasks: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        project.sprints
+                          .flatMap(sprint => sprint.tasks)
+                          .find(task => task._id.toString() === option.value) || null,
+                    ).filter(task => task !== null) as DatabaseTask[],
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -161,7 +190,13 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    dependentTasks: Array.from(e.target.selectedOptions, option => option.value),
+                    dependentTasks: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        project.sprints
+                          .flatMap(sprint => sprint.tasks)
+                          .find(task => task._id.toString() === option.value) || null,
+                    ).filter(task => task !== null) as DatabaseTask[],
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -185,14 +220,14 @@ export default function TaskCreationModal({
             onClick={() => {
               // Need to call the service to create a new Task
               setCreatedTask({
-                _id: new Date().getTime().toString(),
-                assigned_user: project.assignedUsers[0],
+                _id: new ObjectId(),
+                assignedUser: project.assignedUsers[0],
                 description: '',
                 name: '',
-                sprint: project.backlog._id,
+                sprint: null,
                 status: 'To-Do',
                 dependentTasks: [],
-                prereqForTasks: [],
+                prereqTasks: [],
                 project: project._id,
                 priority: 'Low',
                 taskPoints: 1,
