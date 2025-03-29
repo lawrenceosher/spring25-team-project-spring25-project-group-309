@@ -43,6 +43,10 @@ export default function SprintPlanningPage() {
   const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
   const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
 
+  if (project === null) {
+    return <div className='p-3'></div>;
+  }
+
   return (
     <div className='p-3'>
       {/* Header */}

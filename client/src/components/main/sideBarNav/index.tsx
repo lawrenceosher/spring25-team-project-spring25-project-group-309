@@ -71,7 +71,7 @@ const SideBarNav = () => {
         Games
       </NavLink>
       <NavLink
-        to='/project/board'
+        to='/project/sprint-planning'
         id='menu_project_planning'
         className={`menu_button ${location.pathname.includes('project') ? 'menu_selected' : ''}`}
         onClick={toggleProjectPlanningOptions}>
@@ -80,14 +80,14 @@ const SideBarNav = () => {
       {showProjectPlanningOptions && (
         <div className='additional-options'>
           <NavLink
-            to='/project/board'
-            className={`menu_button message-options ${isActiveOption('/project/board')}`}>
-            Kanban Board
-          </NavLink>
-          <NavLink
             to='/project/sprint-planning'
             className={`menu_button message-options ${isActiveOption('/project/sprint-planning')}`}>
             Sprint Planning
+          </NavLink>
+          <NavLink
+            to='/project/board'
+            className={`menu_button message-options ${isActiveOption('/project/board')}`}>
+            Kanban Board
           </NavLink>
           <NavLink
             to='/project/roadmap'
