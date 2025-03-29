@@ -3,7 +3,6 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { MockTask } from '../../../../types/mockTypes/task';
 import { MockProject } from '../../../../types/mockTypes/project';
-import { addNewTask } from '../../../../redux/projectReducer/projectReducer';
 
 export default function TaskCreationModal({
   show,
@@ -185,7 +184,6 @@ export default function TaskCreationModal({
             variant='success'
             onClick={() => {
               // Need to call the service to create a new Task
-              dispatch(addNewTask(createdTask));
               setCreatedTask({
                 _id: new Date().getTime().toString(),
                 assigned_user: project.assignedUsers[0],

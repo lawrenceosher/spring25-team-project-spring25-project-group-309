@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { addNewSprint } from '../../../../redux/projectReducer/projectReducer';
 import { MockSprint } from '../../../../types/mockTypes/sprint';
 import { MockProject } from '../../../../types/mockTypes/project';
 
@@ -109,7 +108,6 @@ export default function SprintCreationModal({
             variant='primary'
             onClick={() => {
               // Need to call the service to create a new Sprint
-              dispatch(addNewSprint(createdSprint));
               setCreatedSprint({
                 _id: new Date().getTime().toString(),
                 name: '',
