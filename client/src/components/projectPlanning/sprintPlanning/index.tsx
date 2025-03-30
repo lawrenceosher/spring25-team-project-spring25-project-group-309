@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
-import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { PopulatedDatabaseProject, PopulatedDatabaseSprint, Project } from '../../../types/types';
+import { PopulatedDatabaseProject, PopulatedDatabaseTask, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
@@ -47,10 +46,10 @@ export default function SprintPlanningPage() {
   const { userList } = useUsersListPage();
   // const { project } = useSelector((state: any) => state.projectReducer);
   const [project, setProject] = useState<PopulatedDatabaseProject | null>(null);
+  const [loading, setLoading] = useState(true);
   const { user: currentUser } = useUserContext();
-  const dispatch = useDispatch();
   // const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
-  const [taskForModal, setTaskForModal] = useState<MockTask | null>(null);
+  const [taskForModal, setTaskForModal] = useState<PopulatedDatabaseTask | null>(null);
   const [newProject, setNewProject] = useState<Project>({
     assignedUsers: [],
     description: '',
@@ -72,10 +71,11 @@ export default function SprintPlanningPage() {
     const fetchProject = async () => {
       const result = await getProjectByUser(currentUser.username);
       setProject(result);
+      setLoading(false);
     };
 
     fetchProject();
-  }, [dispatch, project, currentUser.username]);
+  }, []);
 
   if (!project) {
     return (
@@ -133,18 +133,20 @@ export default function SprintPlanningPage() {
     );
   }
 
+  if (loading) return <p>Loading...</p>;
+
   return (
     <div className='p-3'>
       {/* Header */}
       <SprintPlanningHeader
-        projectName={project.name}
-        users={project.assignedUsers}
+        projectName={project.name || ''}
+        users={project.assignedUsers || []}
         handleShowCreateSprintModal={handleShowCreateSprintModal}
         handleShowCreateTaskModal={handleShowCreateTaskModal}
       />
 
       {/* Modals */}
-      <TaskCreationModal
+      {/* <TaskCreationModal
         show={showCreateTaskModal}
         handleClose={handleCloseCreateTaskModal}
         project={project}
@@ -159,18 +161,18 @@ export default function SprintPlanningPage() {
         show={showDeleteTaskModal}
         handleClose={handleCloseDeleteTaskModal}
         taskTitle={taskForModal?.name || ''}
-      />
+      /> */}
       {/* <SprintDeletionModal
         show={showDeleteSprintModal}
         handleClose={handleCloseDeleteSprintModal}
         sprintTitle={sprintForModal?.name || ''}
       /> */}
 
-      <TaskUpdateModal
+      {/* <TaskUpdateModal
         show={showTaskUpdateModal}
         handleClose={handleCloseTaskUpdateModal}
         project={project}
-      />
+      /> */}
       {/* <SprintUpdateModal
         show={showSprintUpdateModal}
         handleClose={handleCloseSprintUpdateModal}
@@ -180,11 +182,11 @@ export default function SprintPlanningPage() {
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
         <div id='sprints' className='flex-fill'>
-          {project.sprints.length === 0 ? (
+          {!project.sprints ? (
             <p className='text-muted'>No sprints available.</p>
           ) : (
             <>
-              {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
+              {/* {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
                 <SprintListGroup
                   key={sprint._id.toString()}
                   sprint={sprint}
@@ -194,7 +196,7 @@ export default function SprintPlanningPage() {
                 />
               ))}
 
-              <Backlog backlog={project.backlogTasks} />
+              <Backlog backlog={project.backlogTasks} /> */}
 
               {/* Task Details */}
               <div id='task-details' className='ms-3'>

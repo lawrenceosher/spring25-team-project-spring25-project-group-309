@@ -4,7 +4,7 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
-import { MockTask } from '../../../../types/mockTypes/task';
+import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
@@ -13,7 +13,7 @@ export default function TaskDetailsCard({
 }: {
   handleShowDeleteTaskModal?: () => void;
   handleShowTaskUpdateModal?: () => void;
-  setTaskForModal?: (task: MockTask) => void;
+  setTaskForModal?: (task: PopulatedDatabaseTask) => void;
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
