@@ -3,7 +3,12 @@
 import './index.css';
 import { useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { PopulatedDatabaseProject, PopulatedDatabaseTask, Project } from '../../../types/types';
+import {
+  PopulatedDatabaseProject,
+  PopulatedDatabaseSprint,
+  PopulatedDatabaseTask,
+  Project,
+} from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
@@ -13,12 +18,10 @@ import useSprintPlanningPageModals from '../../../hooks/useSprintPlanningPageMod
 import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import SprintPlanningHeader from '../components/SprintPlanningHeader/SprintPlanningHeader';
 import Backlog from '../components/Backlog/Backlog';
-import { MockSprint } from '../../../types/mockTypes/sprint';
-import { MockTask } from '../../../types/mockTypes/task';
 import TaskUpdateModal from '../components/TaskModals/TaskUpdateModal';
 import SprintUpdateModal from '../components/SprintModals/SprintUpdateModal';
 import useUsersListPage from '../../../hooks/useUsersListPage';
-import { createProject, getProjectByUser } from '../../../services/projectService';
+import { createProject, getProjectsByUser } from '../../../services/projectService';
 import useUserContext from '../../../hooks/useUserContext';
 
 export default function SprintPlanningPage() {
@@ -69,8 +72,8 @@ export default function SprintPlanningPage() {
 
   useEffect(() => {
     const fetchProject = async () => {
-      const result = await getProjectByUser(currentUser.username);
-      setProject(result);
+      const result = await getProjectsByUser(currentUser.username);
+      setProject(result[0]);
       setLoading(false);
     };
 
@@ -139,14 +142,14 @@ export default function SprintPlanningPage() {
     <div className='p-3'>
       {/* Header */}
       <SprintPlanningHeader
-        projectName={project.name || ''}
-        users={project.assignedUsers || []}
+        projectName={project.name}
+        users={project.assignedUsers}
         handleShowCreateSprintModal={handleShowCreateSprintModal}
         handleShowCreateTaskModal={handleShowCreateTaskModal}
       />
 
       {/* Modals */}
-      {/* <TaskCreationModal
+      <TaskCreationModal
         show={showCreateTaskModal}
         handleClose={handleCloseCreateTaskModal}
         project={project}
@@ -161,7 +164,7 @@ export default function SprintPlanningPage() {
         show={showDeleteTaskModal}
         handleClose={handleCloseDeleteTaskModal}
         taskTitle={taskForModal?.name || ''}
-      /> */}
+      />
       {/* <SprintDeletionModal
         show={showDeleteSprintModal}
         handleClose={handleCloseDeleteSprintModal}
@@ -181,35 +184,35 @@ export default function SprintPlanningPage() {
 
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
-        <div id='sprints' className='flex-fill'>
-          {!project.sprints ? (
-            <p className='text-muted'>No sprints available.</p>
-          ) : (
-            <>
-              {/* {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
-                <SprintListGroup
-                  key={sprint._id.toString()}
-                  sprint={sprint}
-                  handleShowSprintUpdateModal={handleShowSprintUpdateModal}
-                  handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-                  // setSprintForModal={setSprintForModal}
-                />
-              ))}
+        {project.sprints.length === 0 ? (
+          <div id='sprints' className='text-muted flex-fill fs-2'>
+            No sprints created yet. Click Create Sprint to begin sprint planning.
+          </div>
+        ) : (
+          <div id='sprints' className='flex-fill'>
+            {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
+              <SprintListGroup
+                key={sprint._id.toString()}
+                sprint={sprint}
+                handleShowSprintUpdateModal={handleShowSprintUpdateModal}
+                handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+                // setSprintForModal={setSprintForModal}
+              />
+            ))}
 
-              <Backlog backlog={project.backlogTasks} /> */}
-
-              {/* Task Details */}
-              <div id='task-details' className='ms-3'>
-                <TaskDetailsCard
-                  handleShowDeleteTaskModal={handleShowDeleteTaskModal}
-                  handleShowTaskUpdateModal={handleShowTaskUpdateModal}
-                  setTaskForModal={setTaskForModal}
-                />
-              </div>
-            </>
-          )}
-          {}
-        </div>
+            <Backlog backlog={project.backlogTasks} />
+          </div>
+        )}
+        {/* Task Details */}
+        {project.sprints.length !== 0 && (
+          <div id='task-details' className='ms-3'>
+            <TaskDetailsCard
+              handleShowDeleteTaskModal={handleShowDeleteTaskModal}
+              handleShowTaskUpdateModal={handleShowTaskUpdateModal}
+              setTaskForModal={setTaskForModal}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

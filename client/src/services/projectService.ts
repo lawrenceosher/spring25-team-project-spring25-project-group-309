@@ -3,7 +3,7 @@ import api from './config';
 
 const PROJECT_API_URL = `${process.env.REACT_APP_SERVER_URL}/project`;
 
-export const getProjectByUser = async (username: string): Promise<PopulatedDatabaseProject> => {
+export const getProjectsByUser = async (username: string): Promise<PopulatedDatabaseProject[]> => {
   const res = await api.get(`${PROJECT_API_URL}/${username}`);
 
   if (res.status !== 200) {
