@@ -132,11 +132,16 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
     sprintDoc.tasks.map(async (taskDoc: DatabaseTask) => {
       if (!taskDoc) return null;
 
-      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id }).populate<{
-        dependentTasks: DatabaseTask[];
-        prereqTasks: DatabaseTask[];
-        relevantQuestions: DatabaseQuestion[];
-      }>([{ path: 'tasks', model: TaskModel }]);
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+        .populate<{
+          dependentTasks: DatabaseTask[];
+        }>([{ path: 'dependentTasks', model: TaskModel }])
+        .populate<{
+          prereqTasks: DatabaseTask[];
+        }>([{ path: 'prereqTasks', model: TaskModel }])
+        .populate<{
+          relevantQuestions: DatabaseQuestion[];
+        }>([{ path: 'relevantQuestions', model: TaskModel }]);
 
       if (!newTaskDoc) return null;
 
@@ -172,7 +177,7 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
 const populateProject = async (projectId: string): Promise<PopulatedDatabaseProject | null> => {
   const projectDoc = await ProjectModel.findOne({ _id: projectId }).populate<{
     backlogTasks: DatabaseTask[];
-  }>([{ path: 'tasks', model: TaskModel }]);
+  }>([{ path: 'backlogTasks', model: TaskModel }]);
 
   if (!projectDoc) {
     throw new Error('Project not found');
@@ -182,11 +187,16 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
     projectDoc.backlogTasks.map(async (taskDoc: DatabaseTask) => {
       if (!taskDoc) return null;
 
-      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id }).populate<{
-        dependentTasks: DatabaseTask[];
-        prereqTasks: DatabaseTask[];
-        relevantQuestions: DatabaseQuestion[];
-      }>([{ path: 'tasks', model: TaskModel }]);
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+        .populate<{
+          dependentTasks: DatabaseTask[];
+        }>([{ path: 'dependentTasks', model: TaskModel }])
+        .populate<{
+          prereqTasks: DatabaseTask[];
+        }>([{ path: 'prereqTasks', model: TaskModel }])
+        .populate<{
+          relevantQuestions: DatabaseQuestion[];
+        }>([{ path: 'relevantQuestions', model: TaskModel }]);
 
       if (!newTaskDoc) return null;
 
