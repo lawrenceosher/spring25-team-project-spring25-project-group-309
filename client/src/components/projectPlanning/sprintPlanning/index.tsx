@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/no-extraneous-dependencies */
 import './index.css';
 import { useEffect, useState } from 'react';
 import {
@@ -46,12 +45,13 @@ export default function SprintPlanningPage() {
     handleShowSprintUpdateModal,
   } = useSprintPlanningPageModals();
 
-  const { userList } = useUsersListPage();
   // const { project } = useSelector((state: any) => state.projectReducer);
+
+  const { userList } = useUsersListPage();
   const [project, setProject] = useState<PopulatedDatabaseProject | null>(null);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useUserContext();
-  // const [sprintForModal, setSprintForModal] = useState<MockSprint>(project.sprints[0]);
+  const [sprintForModal, setSprintForModal] = useState<PopulatedDatabaseSprint | null>(null);
   const [taskForModal, setTaskForModal] = useState<PopulatedDatabaseTask | null>(null);
   const [newProject, setNewProject] = useState<Project>({
     assignedUsers: [],
@@ -78,7 +78,7 @@ export default function SprintPlanningPage() {
     };
 
     fetchProject();
-  }, []);
+  }, [currentUser.username]);
 
   if (!project) {
     return (
@@ -120,22 +120,22 @@ export default function SprintPlanningPage() {
         handleClose={handleCloseDeleteTaskModal}
         taskTitle={taskForModal?.name || ''}
       />
-      {/* <SprintDeletionModal
+      <SprintDeletionModal
         show={showDeleteSprintModal}
         handleClose={handleCloseDeleteSprintModal}
         sprintTitle={sprintForModal?.name || ''}
-      /> */}
+      />
 
-      {/* <TaskUpdateModal
+      <TaskUpdateModal
         show={showTaskUpdateModal}
         handleClose={handleCloseTaskUpdateModal}
         project={project}
-      /> */}
-      {/* <SprintUpdateModal
+      />
+      <SprintUpdateModal
         show={showSprintUpdateModal}
         handleClose={handleCloseSprintUpdateModal}
         sprintToUpdate={sprintForModal}
-      /> */}
+      />
 
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
@@ -151,7 +151,7 @@ export default function SprintPlanningPage() {
                 sprint={sprint}
                 handleShowSprintUpdateModal={handleShowSprintUpdateModal}
                 handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-                // setSprintForModal={setSprintForModal}
+                setSprintForModal={setSprintForModal}
               />
             ))}
 

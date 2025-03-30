@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { MockSprint } from '../../../../types/mockTypes/sprint';
+import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 
 export default function SprintUpdateModal({
   show,
@@ -9,12 +9,18 @@ export default function SprintUpdateModal({
 }: {
   show: boolean;
   handleClose: () => void;
-  sprintToUpdate: MockSprint;
+  sprintToUpdate: PopulatedDatabaseSprint | null;
 }) {
-  const [updatedSprint, setUpdatedSprint] = useState<MockSprint>({ ...sprintToUpdate });
+  const [updatedSprint, setUpdatedSprint] = useState<PopulatedDatabaseSprint | null>(
+    sprintToUpdate
+      ? {
+          ...sprintToUpdate,
+        }
+      : null,
+  );
 
   useEffect(() => {
-    setUpdatedSprint({ ...sprintToUpdate });
+    setUpdatedSprint(sprintToUpdate ? { ...sprintToUpdate } : null);
   }, [sprintToUpdate]);
 
   function formatDateForFormInput(myDate: Date) {
@@ -27,65 +33,69 @@ export default function SprintUpdateModal({
 
   return (
     <div>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Update Sprint</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId='sprintTitle'>
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type='text'
-                placeholder='Enter Sprint Title'
-                value={updatedSprint.name}
-                onChange={e => setUpdatedSprint({ ...updatedSprint, name: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group controlId='sprintStartDate'>
-              <Form.Label>Start Date</Form.Label>
-              <Form.Control
-                type='date'
-                value={formatDateForFormInput(updatedSprint.start_date)}
-                onChange={e =>
-                  setUpdatedSprint({
-                    ...updatedSprint,
-                    // Had to add one day to the date to make it accurate - was always one day behind before
-                    start_date: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
-                  })
-                }
-              />
-            </Form.Group>
-            <Form.Group controlId='sprintEndDate'>
-              <Form.Label>End Date</Form.Label>
-              <Form.Control
-                type='date'
-                value={formatDateForFormInput(updatedSprint.end_date)}
-                onChange={e =>
-                  setUpdatedSprint({
-                    ...updatedSprint,
-                    end_date: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
-                  })
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant='secondary' onClick={handleClose}>
-            {' '}
-            Close{' '}
-          </Button>
-          <Button
-            variant='primary'
-            onClick={() => {
-              // Call the service to update sprint
-              handleClose();
-            }}>
-            Update Sprint
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {!updatedSprint ? (
+        <h1></h1>
+      ) : (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Update Sprint</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId='sprintTitle'>
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type='text'
+                  placeholder='Enter Sprint Title'
+                  value={updatedSprint.name}
+                  onChange={e => setUpdatedSprint({ ...updatedSprint, name: e.target.value })}
+                />
+              </Form.Group>
+              <Form.Group controlId='sprintStartDate'>
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control
+                  type='date'
+                  value={formatDateForFormInput(updatedSprint.startDate)}
+                  onChange={e =>
+                    setUpdatedSprint({
+                      ...updatedSprint,
+                      // Had to add one day to the date to make it accurate - was always one day behind before
+                      startDate: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group controlId='sprintEndDate'>
+                <Form.Label>End Date</Form.Label>
+                <Form.Control
+                  type='date'
+                  value={formatDateForFormInput(updatedSprint.endDate)}
+                  onChange={e =>
+                    setUpdatedSprint({
+                      ...updatedSprint,
+                      endDate: new Date(new Date(e.target.value).getTime() + 60 * 60 * 24 * 1000),
+                    })
+                  }
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant='secondary' onClick={handleClose}>
+              {' '}
+              Close{' '}
+            </Button>
+            <Button
+              variant='primary'
+              onClick={() => {
+                // Call the service to update sprint
+                handleClose();
+              }}>
+              Update Sprint
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 }

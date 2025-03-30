@@ -10,10 +10,12 @@ export default function SprintListGroup({
   sprint,
   handleShowSprintUpdateModal,
   handleShowDeleteSprintModal,
+  setSprintForModal,
 }: {
   sprint: PopulatedDatabaseSprint;
   handleShowSprintUpdateModal: () => void;
   handleShowDeleteSprintModal: () => void;
+  setSprintForModal: (sprint: PopulatedDatabaseSprint) => void;
 }) {
   const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
 
@@ -33,14 +35,14 @@ export default function SprintListGroup({
             <FaPencil
               className='text-primary me-3'
               onClick={() => {
-                // setSprintForModal({ ...sprint });
+                setSprintForModal({ ...sprint });
                 handleShowSprintUpdateModal();
               }}
             />
             <FaTrash
               className='text-danger me-1'
               onClick={() => {
-                // setSprintForModal({ ...sprint });
+                setSprintForModal({ ...sprint });
                 handleShowDeleteSprintModal();
               }}
             />
