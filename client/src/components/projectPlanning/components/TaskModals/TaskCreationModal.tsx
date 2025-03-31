@@ -180,18 +180,19 @@ export default function TaskCreationModal({
                     prereqTasks: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        project.sprints
-                          .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value)?._id || null,
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
                     ).filter(_id => _id !== null),
                   })
                 }>
-                {project.sprints.map(sprint =>
-                  sprint.tasks.map(task => (
+                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
+                  task => (
                     <option key={task._id} value={task._id}>
                       {task.name}
                     </option>
-                  )),
+                  ),
                 )}
               </Form.Select>
             </Form.Group>
@@ -207,18 +208,19 @@ export default function TaskCreationModal({
                     dependentTasks: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        project.sprints
-                          .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value)?._id || null,
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
                     ).filter(_id => _id !== null),
                   })
                 }>
-                {project.sprints.map(sprint =>
-                  sprint.tasks.map(task => (
-                    <option key={task._id} value={task._id}>
+                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
+                  task => (
+                    <option key={task._id.toString()} value={task._id.toString()}>
                       {task.name}
                     </option>
-                  )),
+                  ),
                 )}
               </Form.Select>
             </Form.Group>
