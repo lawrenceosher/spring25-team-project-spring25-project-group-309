@@ -136,27 +136,29 @@ export default function SprintPlanningPage() {
 
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
-        {project.sprints.length === 0 ? (
-          <div id='sprints' className='text-muted flex-fill fs-2'>
-            No sprints created yet. Click Create Sprint to begin sprint planning.
-          </div>
-        ) : (
-          <div id='sprints' className='flex-fill'>
-            {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
-              <SprintListGroup
-                key={sprint._id.toString()}
-                sprint={sprint}
-                handleShowSprintUpdateModal={handleShowSprintUpdateModal}
-                handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-                setSprintForModal={setSprintForModal}
-              />
-            ))}
+        <div id='sprints'>
+          {project.sprints.length === 0 ? (
+            <div className='text-muted flex-fill fs-2'>
+              No sprints created yet. Click Create Sprint to begin sprint planning.
+            </div>
+          ) : (
+            <div className='flex-fill'>
+              {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
+                <SprintListGroup
+                  key={sprint._id.toString()}
+                  sprint={sprint}
+                  handleShowSprintUpdateModal={handleShowSprintUpdateModal}
+                  handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+                  setSprintForModal={setSprintForModal}
+                />
+              ))}
+            </div>
+          )}
+          <Backlog backlog={project.backlogTasks} />
+        </div>
 
-            <Backlog backlog={project.backlogTasks} />
-          </div>
-        )}
         {/* Task Details */}
-        {project.sprints.length !== 0 && (
+        {/* {project.sprints.length !== 0 && (
           <div id='task-details' className='ms-3'>
             <TaskDetailsCard
               handleShowDeleteTaskModal={handleShowDeleteTaskModal}
@@ -164,7 +166,7 @@ export default function SprintPlanningPage() {
               setTaskForModal={setTaskForModal}
             />
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export default function SprintListGroup({
         <div id='sprint-header' className='p-3 ps-2 bg-light'>
           <span>{sprint.name}</span>
           <span className='ms-4 text-muted'>
-            {`${getFullDate(sprint.startDate)} - ${getFullDate(sprint.endDate)}`}
+            {`${getFullDate(new Date(sprint.startDate))} - ${getFullDate(new Date(sprint.endDate))}`}
           </span>
           <div className='float-end'>
             <span className={`me-3 rounded-pill p-2 ${getStatusColor(sprint.status)}`}>

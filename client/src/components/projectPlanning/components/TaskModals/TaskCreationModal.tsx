@@ -43,8 +43,10 @@ export default function TaskCreationModal({
       const newTask = await createTask(task);
 
       if (!newTask.sprint) {
+        console.log('inside first branch');
         dispatch(addNewTaskToBacklog({ newTask }));
       } else {
+        console.log('inside second branch');
         dispatch(addNewTaskToSprint({ sprintId: newTask.sprint.toString(), newTask }));
       }
     } catch (error) {
@@ -72,13 +74,14 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={
-                  createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : 'Backlog'
-                }
+                value={createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : ''}
                 onChange={e =>
-                  setCreatedTask({ ...createdTask, sprint: new ObjectId(e.target.value) })
+                  setCreatedTask({
+                    ...createdTask,
+                    sprint: e.target.value !== '' ? new ObjectId(e.target.value) : null,
+                  })
                 }>
-                <option value={undefined}>Backlog</option>
+                <option value=''>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id.toString()} value={sprint._id.toString()}>
                     {sprint.name}

@@ -125,7 +125,7 @@ export default function SprintCreationModal({
                 project: project._id,
                 startDate: new Date(),
                 endDate: new Date(),
-                status: 'To-Do',
+                status: 'Not Started',
                 tasks: [],
               }); // Reset the form
               handleClose();

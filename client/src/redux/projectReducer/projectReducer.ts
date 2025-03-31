@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
-  DatabaseSprint,
   PopulatedDatabaseProject,
+  PopulatedDatabaseSprint,
   PopulatedDatabaseTask,
 } from '@fake-stack-overflow/shared';
 
@@ -21,7 +21,10 @@ const projectSlice = createSlice({
       state.project = action.payload;
     },
 
-    addNewSprintToProject: (state, { payload: newSprint }: { payload: DatabaseSprint }) => {
+    addNewSprintToProject: (
+      state,
+      { payload: newSprint }: { payload: PopulatedDatabaseSprint },
+    ) => {
       if (state.project) {
         state.project.sprints = [...state.project.sprints, newSprint];
       }
@@ -51,7 +54,7 @@ const projectSlice = createSlice({
       { payload: { newTask } }: { payload: { newTask: PopulatedDatabaseTask } },
     ) => {
       if (state.project) {
-        state.project.backlogTasks = [...(state.project.backlogTasks || []), newTask];
+        state.project.backlogTasks = [...state.project.backlogTasks, newTask];
       }
     },
 
