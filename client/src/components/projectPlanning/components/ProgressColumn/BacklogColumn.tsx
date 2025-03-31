@@ -1,8 +1,8 @@
 import { Col, ListGroup } from 'react-bootstrap';
-import { MockTask } from '../../../../types/mockTypes/task';
+import { ClientTask } from '../../../../types/clientTypes/task';
 import TaskItemProgressColumn from './TaskItemProgressColumn';
 
-export default function BacklogColumn({ projectBacklog }: { projectBacklog: MockTask[] }) {
+export default function BacklogColumn({ projectBacklog }: { projectBacklog: ClientTask[] }) {
   return (
     <Col>
       <div className='rounded bg-secondary-subtle p-2'>

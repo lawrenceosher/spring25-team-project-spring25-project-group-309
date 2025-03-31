@@ -1,5 +1,5 @@
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
-import { MockProject } from '../../../../types/mockTypes/project';
+import { MockProject } from '../../../../types/clientTypes/project';
 import { getFullDate } from '../../../../tool';
 
 export default function KanbanBoardHeader({
@@ -44,8 +44,8 @@ export default function KanbanBoardHeader({
       </div>
       {/* Need to have an active sprint field and show that on the board */}
       <h3 className='text-muted'>
-        {project.sprints[0].name}: {getFullDate(project.sprints[0].start_date)} -{' '}
-        {getFullDate(project.sprints[0].end_date)}
+        {project.sprints[0].name}: {getFullDate(project.sprints[0].startDate)} -{' '}
+        {getFullDate(project.sprints[0].endDate)}
       </h3>
     </>
   );

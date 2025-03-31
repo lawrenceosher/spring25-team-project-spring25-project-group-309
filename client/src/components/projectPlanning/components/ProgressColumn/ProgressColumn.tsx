@@ -1,8 +1,14 @@
 import { Col, ListGroup } from 'react-bootstrap';
-import { MockSprint } from '../../../../types/mockTypes/sprint';
+import { ClientSprint } from '../../../../types/clientTypes/sprint';
 import TaskItemProgressColumn from './TaskItemProgressColumn';
 
-export default function ProgressColumn({ sprint, column }: { sprint: MockSprint; column: string }) {
+export default function ProgressColumn({
+  sprint,
+  column,
+}: {
+  sprint: ClientSprint;
+  column: string;
+}) {
   const tasks = sprint.tasks.filter(task => task.status === column);
   return (
     <Col>

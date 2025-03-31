@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { ObjectId } from 'bson';
@@ -21,7 +22,7 @@ export default function TaskCreationModal({
 }) {
   const { qlist } = useQuestionPage();
 
-  const [createdTask, setCreatedTask] = useState<Task>({
+  const [createdTask, setCreatedTask] = useState<any>({
     assignedUser: project.assignedUsers[0],
     description: '',
     name: '',
@@ -74,14 +75,16 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : ''}
+                value={
+                  createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : 'Backlog'
+                }
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    sprint: e.target.value !== '' ? new ObjectId(e.target.value) : null,
+                    sprint: e.target.value !== undefined ? e.target.value : null,
                   })
                 }>
-                <option value=''>Backlog</option>
+                <option value={undefined}>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id.toString()} value={sprint._id.toString()}>
                     {sprint.name}

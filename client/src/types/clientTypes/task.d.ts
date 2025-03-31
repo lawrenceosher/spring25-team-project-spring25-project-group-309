@@ -1,12 +1,12 @@
-export interface MockTask {
+export interface ClientTask {
   _id: string;
-  assigned_user: string;
+  assignedUser: string;
   description: string;
   name: string;
-  sprint: string;
+  sprint: string | null;
   status: string;
   dependentTasks: string[];
-  prereqForTasks: string[];
+  prereqTasks: string[];
   project: string;
   priority: string;
   taskPoints: number;
