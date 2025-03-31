@@ -117,6 +117,7 @@ export default function SprintPlanningPage() {
         show={showDeleteTaskModal}
         handleClose={handleCloseDeleteTaskModal}
         taskTitle={taskForModal?.name || ''}
+        taskId={taskForModal?._id.toString() || ''}
       />
       <SprintDeletionModal
         show={showDeleteSprintModal}

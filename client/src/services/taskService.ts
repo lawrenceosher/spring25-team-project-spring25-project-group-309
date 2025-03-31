@@ -23,3 +23,11 @@ export const getTasksByUser = async (username: string): Promise<Task[]> => {
 
   return res.data;
 };
+
+export const deleteTask = async (taskId: string): Promise<void> => {
+  const res = await api.delete(`${TASK_API_URL}/deleteTask/${taskId}`);
+
+  if (res.status !== 200) {
+    throw new Error(`Error when deleting task: ${taskId}`);
+  }
+};

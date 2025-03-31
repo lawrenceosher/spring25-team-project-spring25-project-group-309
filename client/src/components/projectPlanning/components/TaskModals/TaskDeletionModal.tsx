@@ -1,14 +1,32 @@
 import { Button, Modal } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { deleteTask } from '../../../../services/taskService';
+import { removeTaskFromProject } from '../../../../redux/projectReducer/projectReducer';
+import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 
 export default function TaskDeletionModal({
   show,
   handleClose,
   taskTitle,
+  taskId,
 }: {
   show: boolean;
   handleClose: () => void;
   taskTitle: string;
+  taskId: string;
 }) {
+  const dispatch = useDispatch();
+
+  const handleDeleteTask = async () => {
+    try {
+      await deleteTask(taskId);
+      dispatch(removeTaskFromProject({ taskId }));
+      dispatch(setSelectedTask(null));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
   return (
     <div>
       <Modal show={show} onHide={handleClose}>
@@ -23,7 +41,7 @@ export default function TaskDeletionModal({
           <Button
             variant='danger'
             onClick={() => {
-              // Call the service that will delete Task
+              handleDeleteTask();
               handleClose();
             }}>
             Yes

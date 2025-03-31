@@ -68,6 +68,19 @@ const projectSlice = createSlice({
         );
       }
     },
+
+    removeTaskFromProject: (state, { payload: { taskId } }: { payload: { taskId: string } }) => {
+      if (state.project) {
+        state.project.sprints.forEach(sprint => {
+          sprint.tasks = sprint.tasks.filter(
+            (task: PopulatedDatabaseTask) => task._id.toString() !== taskId,
+          );
+        });
+        state.project.backlogTasks = state.project.backlogTasks.filter(
+          task => task._id.toString() !== taskId,
+        );
+      }
+    },
   },
 });
 
@@ -77,5 +90,6 @@ export const {
   addNewTaskToSprint,
   addNewTaskToBacklog,
   removeSprintFromProject,
+  removeTaskFromProject,
 } = projectSlice.actions;
 export default projectSlice.reducer;
