@@ -43,6 +43,7 @@ export default function SprintPlanningPage() {
   } = useSprintPlanningPageModals();
 
   const { project } = useSelector((state: any) => state.projectReducer);
+  const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
   const { userList } = useUsersListPage();
   const [loading, setLoading] = useState(true);
@@ -158,7 +159,7 @@ export default function SprintPlanningPage() {
         </div>
 
         {/* Task Details */}
-        {/* {project.sprints.length !== 0 && (
+        {selectedTask && (
           <div id='task-details' className='ms-3'>
             <TaskDetailsCard
               handleShowDeleteTaskModal={handleShowDeleteTaskModal}
@@ -166,7 +167,7 @@ export default function SprintPlanningPage() {
               setTaskForModal={setTaskForModal}
             />
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

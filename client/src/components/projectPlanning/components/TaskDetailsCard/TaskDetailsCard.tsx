@@ -5,6 +5,7 @@ import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
 import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
+import { NavLink } from 'react-router-dom';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
@@ -17,6 +18,9 @@ export default function TaskDetailsCard({
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
+  if (!selectedTask) {
+    return null;
+  }
   return (
     <Card key={selectedTask._id}>
       <Card.Body>
@@ -53,7 +57,7 @@ export default function TaskDetailsCard({
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.relevantQuestions.map((question: any) => (
               <ListGroup.Item key={question} className='bg-transparent p-1'>
-                <Card.Link href='#'>{question}</Card.Link>
+                <NavLink to={`/question/${question}`}>{question}</NavLink>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -66,7 +70,7 @@ export default function TaskDetailsCard({
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.dependentTasks.map((dependentTask: any) => (
               <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
-                <Card.Link href='#'>{dependentTask}</Card.Link>
+                {dependentTask}
                 {/* Need to figure out a way to get the dependent tasks fully there. Same for pre-reqs */}
               </ListGroup.Item>
             ))}
@@ -80,7 +84,7 @@ export default function TaskDetailsCard({
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.prereqForTasks.map((preReqTask: any) => (
               <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
-                <Card.Link href='#'>{preReqTask}</Card.Link>
+                {preReqTask}
               </ListGroup.Item>
             ))}
           </ListGroup>
