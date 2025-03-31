@@ -1,5 +1,8 @@
 import { ObjectId } from 'mongodb';
 import TaskModel from '../models/task.model';
+import ProjectModel from '../models/project.model';
+import { updateProject } from './project.service';
+
 import { DatabaseTask, Task, TaskResponse } from '../types/types';
 
 /**
@@ -53,6 +56,21 @@ export const getDependentTasksById = async (taskId: string): Promise<TaskRespons
   }
 };
 
+const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<void> => {
+  try {
+    const project = await ProjectModel.findById(projectId);
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+    await updateProject(project._id.toString(), {
+      $addToSet: { backlogTasks: taskId },
+    });
+  } catch (error) {
+    throw new Error('Error when adding task to project');
+  }
+};
+
 /**
  * Saves a task to the database.
  * @param task The task object to be saved.
@@ -61,6 +79,8 @@ export const getDependentTasksById = async (taskId: string): Promise<TaskRespons
 export const saveTask = async (task: Task): Promise<TaskResponse> => {
   try {
     const result = await TaskModel.create(task);
+    await addTaskToProject(result._id, task.project);
+
     return result;
   } catch (error) {
     return { error: 'Error when saving a task' };
@@ -96,6 +116,8 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     if (!updatedtask) {
       throw Error('task not found');
     }
+    await addTaskToProject(updatedtask._id, updatedtask.project);
+
     return updatedtask;
   } catch (error) {
     return { error: 'Error when updating a task' };
@@ -121,6 +143,8 @@ export const addDependentTasks = async (
     if (!updatedTask) {
       throw new Error('Task not found');
     }
+    await addTaskToProject(updatedTask._id, updatedTask.project);
+
     return updatedTask;
   } catch (error) {
     return { error: 'Error when adding dependent tasks' };
@@ -137,6 +161,7 @@ export const deleteTaskById = async (taskId: string): Promise<TaskResponse> => {
     if (!result) {
       throw new Error('Task not found');
     }
+    await ProjectModel.updateMany({ backlogTasks: taskId }, { $pull: { backlogTasks: taskId } });
     return result;
   } catch (error) {
     return { error: 'Error when deleting a task' };
