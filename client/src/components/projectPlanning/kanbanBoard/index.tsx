@@ -29,11 +29,12 @@ export default function KanbanBoardPage() {
         handleShowCompleteSprintModal={handleShowCompleteSprintModal}
       />
 
-      <TaskCreationModal
+      {/* <TaskCreationModal
         show={showCreateTaskModal}
         handleClose={handleCloseCreateTaskModal}
         project={project}
-      />
+        setProject={setProject}
+      /> */}
 
       <SprintCompletionModal
         show={showCompleteSprintModal}

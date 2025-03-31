@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import './index.css';
 import { useEffect, useState } from 'react';
-import {
-  PopulatedDatabaseProject,
-  PopulatedDatabaseSprint,
-  PopulatedDatabaseTask,
-  Project,
-} from '../../../types/types';
+import { useDispatch, useSelector } from 'react-redux';
+import { PopulatedDatabaseSprint, PopulatedDatabaseTask, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
@@ -22,6 +18,7 @@ import useUsersListPage from '../../../hooks/useUsersListPage';
 import { createProject, getProjectsByUser } from '../../../services/projectService';
 import useUserContext from '../../../hooks/useUserContext';
 import CreateProjectForm from '../components/CreateProjectForm/CreateProjectForm';
+import { setProject } from '../../../redux/projectReducer/projectReducer';
 
 export default function SprintPlanningPage() {
   const {
@@ -45,10 +42,9 @@ export default function SprintPlanningPage() {
     handleShowSprintUpdateModal,
   } = useSprintPlanningPageModals();
 
-  // const { project } = useSelector((state: any) => state.projectReducer);
+  const { project } = useSelector((state: any) => state.projectReducer);
 
   const { userList } = useUsersListPage();
-  const [project, setProject] = useState<PopulatedDatabaseProject | null>(null);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useUserContext();
   const [sprintForModal, setSprintForModal] = useState<PopulatedDatabaseSprint | null>(null);
@@ -60,11 +56,12 @@ export default function SprintPlanningPage() {
     sprints: [],
     backlogTasks: [],
   });
+  const dispatch = useDispatch();
 
   const handleCreateProject = async (proj: Project) => {
     try {
       const result = await createProject(proj);
-      setProject(result);
+      dispatch(setProject(result));
     } catch (error) {
       console.error('Error creating project:', error);
     }
@@ -73,12 +70,12 @@ export default function SprintPlanningPage() {
   useEffect(() => {
     const fetchProject = async () => {
       const result = await getProjectsByUser(currentUser.username);
-      setProject(result[0]);
+      dispatch(setProject(result[0]));
       setLoading(false);
     };
 
     fetchProject();
-  }, [currentUser.username]);
+  }, [currentUser.username, dispatch]);
 
   if (!project) {
     return (

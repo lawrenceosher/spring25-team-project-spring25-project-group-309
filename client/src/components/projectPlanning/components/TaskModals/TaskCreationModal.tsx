@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { ObjectId } from 'bson';
-import {
-  DatabaseQuestion,
-  DatabaseTag,
-  DatabaseTask,
-  PopulatedDatabaseProject,
-  PopulatedDatabaseQuestion,
-  PopulatedDatabaseTask,
-} from '../../../../types/types';
+import { useDispatch } from 'react-redux';
+import { PopulatedDatabaseProject, PopulatedDatabaseQuestion, Task } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
+import { createTask } from '../../../../services/taskService';
+import {
+  addNewTaskToBacklog,
+  addNewTaskToSprint,
+} from '../../../../redux/projectReducer/projectReducer';
 
 export default function TaskCreationModal({
   show,
@@ -22,8 +21,7 @@ export default function TaskCreationModal({
 }) {
   const { qlist } = useQuestionPage();
 
-  const [createdTask, setCreatedTask] = useState<PopulatedDatabaseTask>({
-    _id: new ObjectId(),
+  const [createdTask, setCreatedTask] = useState<Task>({
     assignedUser: project.assignedUsers[0],
     description: '',
     name: '',
@@ -38,6 +36,21 @@ export default function TaskCreationModal({
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+  const dispatch = useDispatch();
+
+  const handleCreateTask = async (task: Task) => {
+    try {
+      const newTask = await createTask(task);
+
+      if (!newTask.sprint) {
+        dispatch(addNewTaskToBacklog({ newTask }));
+      } else {
+        dispatch(addNewTaskToSprint({ sprintId: newTask.sprint.toString(), newTask }));
+      }
+    } catch (error) {
+      console.error('Error creating sprint:', error);
+    }
+  };
 
   return (
     <div>
@@ -140,13 +153,8 @@ export default function TaskCreationModal({
                         qlist.find(
                           (question: PopulatedDatabaseQuestion) =>
                             question._id.toString() === option.value,
-                        ) || null,
-                    )
-                      .filter(question => question !== null)
-                      .map(question => ({
-                        ...question,
-                        tags: question.tags.map((tag: DatabaseTag) => tag._id),
-                      })) as unknown as DatabaseQuestion[],
+                        )?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {qlist.map((question: PopulatedDatabaseQuestion) => (
@@ -170,8 +178,8 @@ export default function TaskCreationModal({
                       option =>
                         project.sprints
                           .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null) as DatabaseTask[],
+                          .find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -197,8 +205,8 @@ export default function TaskCreationModal({
                       option =>
                         project.sprints
                           .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null) as DatabaseTask[],
+                          .find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null) as ObjectId[],
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -220,9 +228,8 @@ export default function TaskCreationModal({
           <Button
             variant='success'
             onClick={() => {
-              // Need to call the service to create a new Task
+              handleCreateTask(createdTask);
               setCreatedTask({
-                _id: new ObjectId(),
                 assignedUser: project.assignedUsers[0],
                 description: '',
                 name: '',

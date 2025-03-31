@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { ObjectId } from 'bson';
-import { PopulatedDatabaseProject, PopulatedDatabaseSprint } from '../../../../types/types';
+import { useDispatch } from 'react-redux';
+import { PopulatedDatabaseProject, Sprint } from '../../../../types/types';
+import { createSprint } from '../../../../services/sprintService';
+import { addNewSprintToProject } from '../../../../redux/projectReducer/projectReducer';
 
 export default function SprintCreationModal({
   show,
@@ -12,8 +14,7 @@ export default function SprintCreationModal({
   handleClose: () => void;
   project: PopulatedDatabaseProject;
 }) {
-  const [createdSprint, setCreatedSprint] = useState<PopulatedDatabaseSprint>({
-    _id: new ObjectId(),
+  const [createdSprint, setCreatedSprint] = useState<Sprint>({
     name: '',
     project: project._id,
     startDate: new Date(),
@@ -21,6 +22,17 @@ export default function SprintCreationModal({
     status: 'Not Started',
     tasks: [],
   });
+
+  const dispatch = useDispatch();
+
+  const handleCreateSprint = async (sprint: Sprint) => {
+    try {
+      const newSprint = await createSprint(sprint);
+      dispatch(addNewSprintToProject(newSprint));
+    } catch (error) {
+      console.error('Error creating sprint:', error);
+    }
+  };
 
   function formatDateForFormInput(myDate: Date) {
     // Code taken from GeeksForGeeks: https://www.geeksforgeeks.org/how-to-format-javascript-date-as-yyyy-mm-dd/
@@ -82,9 +94,12 @@ export default function SprintCreationModal({
                 onChange={e =>
                   setCreatedSprint({
                     ...createdSprint,
-                    tasks: Array.from(e.target.selectedOptions, option =>
-                      project.backlogTasks.find(task => task._id.toString() === option.value),
-                    ),
+                    tasks: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        project.backlogTasks.find(task => task._id.toString() === option.value)
+                          ?._id,
+                    ).filter(_id => _id !== undefined),
                   })
                 }>
                 {project.backlogTasks.map(task => (
@@ -104,9 +119,8 @@ export default function SprintCreationModal({
           <Button
             variant='primary'
             onClick={() => {
-              // Need to call the service to create a new Sprint
+              handleCreateSprint(createdSprint);
               setCreatedSprint({
-                _id: new ObjectId(),
                 name: '',
                 project: project._id,
                 startDate: new Date(),

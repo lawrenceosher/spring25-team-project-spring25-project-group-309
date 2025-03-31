@@ -1,9 +1,9 @@
-import { Task } from '@fake-stack-overflow/shared';
+import { PopulatedDatabaseTask, Task } from '@fake-stack-overflow/shared';
 import api from './config';
 
 const TASK_API_URL = `${process.env.REACT_APP_SERVER_URL}/task`;
 
-export const createTask = async (newTask: Task): Promise<Task> => {
+export const createTask = async (newTask: Task): Promise<PopulatedDatabaseTask> => {
   const res = await api.post(`${TASK_API_URL}/createTask`, newTask);
 
   if (res.status !== 200) {
