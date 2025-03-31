@@ -1,11 +1,11 @@
 import { ListGroupItem } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
-import { ClientTask } from '../../../../types/clientTypes/task';
+import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 import TaskDetailsModal from '../TaskModals/TaskDetailsModal';
 
-export default function TaskItemProgressColumn({ task }: { task: ClientTask }) {
+export default function TaskItemProgressColumn({ task }: { task: PopulatedDatabaseTask }) {
   const dispatch = useDispatch();
 
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);

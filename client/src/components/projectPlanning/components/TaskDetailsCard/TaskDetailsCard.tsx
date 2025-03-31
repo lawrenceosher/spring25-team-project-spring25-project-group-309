@@ -16,13 +16,15 @@ export default function TaskDetailsCard({
   handleShowTaskUpdateModal?: () => void;
   setTaskForModal?: (task: PopulatedDatabaseTask) => void;
 }) {
-  const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
+  const { selectedTask }: { selectedTask: PopulatedDatabaseTask } = useSelector(
+    (state: any) => state.selectTaskReducer,
+  );
 
   if (!selectedTask) {
     return null;
   }
   return (
-    <Card key={selectedTask._id}>
+    <Card key={selectedTask._id.toString()}>
       <Card.Body>
         <Card.Title className='fs-4'>
           {selectedTask.name}
@@ -39,10 +41,12 @@ export default function TaskDetailsCard({
             </span>
           )}
         </Card.Title>
-        <Card.Subtitle className='mb-2 text-muted'>{selectedTask.sprint}</Card.Subtitle>
+        <Card.Subtitle className='mb-2 text-muted'>
+          {selectedTask.sprint?.toString() || 'Backlog'}
+        </Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
-          Assigned To: {selectedTask.assigned_user}
+          Assigned To: {selectedTask.assignedUser}
         </Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>Status: {selectedTask.status}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
@@ -78,11 +82,11 @@ export default function TaskDetailsCard({
         </Card.Footer>
       )}
 
-      {selectedTask.prereqForTasks && selectedTask.prereqForTasks.length > 0 && (
+      {selectedTask.prereqTasks && selectedTask.prereqTasks.length > 0 && (
         <Card.Footer>
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
-            {selectedTask.prereqForTasks.map((preReqTask: any) => (
+            {selectedTask.prereqTasks.map((preReqTask: any) => (
               <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
                 {preReqTask}
               </ListGroup.Item>

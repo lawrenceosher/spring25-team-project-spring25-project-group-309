@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { ObjectId } from 'bson';
 import { useDispatch } from 'react-redux';
-import { PopulatedDatabaseProject, PopulatedDatabaseQuestion, Task } from '../../../../types/types';
+import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
 import { createTask } from '../../../../services/taskService';
 import {
   addNewTaskToBacklog,
   addNewTaskToSprint,
 } from '../../../../redux/projectReducer/projectReducer';
+import { ClientTask } from '../../../../types/clientTypes/task';
 
 export default function TaskCreationModal({
   show,
@@ -22,7 +22,7 @@ export default function TaskCreationModal({
 }) {
   const { qlist } = useQuestionPage();
 
-  const [createdTask, setCreatedTask] = useState<any>({
+  const [createdTask, setCreatedTask] = useState<ClientTask>({
     assignedUser: project.assignedUsers[0],
     description: '',
     name: '',
@@ -30,7 +30,7 @@ export default function TaskCreationModal({
     status: 'To-Do',
     dependentTasks: [],
     prereqTasks: [],
-    project: project._id,
+    project: project._id.toString(),
     priority: 'Low',
     taskPoints: 1,
     relevantQuestions: [],
@@ -39,7 +39,7 @@ export default function TaskCreationModal({
   });
   const dispatch = useDispatch();
 
-  const handleCreateTask = async (task: Task) => {
+  const handleCreateTask = async (task: ClientTask) => {
     try {
       const newTask = await createTask(task);
 
@@ -75,9 +75,7 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={
-                  createdTask.sprint?.id.toString() ? createdTask.sprint.id.toString() : 'Backlog'
-                }
+                value={createdTask.sprint ? createdTask.sprint : undefined}
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
@@ -156,10 +154,12 @@ export default function TaskCreationModal({
                     relevantQuestions: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        qlist.find(
-                          (question: PopulatedDatabaseQuestion) =>
-                            question._id.toString() === option.value,
-                        )?._id || null,
+                        qlist
+                          .find(
+                            (question: PopulatedDatabaseQuestion) =>
+                              question._id.toString() === option.value,
+                          )
+                          ?._id.toString() || null,
                     ).filter(_id => _id !== null),
                   })
                 }>
@@ -212,7 +212,7 @@ export default function TaskCreationModal({
                         project.sprints
                           .flatMap(sprint => sprint.tasks)
                           .find(task => task._id.toString() === option.value)?._id || null,
-                    ).filter(_id => _id !== null) as ObjectId[],
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -243,7 +243,7 @@ export default function TaskCreationModal({
                 status: 'To-Do',
                 dependentTasks: [],
                 prereqTasks: [],
-                project: project._id,
+                project: project._id.toString(),
                 priority: 'Low',
                 taskPoints: 1,
                 relevantQuestions: [],

@@ -1,5 +1,4 @@
 export interface ClientTask {
-  _id: string;
   assignedUser: string;
   description: string;
   name: string;

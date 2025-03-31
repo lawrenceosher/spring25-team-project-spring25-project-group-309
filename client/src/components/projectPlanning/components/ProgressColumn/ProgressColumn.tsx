@@ -1,12 +1,12 @@
 import { Col, ListGroup } from 'react-bootstrap';
-import { ClientSprint } from '../../../../types/clientTypes/sprint';
+import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import TaskItemProgressColumn from './TaskItemProgressColumn';
 
 export default function ProgressColumn({
   sprint,
   column,
 }: {
-  sprint: ClientSprint;
+  sprint: PopulatedDatabaseSprint;
   column: string;
 }) {
   const tasks = sprint.tasks.filter(task => task.status === column);

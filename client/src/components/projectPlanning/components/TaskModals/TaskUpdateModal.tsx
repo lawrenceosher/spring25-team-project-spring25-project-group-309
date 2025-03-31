@@ -2,16 +2,9 @@
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import { ObjectId } from 'bson';
-import {
-  PopulatedDatabaseProject,
-  PopulatedDatabaseQuestion,
-  PopulatedDatabaseTask,
-  DatabaseTag,
-  DatabaseQuestion,
-  DatabaseTask,
-} from '../../../../types/types';
+import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
+import { ClientTask } from '../../../../types/clientTypes/task';
 
 export default function TaskUpdateModal({
   show,
@@ -24,7 +17,7 @@ export default function TaskUpdateModal({
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
-  const [taskToUpdate, setTaskToUpdate] = useState<PopulatedDatabaseTask>({ ...selectedTask });
+  const [taskToUpdate, setTaskToUpdate] = useState<ClientTask>({ ...selectedTask });
 
   const { qlist } = useQuestionPage();
 
@@ -52,12 +45,8 @@ export default function TaskUpdateModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={
-                  taskToUpdate.sprint?.id.toString() ? taskToUpdate.sprint.id.toString() : 'Backlog'
-                }
-                onChange={e =>
-                  setTaskToUpdate({ ...taskToUpdate, sprint: new ObjectId(e.target.value) })
-                }>
+                value={taskToUpdate.sprint ? taskToUpdate.sprint : undefined}
+                onChange={e => setTaskToUpdate({ ...taskToUpdate, sprint: e.target.value })}>
                 <option value={undefined}>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id.toString()} value={sprint._id.toString()}>
@@ -130,16 +119,13 @@ export default function TaskUpdateModal({
                     relevantQuestions: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        qlist.find(
-                          (question: PopulatedDatabaseQuestion) =>
-                            question._id.toString() === option.value,
-                        ) || null,
-                    )
-                      .filter(question => question !== null)
-                      .map(question => ({
-                        ...question,
-                        tags: question.tags.map((tag: DatabaseTag) => tag._id),
-                      })) as unknown as DatabaseQuestion[],
+                        qlist
+                          .find(
+                            (question: PopulatedDatabaseQuestion) =>
+                              question._id.toString() === option.value,
+                          )
+                          ?._id.toString() || null,
+                    ).filter((id): id is string => id !== null),
                   })
                 }>
                 {qlist.map((question: PopulatedDatabaseQuestion) => (
@@ -164,7 +150,7 @@ export default function TaskUpdateModal({
                         project.sprints
                           .flatMap(sprint => sprint.tasks)
                           .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null) as DatabaseTask[],
+                    ).filter(task => task !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -191,7 +177,7 @@ export default function TaskUpdateModal({
                         project.sprints
                           .flatMap(sprint => sprint.tasks)
                           .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null) as DatabaseTask[],
+                    ).filter(task => task !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
