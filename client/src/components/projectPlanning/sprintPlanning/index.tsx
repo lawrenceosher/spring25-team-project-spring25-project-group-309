@@ -122,6 +122,7 @@ export default function SprintPlanningPage() {
         show={showDeleteSprintModal}
         handleClose={handleCloseDeleteSprintModal}
         sprintTitle={sprintForModal?.name || ''}
+        sprintId={sprintForModal?._id.toString() || ''}
       />
 
       <TaskUpdateModal

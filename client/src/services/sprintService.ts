@@ -14,10 +14,20 @@ export const createSprint = async (newSprint: Sprint): Promise<PopulatedDatabase
 };
 
 export const getSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
-  const res = await api.get(`${SPRINT_API_URL}/getSprint`);
+  const res = await api.get(`${SPRINT_API_URL}/getSprint`, { data: { sprintId } });
 
   if (res.status !== 200) {
     throw new Error('Error when fetching sprint');
+  }
+
+  return res.data;
+};
+
+export const deleteSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
+  const res = await api.delete(`${SPRINT_API_URL}/deleteSprint`, { data: { sprintId } });
+
+  if (res.status !== 200) {
+    throw new Error('Error when deleting sprint');
   }
 
   return res.data;

@@ -24,10 +24,11 @@ export default function SprintUpdateModal({
   }, [sprintToUpdate]);
 
   function formatDateForFormInput(myDate: Date) {
+    const date = new Date(myDate);
     // Code taken from GeeksForGeeks: https://www.geeksforgeeks.org/how-to-format-javascript-date-as-yyyy-mm-dd/
-    const year = myDate.getFullYear();
-    const month = String(myDate.getMonth() + 1).padStart(2, '0');
-    const day = String(myDate.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
 

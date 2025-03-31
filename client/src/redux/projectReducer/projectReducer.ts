@@ -58,16 +58,24 @@ const projectSlice = createSlice({
       }
     },
 
-    removeSprintFromProject: (state, action) => {
+    removeSprintFromProject: (
+      state,
+      { payload: { sprintId } }: { payload: { sprintId: string } },
+    ) => {
       if (state.project) {
         state.project.sprints = state.project.sprints.filter(
-          sprint => sprint._id !== action.payload._id,
+          sprint => sprint._id.toString() !== sprintId,
         );
       }
     },
   },
 });
 
-export const { setProject, addNewSprintToProject, addNewTaskToSprint, addNewTaskToBacklog } =
-  projectSlice.actions;
+export const {
+  setProject,
+  addNewSprintToProject,
+  addNewTaskToSprint,
+  addNewTaskToBacklog,
+  removeSprintFromProject,
+} = projectSlice.actions;
 export default projectSlice.reducer;
