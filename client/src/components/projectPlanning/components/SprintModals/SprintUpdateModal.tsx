@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
+import { useDispatch } from 'react-redux';
+import { updateSprintInProject } from '../../../../redux/projectReducer/projectReducer';
 
 export default function SprintUpdateModal({
   show,
@@ -11,6 +13,7 @@ export default function SprintUpdateModal({
   handleClose: () => void;
   sprintToUpdate: PopulatedDatabaseSprint | null;
 }) {
+  const dispatch = useDispatch();
   const [updatedSprint, setUpdatedSprint] = useState<PopulatedDatabaseSprint | null>(
     sprintToUpdate
       ? {
@@ -18,6 +21,14 @@ export default function SprintUpdateModal({
         }
       : null,
   );
+
+  const handleSprintUpdate = async () => {
+    if (!updatedSprint) {
+      return;
+    }
+    // Call the service to update sprint
+    dispatch(updateSprintInProject({ sprintId: updatedSprint?._id.toString(), updatedSprint }));
+  };
 
   useEffect(() => {
     setUpdatedSprint(sprintToUpdate ? { ...sprintToUpdate } : null);
@@ -89,7 +100,7 @@ export default function SprintUpdateModal({
             <Button
               variant='primary'
               onClick={() => {
-                // Call the service to update sprint
+                handleSprintUpdate();
                 handleClose();
               }}>
               Update Sprint

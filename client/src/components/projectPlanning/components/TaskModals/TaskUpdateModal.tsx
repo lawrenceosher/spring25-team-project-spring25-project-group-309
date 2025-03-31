@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
 import { ClientTask } from '../../../../types/clientTypes/task';
+import { updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
 
 export default function TaskUpdateModal({
   show,
@@ -20,6 +21,14 @@ export default function TaskUpdateModal({
   const [taskToUpdate, setTaskToUpdate] = useState<ClientTask>({ ...selectedTask });
 
   const { qlist } = useQuestionPage();
+
+  const dispatch = useDispatch();
+
+  const handleUpdateTask = async (task: ClientTask) => {
+    // Need to call service to update task
+    // const updatedTask = await updateTask(task);
+    // dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask}));
+  };
 
   useEffect(() => {
     setTaskToUpdate({ ...selectedTask });

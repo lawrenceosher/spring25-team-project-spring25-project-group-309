@@ -81,6 +81,49 @@ const projectSlice = createSlice({
         );
       }
     },
+
+    updateTaskInProject: (
+      state,
+      {
+        payload: { taskId, updatedTask },
+      }: { payload: { taskId: string; updatedTask: PopulatedDatabaseTask } },
+    ) => {
+      if (state.project) {
+        state.project.sprints.forEach(sprint => {
+          const taskIndex = sprint.tasks.findIndex(
+            (task: PopulatedDatabaseTask) => task._id.toString() === taskId,
+          );
+          if (taskIndex !== -1) {
+            sprint.tasks = sprint.tasks.map((task: PopulatedDatabaseTask) =>
+              task._id.toString() === taskId ? updatedTask : task,
+            );
+          } else if (state.project) {
+            state.project.backlogTasks = state.project.backlogTasks.map(
+              (task: PopulatedDatabaseTask) =>
+                task._id.toString() === taskId ? updatedTask : task,
+            );
+          }
+        });
+      }
+    },
+
+    updateSprintInProject: (
+      state,
+      {
+        payload: { sprintId, updatedSprint },
+      }: { payload: { sprintId: string; updatedSprint: PopulatedDatabaseSprint } },
+    ) => {
+      if (state.project) {
+        const sprintIndex = state.project.sprints.findIndex(
+          sprint => sprint._id.toString() === sprintId,
+        );
+        if (sprintIndex !== -1) {
+          state.project.sprints = state.project.sprints.map((sprint: PopulatedDatabaseSprint) =>
+            sprint._id.toString() === sprintId ? updatedSprint : sprint,
+          );
+        }
+      }
+    },
   },
 });
 
@@ -91,5 +134,7 @@ export const {
   addNewTaskToBacklog,
   removeSprintFromProject,
   removeTaskFromProject,
+  updateTaskInProject,
+  updateSprintInProject,
 } = projectSlice.actions;
 export default projectSlice.reducer;
