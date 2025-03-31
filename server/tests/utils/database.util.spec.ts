@@ -19,8 +19,18 @@ jest.mock('../../models/task.model');
 jest.mock('../../models/project.model');
 
 describe('populateDocument', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should return an error message if no ID is provided', async () => {
+    const result = await populateDocument('', 'question');
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Provided ID is undefined.',
+    });
   });
 
   it('should fetch and populate a question document', async () => {
@@ -197,28 +207,69 @@ describe('populateDocument', () => {
   });
 
   it('should fetch and populate a sprint document', async () => {
-    const mockSprint = {
-      _id: 'sprintId',
-      tasks: ['taskId'],
-    };
     const mockTask = {
       _id: 'taskId',
       name: 'Task 1',
       description: 'Description of task',
+      assignedUser: null,
+      sprint: 'sprintId',
+      status: 'todo',
+      dependentTasks: [],
+      prereqTasks: [],
+      project: 'projectId',
+      priority: 1,
+      taskPoints: 5,
+      relevantQuestions: [],
+      createdAt: new Date('2025-03-31T15:05:28Z'),
+      updatedAt: new Date('2025-03-31T15:05:28Z'),
     };
 
+    const mockSprint = {
+      _id: 'sprintId',
+      tasks: [mockTask],
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(),
+      toObject: () => ({
+        _id: 'sprintId',
+        name: 'Sprint 1',
+        project: 'projectId',
+        status: 'active',
+        startDate: new Date(),
+        endDate: new Date(),
+        tasks: [mockTask],
+      }),
+    };
+
+    // Mock SprintModel.findOne().populate().returns mockSprint
     (SprintModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockSprint),
     });
-    (TaskModel.findOne as jest.Mock).mockReturnValue({
-      populate: jest.fn().mockResolvedValue(mockTask),
+
+    // Mock TaskModel.findOne().populate().populate().populate() chain
+    (TaskModel.findOne as jest.Mock).mockImplementation(() => {
+      const chain = {
+        ...mockTask,
+        populate: jest.fn().mockReturnThis(),
+        toObject: () => mockTask,
+      };
+      return chain;
     });
 
     const result = await populateDocument('sprintId', 'sprint');
 
     expect(SprintModel.findOne).toHaveBeenCalledWith({ _id: 'sprintId' });
+    expect(TaskModel.findOne).toHaveBeenCalledWith({ _id: 'taskId' });
+
     expect(result).toEqual({
-      ...mockSprint,
+      _id: 'sprintId',
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: expect.any(Date),
+      endDate: expect.any(Date),
       tasks: [mockTask],
     });
   });
@@ -248,13 +299,6 @@ describe('populateDocument', () => {
   });
 
   it('should fetch and populate a project document', async () => {
-    const mockProject = {
-      _id: 'projectId',
-      backlogTasks: ['taskId'],
-      sprints: ['sprintId'],
-    };
-
-    // Mock Question Data
     const mockQuestion = {
       _id: 'questionId',
       title: 'What is the purpose of this task?',
@@ -269,83 +313,93 @@ describe('populateDocument', () => {
       comments: [],
     };
 
-    // Mock Task Data with relevant fields (only IDs for prereqTasks, dependentTasks, and relevantQuestions)
-    const mockTask = {
-      _id: 'taskId',
-      name: 'Backlog Task 1',
-      description: 'Description of backlog task',
-      assignedUser: undefined,
-      createdAt: undefined,
-      dependentTasks: ['dependentTaskId'], // Just the ID
-      prereqTasks: ['prereqTaskId'], // Just the ID
-      priority: undefined,
-      project: undefined,
-      relevantQuestions: ['questionId'], // Just the ID
-      sprint: undefined,
-      status: undefined,
-      taskPoints: undefined,
-      updatedAt: undefined,
-    };
-
-    // Mock Sprint Data with task references
-    const mockSprint = {
-      _id: 'sprintId',
-      name: 'Sprint 1',
-      startDate: undefined,
-      endDate: undefined,
-      status: undefined,
-      project: undefined,
-      tasks: ['taskId'],
-    };
-
-    // Mock data for dependent and prereq tasks
     const mockDependentTask = {
       _id: 'dependentTaskId',
       name: 'Dependent Task',
       description: 'Description of dependent task',
     };
+
     const mockPrereqTask = {
       _id: 'prereqTaskId',
       name: 'Prerequisite Task',
       description: 'Description of prerequisite task',
     };
 
-    // Mocks for DB findOne behavior
+    const mockTask = {
+      _id: 'taskId',
+      name: 'Backlog Task 1',
+      description: 'Description of backlog task',
+      assignedUser: null,
+      createdAt: new Date(),
+      dependentTasks: [mockDependentTask],
+      prereqTasks: [mockPrereqTask],
+      priority: 1,
+      project: 'projectId',
+      relevantQuestions: [mockQuestion],
+      sprint: 'sprintId',
+      status: 'todo',
+      taskPoints: 5,
+      updatedAt: new Date(),
+    };
+
+    const mockSprint = {
+      _id: 'sprintId',
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(),
+      tasks: [mockTask],
+      toObject: () => ({
+        _id: 'sprintId',
+        name: 'Sprint 1',
+        project: 'projectId',
+        status: 'active',
+        startDate: new Date(),
+        endDate: new Date(),
+        tasks: [mockTask],
+      }),
+    };
+
+    const mockProject = {
+      _id: 'projectId',
+      name: 'Test Project',
+      backlogTasks: [mockTask],
+      sprints: [mockSprint._id],
+      toObject: () => ({
+        _id: 'projectId',
+        name: 'Test Project',
+        backlogTasks: [mockTask],
+        sprints: [mockSprint._id],
+      }),
+    };
+
+    // Mock ProjectModel.findOne().populate().returns mockProject
     (ProjectModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockProject),
     });
 
-    // Mock population for questions, dependent tasks, and prereq tasks
+    // Mock TaskModel.findOne().populate() chain to return enriched mockTask
     (TaskModel.findOne as jest.Mock).mockImplementation(({ _id }) => {
-      if (_id === 'taskId') {
-        return {
-          populate: jest.fn().mockResolvedValue({
-            ...mockTask,
-            // Keeping dependentTasks, prereqTasks, and relevantQuestions as just IDs
-            dependentTasks: ['dependentTaskId'],
-            prereqTasks: ['prereqTaskId'],
-            relevantQuestions: ['questionId'],
-          }),
-        };
-      }
-      if (_id === 'dependentTaskId') {
-        return {
-          populate: jest.fn().mockResolvedValue(mockDependentTask),
-        };
-      }
-      if (_id === 'prereqTaskId') {
-        return {
-          populate: jest.fn().mockResolvedValue(mockPrereqTask),
-        };
-      }
-      return {
-        populate: jest.fn().mockResolvedValue(mockTask),
+      const chain = {
+        populate: jest.fn().mockReturnThis(),
+        toObject: () => mockTask,
+        ...mockTask,
       };
+
+      if (_id === 'dependentTaskId') return { ...chain, ...mockDependentTask };
+      if (_id === 'prereqTaskId') return { ...chain, ...mockPrereqTask };
+      if (_id === 'taskId') return chain;
+
+      return chain;
     });
 
+    // Mock SprintModel.findOne().populate().returns populated sprint
     (SprintModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockSprint),
     });
+
+    // Mock QuestionModel.findOne if ever used directly
     (QuestionModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockQuestion),
     });
@@ -353,42 +407,21 @@ describe('populateDocument', () => {
     const result = await populateDocument('projectId', 'project');
 
     expect(ProjectModel.findOne).toHaveBeenCalledWith({ _id: 'projectId' });
+    expect(TaskModel.findOne).toHaveBeenCalledWith({ _id: 'taskId' });
+
     expect(result).toEqual({
-      ...mockProject,
-      backlogTasks: [
-        {
-          _id: 'taskId',
-          name: 'Backlog Task 1',
-          description: 'Description of backlog task',
-          assignedUser: undefined,
-          createdAt: undefined,
-          dependentTasks: ['dependentTaskId'], // Still just IDs
-          prereqTasks: ['prereqTaskId'], // Still just IDs
-          relevantQuestions: ['questionId'], // Still just IDs
-          status: undefined,
-          taskPoints: undefined,
-          updatedAt: undefined,
-        },
-      ],
+      _id: 'projectId',
+      name: 'Test Project',
+      backlogTasks: [mockTask],
       sprints: [
         {
           _id: 'sprintId',
           name: 'Sprint 1',
-          tasks: [
-            {
-              _id: 'taskId',
-              name: 'Backlog Task 1',
-              description: 'Description of backlog task',
-              assignedUser: undefined,
-              createdAt: undefined,
-              dependentTasks: ['dependentTaskId'], // Still just IDs
-              prereqTasks: ['prereqTaskId'], // Still just IDs
-              relevantQuestions: ['questionId'], // Still just IDs
-              status: undefined,
-              taskPoints: undefined,
-              updatedAt: undefined,
-            },
-          ],
+          project: 'projectId',
+          status: 'active',
+          startDate: expect.any(Date),
+          endDate: expect.any(Date),
+          tasks: [mockTask],
         },
       ],
     });
