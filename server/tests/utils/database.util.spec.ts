@@ -207,23 +207,25 @@ describe('populateDocument', () => {
   });
 
   it('should fetch and populate a sprint document', async () => {
+    // Mock Task Data with relevant fields
     const mockTask = {
       _id: 'taskId',
       name: 'Task 1',
       description: 'Description of task',
-      assignedUser: null,
+      assignedUser: 'user1',
       sprint: 'sprintId',
       status: 'todo',
       dependentTasks: [],
       prereqTasks: [],
       project: 'projectId',
-      priority: 1,
+      priority: 'low',
       taskPoints: 5,
       relevantQuestions: [],
       createdAt: new Date('2025-03-31T15:05:28Z'),
       updatedAt: new Date('2025-03-31T15:05:28Z'),
     };
 
+    // Mock Sprint Data with task references
     const mockSprint = {
       _id: 'sprintId',
       tasks: [mockTask],
@@ -243,12 +245,12 @@ describe('populateDocument', () => {
       }),
     };
 
-    // Mock SprintModel.findOne().populate().returns mockSprint
+    // Mock and populate Sprint document
     (SprintModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockSprint),
     });
 
-    // Mock TaskModel.findOne().populate().populate().populate() chain
+    // Mock and populate Task document
     (TaskModel.findOne as jest.Mock).mockImplementation(() => {
       const chain = {
         ...mockTask,
@@ -299,6 +301,7 @@ describe('populateDocument', () => {
   });
 
   it('should fetch and populate a project document', async () => {
+    // Mock Question Data
     const mockQuestion = {
       _id: 'questionId',
       title: 'What is the purpose of this task?',
@@ -313,6 +316,7 @@ describe('populateDocument', () => {
       comments: [],
     };
 
+    // Mock Task Data with relevant fields
     const mockDependentTask = {
       _id: 'dependentTaskId',
       name: 'Dependent Task',
@@ -342,6 +346,7 @@ describe('populateDocument', () => {
       updatedAt: new Date(),
     };
 
+    // Mock Sprint Data with task references
     const mockSprint = {
       _id: 'sprintId',
       name: 'Sprint 1',
@@ -361,9 +366,12 @@ describe('populateDocument', () => {
       }),
     };
 
+    // Mock Project Data with sprint references
     const mockProject = {
       _id: 'projectId',
       name: 'Test Project',
+      assignedUsers: ['user1', 'user2'],
+      description: 'This is a test project',
       backlogTasks: [mockTask],
       sprints: [mockSprint._id],
       toObject: () => ({
@@ -374,12 +382,12 @@ describe('populateDocument', () => {
       }),
     };
 
-    // Mock ProjectModel.findOne().populate().returns mockProject
+    // Mock and populate Project document
     (ProjectModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockProject),
     });
 
-    // Mock TaskModel.findOne().populate() chain to return enriched mockTask
+    // Mock population of Task documents
     (TaskModel.findOne as jest.Mock).mockImplementation(({ _id }) => {
       const chain = {
         populate: jest.fn().mockReturnThis(),
@@ -394,12 +402,12 @@ describe('populateDocument', () => {
       return chain;
     });
 
-    // Mock SprintModel.findOne().populate().returns populated sprint
+    // Mock population of dependent and prerequisite tasks
     (SprintModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockSprint),
     });
 
-    // Mock QuestionModel.findOne if ever used directly
+    // Mock population of relevant questions
     (QuestionModel.findOne as jest.Mock).mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockQuestion),
     });
