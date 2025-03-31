@@ -18,7 +18,6 @@ export default function SprintDeletionModal({
 
   const handleDeleteSprint = async () => {
     try {
-      // Call the service that will delete Sprint
       const deletedSprint = await deleteSprint(sprintId);
 
       if (deletedSprint) {
