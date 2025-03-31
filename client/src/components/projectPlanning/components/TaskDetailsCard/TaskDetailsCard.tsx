@@ -4,7 +4,7 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
-import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
+import { PopulatedDatabaseProject, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import { NavLink } from 'react-router-dom';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
 
@@ -19,6 +19,9 @@ export default function TaskDetailsCard({
 }) {
   const { selectedTask }: { selectedTask: PopulatedDatabaseTask } = useSelector(
     (state: any) => state.selectTaskReducer,
+  );
+  const { project }: { project: PopulatedDatabaseProject } = useSelector(
+    (state: any) => state.projectReducer,
   );
   const { qlist } = useQuestionPage();
 
@@ -44,7 +47,8 @@ export default function TaskDetailsCard({
           )}
         </Card.Title>
         <Card.Subtitle className='mb-2 text-muted'>
-          {selectedTask.sprint?.toString() || 'Backlog'}
+          {project.sprints.find(s => s._id.toString() === selectedTask.sprint?.toString())?.name ||
+            'Backlog'}
         </Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
@@ -77,9 +81,10 @@ export default function TaskDetailsCard({
           <span>Task Dependencies:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.dependentTasks.map((dependentTask: any) => (
-              <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
-                {dependentTask}
-                {/* Need to figure out a way to get the dependent tasks fully there. Same for pre-reqs */}
+              <ListGroup.Item key={dependentTask} className='bg-transparent p-1'>
+                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
+                  (task: any) => task._id.toString() === dependentTask.toString(),
+                )?.name || 'Task not found'}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -91,8 +96,10 @@ export default function TaskDetailsCard({
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.prereqTasks.map((preReqTask: any) => (
-              <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
-                {preReqTask}
+              <ListGroup.Item key={preReqTask} className='bg-transparent p-1'>
+                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
+                  (task: any) => task._id.toString() === preReqTask.toString(),
+                )?.name || 'Task not found'}
               </ListGroup.Item>
             ))}
           </ListGroup>
