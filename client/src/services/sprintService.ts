@@ -32,3 +32,23 @@ export const deleteSprint = async (sprintId: string): Promise<PopulatedDatabaseS
 
   return res.data;
 };
+
+export const startSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
+  const res = await api.put(`${SPRINT_API_URL}/startSprint/${sprintId}`);
+
+  if (res.status !== 200) {
+    throw new Error('Error when starting sprint');
+  }
+
+  return res.data;
+};
+
+export const endSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
+  const res = await api.put(`${SPRINT_API_URL}/endSprint/${sprintId}`);
+
+  if (res.status !== 200) {
+    throw new Error('Error when ending sprint');
+  }
+
+  return res.data;
+};
