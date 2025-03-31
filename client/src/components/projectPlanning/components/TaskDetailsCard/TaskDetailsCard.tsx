@@ -6,6 +6,7 @@ import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
 import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import { NavLink } from 'react-router-dom';
+import useQuestionPage from '../../../../hooks/useQuestionPage';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
@@ -19,6 +20,7 @@ export default function TaskDetailsCard({
   const { selectedTask }: { selectedTask: PopulatedDatabaseTask } = useSelector(
     (state: any) => state.selectTaskReducer,
   );
+  const { qlist } = useQuestionPage();
 
   if (!selectedTask) {
     return null;
@@ -61,7 +63,9 @@ export default function TaskDetailsCard({
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.relevantQuestions.map((question: any) => (
               <ListGroup.Item key={question} className='bg-transparent p-1'>
-                <NavLink to={`/question/${question}`}>{question}</NavLink>
+                <NavLink to={`/question/${question}`}>
+                  {qlist.find((q: any) => q._id === question)?.title || 'Question not found'}
+                </NavLink>
               </ListGroup.Item>
             ))}
           </ListGroup>

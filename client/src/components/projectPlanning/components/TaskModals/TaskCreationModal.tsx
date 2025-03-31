@@ -44,10 +44,8 @@ export default function TaskCreationModal({
       const newTask = await createTask(task);
 
       if (!newTask.sprint) {
-        console.log('inside first branch');
         dispatch(addNewTaskToBacklog({ newTask }));
       } else {
-        console.log('inside second branch');
         dispatch(addNewTaskToSprint({ sprintId: newTask.sprint.toString(), newTask }));
       }
     } catch (error) {

@@ -86,29 +86,6 @@ export default function SprintCreationModal({
                 }
               />
             </Form.Group>
-            <Form.Group controlId='sprintTasks'>
-              <Form.Label>Tasks</Form.Label>
-              <Form.Select
-                multiple
-                defaultValue={[]}
-                onChange={e =>
-                  setCreatedSprint({
-                    ...createdSprint,
-                    tasks: Array.from(
-                      e.target.selectedOptions,
-                      option =>
-                        project.backlogTasks.find(task => task._id.toString() === option.value)
-                          ?._id,
-                    ).filter(_id => _id !== undefined),
-                  })
-                }>
-                {project.backlogTasks.map(task => (
-                  <option key={task._id.toString()} value={task._id.toString()}>
-                    {task.name}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
