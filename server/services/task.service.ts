@@ -4,6 +4,7 @@ import ProjectModel from '../models/project.model';
 import { updateProject } from './project.service';
 
 import { DatabaseTask, Task, TaskResponse } from '../types/types';
+import SprintModel from '../models/sprint.model';
 
 /**
  * Gets all that match a specific criteria.
@@ -71,6 +72,14 @@ const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<
   }
 };
 
+const propogateTaskToSprint = async (taskId: ObjectId, sprintId: ObjectId): Promise<void> => {
+  try {
+    await SprintModel.findByIdAndUpdate(sprintId, { $addToSet: { tasks: taskId } }, { new: true });
+  } catch (error) {
+    throw new Error('Error when adding task to sprint');
+  }
+};
+
 /**
  * Saves a task to the database.
  * @param task The task object to be saved.
@@ -81,8 +90,9 @@ export const saveTask = async (task: Task): Promise<TaskResponse> => {
     const result = await TaskModel.create(task);
     if (!result.sprint) {
       await addTaskToProject(result._id, result.project);
+    } else {
+      await propogateTaskToSprint(result._id, result.sprint);
     }
-    await addTaskToProject(result._id, task.project);
 
     return result;
   } catch (error) {
@@ -119,8 +129,12 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     if (!updatedtask) {
       throw Error('task not found');
     }
-    if (!updates.sprint) {
-      await addTaskToProject(updatedtask._id, updatedtask.project);
+    if (updatedtask.sprint) {
+      await propogateTaskToSprint(updatedtask._id, updatedtask.sprint);
+      await ProjectModel.updateMany(
+        { backlogTasks: updatedtask._id },
+        { $pull: { backlogTasks: updatedtask._id } },
+      );
     }
 
     return updatedtask;
@@ -148,9 +162,6 @@ export const addDependentTasks = async (
     if (!updatedTask) {
       throw new Error('Task not found');
     }
-    if (!updatedTask.sprint) {
-      await addTaskToProject(updatedTask._id, updatedTask.project);
-    }
 
     return updatedTask;
   } catch (error) {
@@ -169,6 +180,9 @@ export const deleteTaskById = async (taskId: string): Promise<TaskResponse> => {
       throw new Error('Task not found');
     }
     await ProjectModel.updateMany({ backlogTasks: taskId }, { $pull: { backlogTasks: taskId } });
+    await SprintModel.updateMany({ tasks: taskId }, { $pull: { tasks: taskId } });
+    await TaskModel.updateMany({ dependentTasks: taskId }, { $pull: { dependentTasks: taskId } });
+    await TaskModel.updateMany({ prereqTasks: taskId }, { $pull: { prereqTasks: taskId } });
     return result;
   } catch (error) {
     return { error: 'Error when deleting a task' };
