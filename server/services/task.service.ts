@@ -129,12 +129,15 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     if (!updatedtask) {
       throw Error('task not found');
     }
-    if (updatedtask.sprint) {
-      await SprintModel.findByIdAndUpdate(
-        updatedtask.sprint,
-        { $PULL: { tasks: updatedtask._id } },
+
+    if (updates.sprint) {
+      await SprintModel.findOneAndUpdate(
+        { 'tasks.taskId': taskId },
+        { $pull: { tasks: { taskId } } },
         { new: true },
       );
+    }
+    if (updatedtask.sprint) {
       await propogateTaskToSprint(updatedtask._id, updatedtask.sprint);
       await ProjectModel.updateMany(
         { backlogTasks: updatedtask._id },
