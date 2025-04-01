@@ -116,7 +116,9 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     if (!updatedtask) {
       throw Error('task not found');
     }
-    await addTaskToProject(updatedtask._id, updatedtask.project);
+    if (!updates.sprint) {
+      await addTaskToProject(updatedtask._id, updatedtask.project);
+    }
 
     return updatedtask;
   } catch (error) {
