@@ -52,3 +52,16 @@ export const endSprint = async (sprintId: string): Promise<PopulatedDatabaseSpri
 
   return res.data;
 };
+
+export const updateSprint = async (
+  sprintId: string,
+  updatedSprint: Sprint,
+): Promise<PopulatedDatabaseSprint> => {
+  const res = await api.put(`${SPRINT_API_URL}/updateSprint`, { sprintId, updates: updatedSprint });
+
+  if (res.status !== 200) {
+    throw new Error('Error when updating sprint');
+  }
+
+  return res.data;
+};
