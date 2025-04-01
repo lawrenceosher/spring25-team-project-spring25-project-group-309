@@ -5,6 +5,7 @@ import {
   CreateSprintRequest,
   SprintRequest,
   UpdateStatusRequest,
+  UpdateSprintRequest,
 } from '../types/types';
 import {
   saveSprint,
@@ -196,6 +197,28 @@ const sprintController = (socket: FakeSOSocket) => {
     await updateSprintStatus(req, res);
   };
 
+  const updateSprintFields = async (req: UpdateSprintRequest, res: Response): Promise<void> => {
+    const { sprintId, updates } = req.body;
+
+    try {
+      const updatedSprint = await updateSprint(sprintId, {
+        ...updates,
+      });
+
+      if ('error' in updatedSprint) {
+        throw new Error(updatedSprint.error);
+      }
+      socket.emit('sprintUpdate', {
+        sprint: updatedSprint,
+        type: 'updated',
+      });
+
+      res.json(updatedSprint);
+    } catch (err: unknown) {
+      res.status(500).send(`Error when updating a sprint: ${(err as Error).message}`);
+    }
+  };
+
   const updateSprintTasks = async (req: AddTaskToSprintRequest, res: Response): Promise<void> => {
     if (!isAddTaskstoSprintRequestValid(req)) {
       res.status(400).send('Invalid request');
@@ -246,6 +269,7 @@ const sprintController = (socket: FakeSOSocket) => {
 
   router.post('/createSprint', createSprint);
   router.put('/addTasks', updateSprintTasks);
+  router.put('/updateSprint', updateSprintFields);
   router.get('/getSprint', getSprint);
   router.delete('/deleteSprint', deleteSprint);
   router.get('/getSprints', getSprints);
