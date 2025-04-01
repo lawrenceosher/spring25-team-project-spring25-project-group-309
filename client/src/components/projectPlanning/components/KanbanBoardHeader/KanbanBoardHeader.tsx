@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
-import { MockProject } from '../../../../types/clientTypes/project';
+import { useSelector } from 'react-redux';
 import { getFullDate } from '../../../../tool';
 
 export default function KanbanBoardHeader({
-  project,
   handleShowCreateTaskModal,
   handleShowCompleteSprintModal,
 }: {
-  project: MockProject;
   handleShowCreateTaskModal: () => void;
   handleShowCompleteSprintModal: () => void;
 }) {
+  const { project } = useSelector((state: any) => state.projectReducer);
+
   return (
     <>
       <div id='kanban-board-header' className='d-flex align-items-center'>
@@ -22,7 +23,7 @@ export default function KanbanBoardHeader({
               <FormSelect>
                 {/* onChange call the endpoint to retrieve tasks by username */}
                 <option value=''>All</option>
-                {project.assignedUsers.map(user => (
+                {project.assignedUsers.map((user: string) => (
                   <option key={user} value={user}>
                     {user}
                   </option>
