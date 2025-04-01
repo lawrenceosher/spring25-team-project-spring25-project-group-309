@@ -97,11 +97,19 @@ const projectSlice = createSlice({
             sprint.tasks = sprint.tasks.map((task: PopulatedDatabaseTask) =>
               task._id.toString() === taskId ? updatedTask : task,
             );
+            if (state.project) {
+              state.project = { ...state.project, sprints: state.project.sprints };
+            }
           } else if (state.project) {
             state.project.backlogTasks = state.project.backlogTasks.map(
               (task: PopulatedDatabaseTask) =>
                 task._id.toString() === taskId ? updatedTask : task,
             );
+
+            state.project = {
+              ...state.project,
+              backlogTasks: state.project.backlogTasks,
+            };
           }
         });
       }
