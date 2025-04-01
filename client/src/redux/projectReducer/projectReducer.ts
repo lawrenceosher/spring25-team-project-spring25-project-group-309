@@ -85,33 +85,51 @@ const projectSlice = createSlice({
     updateTaskInProject: (
       state,
       {
-        payload: { taskId, updatedTask },
-      }: { payload: { taskId: string; updatedTask: PopulatedDatabaseTask } },
+        payload: { taskId, updatedTask, newSprintId },
+      }: { payload: { taskId: string; updatedTask: PopulatedDatabaseTask; newSprintId?: string } },
     ) => {
       if (state.project) {
+        // Remove the task from its current location (sprint or backlog)
+        let taskRemoved = false;
+
+        // Check and remove from sprints
         state.project.sprints.forEach(sprint => {
           const taskIndex = sprint.tasks.findIndex(
             (task: PopulatedDatabaseTask) => task._id.toString() === taskId,
           );
           if (taskIndex !== -1) {
-            sprint.tasks = sprint.tasks.map((task: PopulatedDatabaseTask) =>
-              task._id.toString() === taskId ? updatedTask : task,
+            sprint.tasks = sprint.tasks.filter(
+              (task: PopulatedDatabaseTask) => task._id.toString() !== taskId,
             );
-            if (state.project) {
-              state.project = { ...state.project, sprints: state.project.sprints };
-            }
-          } else if (state.project) {
-            state.project.backlogTasks = state.project.backlogTasks.map(
-              (task: PopulatedDatabaseTask) =>
-                task._id.toString() === taskId ? updatedTask : task,
-            );
-
-            state.project = {
-              ...state.project,
-              backlogTasks: state.project.backlogTasks,
-            };
+            taskRemoved = true;
           }
         });
+
+        // If not removed from sprints, check and remove from backlog
+        if (!taskRemoved) {
+          const backlogTaskIndex = state.project.backlogTasks.findIndex(
+            (task: PopulatedDatabaseTask) => task._id.toString() === taskId,
+          );
+          if (backlogTaskIndex !== -1) {
+            state.project.backlogTasks = state.project.backlogTasks.filter(
+              task => task._id.toString() !== taskId,
+            );
+          }
+        }
+
+        // Add the task to the new location (sprint or backlog)
+        if (newSprintId) {
+          // Add to the specified sprint
+          const targetSprint = state.project.sprints.find(
+            sprint => sprint._id.toString() === newSprintId,
+          );
+          if (targetSprint) {
+            targetSprint.tasks = [...(targetSprint.tasks || []), updatedTask];
+          }
+        } else {
+          // Add to the backlog
+          state.project.backlogTasks = [...state.project.backlogTasks, updatedTask];
+        }
       }
     },
 
