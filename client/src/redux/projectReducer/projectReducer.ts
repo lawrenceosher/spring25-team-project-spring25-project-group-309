@@ -132,6 +132,17 @@ const projectSlice = createSlice({
         }
       }
     },
+
+    startSprintReducer: (state, { payload: { sprintId } }: { payload: { sprintId: string } }) => {
+      if (state.project) {
+        state.project = {
+          ...state.project,
+          sprints: state.project.sprints.map((sprint: PopulatedDatabaseSprint) =>
+            sprint._id.toString() === sprintId ? { ...sprint, status: 'In Progress' } : sprint,
+          ),
+        };
+      }
+    },
   },
 });
 
@@ -144,5 +155,6 @@ export const {
   removeTaskFromProject,
   updateTaskInProject,
   updateSprintInProject,
+  startSprintReducer,
 } = projectSlice.actions;
 export default projectSlice.reducer;
