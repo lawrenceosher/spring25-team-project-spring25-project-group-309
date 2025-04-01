@@ -217,7 +217,7 @@ export default function TaskCreationModal({
                 }>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
                   task => (
-                    <option key={task._id.toString()} value={task._id.toString()}>
+                    <option key={task._id} value={task._id}>
                       {task.name}
                     </option>
                   ),
