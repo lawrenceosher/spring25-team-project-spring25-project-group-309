@@ -1,5 +1,6 @@
 import { Project, SafeDatabaseUser } from '@fake-stack-overflow/shared';
 import { Button, Form } from 'react-bootstrap';
+import useUserContext from '../../../../hooks/useUserContext';
 
 export default function CreateProjectForm({
   newProject,
@@ -12,6 +13,8 @@ export default function CreateProjectForm({
   userList: SafeDatabaseUser[];
   handleCreateProject: (proj: Project) => void;
 }) {
+  const { user: currentUser } = useUserContext();
+
   return (
     <div className='p-3 d-flex flex-column justify-content-center align-items-center'>
       <h2 className='fw-bold'>Create Project</h2>
@@ -42,7 +45,7 @@ export default function CreateProjectForm({
           <Form.Label>Project Members</Form.Label>
           <Form.Select
             multiple
-            defaultValue={[]}
+            defaultValue={currentUser ? [currentUser.username] : []}
             onChange={e =>
               setNewProject({
                 ...newProject,
