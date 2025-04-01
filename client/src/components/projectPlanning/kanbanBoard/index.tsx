@@ -88,6 +88,7 @@ export default function KanbanBoardPage() {
       />
 
       <SprintCompletionModal
+        activeSprint={activeSprint}
         show={showCompleteSprintModal}
         handleClose={handleCloseCompleteSprintModal}
       />

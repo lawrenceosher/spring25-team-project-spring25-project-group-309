@@ -16,7 +16,6 @@ export default function KanbanBoardHeader({
   const { project } = useSelector((state: any) => state.projectReducer);
 
   if (!sprint) {
-    console.log('No active sprint found');
     return null;
   }
 
@@ -51,7 +50,6 @@ export default function KanbanBoardHeader({
           </Button>
         </span>
       </div>
-      {/* Need to have an active sprint field and show that on the board */}
       <h3 className='text-muted'>
         {sprint.name}: {getFullDate(new Date(sprint.startDate))} - {''}
         {getFullDate(new Date(sprint.endDate))}
