@@ -1,16 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
-import { MockProject } from '../../../../types/clientTypes/project';
+import { useSelector } from 'react-redux';
+import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import { getFullDate } from '../../../../tool';
 
 export default function KanbanBoardHeader({
-  project,
+  sprint,
   handleShowCreateTaskModal,
   handleShowCompleteSprintModal,
 }: {
-  project: MockProject;
+  sprint: PopulatedDatabaseSprint | null;
   handleShowCreateTaskModal: () => void;
   handleShowCompleteSprintModal: () => void;
 }) {
+  const { project } = useSelector((state: any) => state.projectReducer);
+
+  if (!sprint) {
+    return null;
+  }
+
   return (
     <>
       <div id='kanban-board-header' className='d-flex align-items-center'>
@@ -22,7 +30,7 @@ export default function KanbanBoardHeader({
               <FormSelect>
                 {/* onChange call the endpoint to retrieve tasks by username */}
                 <option value=''>All</option>
-                {project.assignedUsers.map(user => (
+                {project.assignedUsers.map((user: string) => (
                   <option key={user} value={user}>
                     {user}
                   </option>
@@ -42,10 +50,9 @@ export default function KanbanBoardHeader({
           </Button>
         </span>
       </div>
-      {/* Need to have an active sprint field and show that on the board */}
       <h3 className='text-muted'>
-        {project.sprints[0].name}: {getFullDate(project.sprints[0].startDate)} -{' '}
-        {getFullDate(project.sprints[0].endDate)}
+        {sprint.name}: {getFullDate(new Date(sprint.startDate))} - {''}
+        {getFullDate(new Date(sprint.endDate))}
       </h3>
     </>
   );

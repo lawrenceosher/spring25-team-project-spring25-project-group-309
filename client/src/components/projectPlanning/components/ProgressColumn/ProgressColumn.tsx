@@ -6,9 +6,12 @@ export default function ProgressColumn({
   sprint,
   column,
 }: {
-  sprint: PopulatedDatabaseSprint;
+  sprint: PopulatedDatabaseSprint | null;
   column: string;
 }) {
+  if (!sprint) {
+    return null;
+  }
   const tasks = sprint.tasks.filter(task => task.status === column);
   return (
     <Col>
