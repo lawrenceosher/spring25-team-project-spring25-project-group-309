@@ -2,9 +2,12 @@ import { ListGroup, Button } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
+import { useDispatch } from 'react-redux';
 import { PopulatedDatabaseSprint } from '../../../../types/types';
 import TaskListItem from '../TaskListItem/TaskListItem';
 import { getFullDate, getStatusColor } from '../../../../tool';
+import { startSprint } from '../../../../services/sprintService';
+import { updateSprintInProject } from '../../../../redux/projectReducer/projectReducer';
 
 export default function SprintListGroup({
   sprint,
@@ -18,6 +21,19 @@ export default function SprintListGroup({
   setSprintForModal: (sprint: PopulatedDatabaseSprint) => void;
 }) {
   const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
+
+  const dispatch = useDispatch();
+
+  const handleStartSprint = async () => {
+    try {
+      const startedSprint = await startSprint(sprint._id.toString());
+      dispatch(
+        updateSprintInProject({ sprintId: sprint._id.toString(), updatedSprint: startedSprint }),
+      );
+    } catch (error) {
+      console.error('Error starting sprint:', error);
+    }
+  };
 
   return (
     <ListGroup className='rounded-0'>
@@ -54,7 +70,11 @@ export default function SprintListGroup({
           ))}
           {sprint.status === 'Not Started' && (
             <ListGroup.Item className='bg-body-secondary text-center'>
-              <Button variant='success'>
+              <Button
+                variant='success'
+                onClick={() => {
+                  handleStartSprint();
+                }}>
                 <VscDebugStart className='mb-1' /> Start Sprint
               </Button>
             </ListGroup.Item>

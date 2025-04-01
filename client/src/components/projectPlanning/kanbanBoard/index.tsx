@@ -38,7 +38,7 @@ export default function KanbanBoardPage() {
       const currentSprint = project.sprints.find(
         (sprint: PopulatedDatabaseSprint) => sprint.status === 'In Progress',
       );
-      if (activeSprint) {
+      if (currentSprint) {
         setActiveSprint(currentSprint);
       }
     }
@@ -76,6 +76,7 @@ export default function KanbanBoardPage() {
   return (
     <div className='p-3'>
       <KanbanBoardHeader
+        sprint={activeSprint}
         handleShowCreateTaskModal={handleShowCreateTaskModal}
         handleShowCompleteSprintModal={handleShowCompleteSprintModal}
       />

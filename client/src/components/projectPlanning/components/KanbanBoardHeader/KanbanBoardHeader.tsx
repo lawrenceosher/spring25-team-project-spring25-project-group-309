@@ -1,16 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import { getFullDate } from '../../../../tool';
 
 export default function KanbanBoardHeader({
+  sprint,
   handleShowCreateTaskModal,
   handleShowCompleteSprintModal,
 }: {
+  sprint: PopulatedDatabaseSprint | null;
   handleShowCreateTaskModal: () => void;
   handleShowCompleteSprintModal: () => void;
 }) {
   const { project } = useSelector((state: any) => state.projectReducer);
+
+  if (!sprint) {
+    console.log('No active sprint found');
+    return null;
+  }
 
   return (
     <>
@@ -45,8 +53,8 @@ export default function KanbanBoardHeader({
       </div>
       {/* Need to have an active sprint field and show that on the board */}
       <h3 className='text-muted'>
-        {project.sprints[0].name}: {getFullDate(project.sprints[0].startDate)} -{' '}
-        {getFullDate(project.sprints[0].endDate)}
+        {sprint.name}: {getFullDate(new Date(sprint.startDate))} - {''}
+        {getFullDate(new Date(sprint.endDate))}
       </h3>
     </>
   );

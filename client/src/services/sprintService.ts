@@ -34,7 +34,7 @@ export const deleteSprint = async (sprintId: string): Promise<PopulatedDatabaseS
 };
 
 export const startSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
-  const res = await api.put(`${SPRINT_API_URL}/startSprint/${sprintId}`);
+  const res = await api.put(`${SPRINT_API_URL}/startSprint`, { sprintId });
 
   if (res.status !== 200) {
     throw new Error('Error when starting sprint');
@@ -44,7 +44,7 @@ export const startSprint = async (sprintId: string): Promise<PopulatedDatabaseSp
 };
 
 export const endSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint> => {
-  const res = await api.put(`${SPRINT_API_URL}/endSprint/${sprintId}`);
+  const res = await api.put(`${SPRINT_API_URL}/endSprint`, { sprintId });
 
   if (res.status !== 200) {
     throw new Error('Error when ending sprint');
