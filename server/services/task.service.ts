@@ -79,6 +79,9 @@ const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<
 export const saveTask = async (task: Task): Promise<TaskResponse> => {
   try {
     const result = await TaskModel.create(task);
+    if (!updates.sprint) {
+      await addTaskToProject(updatedtask._id, updatedtask.project);
+    }
     await addTaskToProject(result._id, task.project);
 
     return result;
@@ -145,7 +148,10 @@ export const addDependentTasks = async (
     if (!updatedTask) {
       throw new Error('Task not found');
     }
-    await addTaskToProject(updatedTask._id, updatedTask.project);
+    if (!updatedTask.sprint) {
+      await addTaskToProject(updatedTask._id, updatedTask.project);
+    }
+
 
     return updatedTask;
   } catch (error) {
