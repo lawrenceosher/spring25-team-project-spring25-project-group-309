@@ -117,6 +117,12 @@ export const deleteSprintById = async (sprintId: string): Promise<SprintResponse
       throw Error('Sprint not found');
     }
     await ProjectModel.updateMany({ sprints: sprintId }, { $pull: { sprints: sprintId } });
+    await ProjectModel.findByIdAndUpdate(
+      deletedSprint.project,
+      { $addToSet: { backlogTasks: deletedSprint.tasks } },
+      { new: true },
+    );
+
     return deletedSprint;
   } catch (error) {
     return { error: 'Error when deleting a sprint' };
