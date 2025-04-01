@@ -54,6 +54,13 @@ export interface UpdateDependencyRequest extends Request {
   };
 }
 
+export interface UpdateTaskRequest extends Request {
+  body: {
+    taskId: string;
+    updates: Partial<Task>;
+  };
+}
+
 /**
  * Express request for creating a new task.
  * - `assignedUser`: The user assigned to the task (body).
