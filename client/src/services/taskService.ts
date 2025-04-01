@@ -1,6 +1,6 @@
 import { PopulatedDatabaseTask, Task } from '@fake-stack-overflow/shared';
 import api from './config';
-import { ClientTask } from '../types/clientTypes/task';
+import { ClientTask, DatabaseClientTask } from '../types/clientTypes/task';
 
 const TASK_API_URL = `${process.env.REACT_APP_SERVER_URL}/task`;
 
@@ -30,4 +30,17 @@ export const deleteTask = async (taskId: string): Promise<void> => {
   if (res.status !== 200) {
     throw new Error(`Error when deleting task: ${taskId}`);
   }
+};
+
+export const updateTask = async (
+  taskId: string,
+  updatedTask: DatabaseClientTask,
+): Promise<PopulatedDatabaseTask> => {
+  const res = await api.put(`${TASK_API_URL}/updateTask`, { taskId, updates: updatedTask });
+
+  if (res.status !== 200) {
+    throw new Error('Error when updating task');
+  }
+
+  return res.data;
 };

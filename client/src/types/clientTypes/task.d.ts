@@ -13,3 +13,7 @@ export interface ClientTask {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface DatabaseClientTask extends ClientTask {
+  _id: string;
+}

@@ -4,8 +4,10 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
-import { ClientTask } from '../../../../types/clientTypes/task';
+import { DatabaseClientTask } from '../../../../types/clientTypes/task';
 import { updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
+import { updateTask } from '../../../../services/taskService';
+import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 
 export default function TaskUpdateModal({
   show,
@@ -18,16 +20,21 @@ export default function TaskUpdateModal({
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
-  const [taskToUpdate, setTaskToUpdate] = useState<ClientTask>({ ...selectedTask });
+  const [taskToUpdate, setTaskToUpdate] = useState<DatabaseClientTask>({ ...selectedTask });
 
   const { qlist } = useQuestionPage();
 
   const dispatch = useDispatch();
 
-  const handleUpdateTask = async (task: ClientTask) => {
-    // Need to call service to update task
-    // const updatedTask = await updateTask(task);
-    // dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask}));
+  const handleUpdateTask = async (task: DatabaseClientTask) => {
+    try {
+      const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
+      console.log('Updated task:', updatedTask);
+      dispatch(setSelectedTask(null));
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
   };
 
   useEffect(() => {
@@ -55,7 +62,12 @@ export default function TaskUpdateModal({
               <Form.Label>Sprint</Form.Label>
               <Form.Select
                 value={taskToUpdate.sprint ? taskToUpdate.sprint : undefined}
-                onChange={e => setTaskToUpdate({ ...taskToUpdate, sprint: e.target.value })}>
+                onChange={e =>
+                  setTaskToUpdate({
+                    ...taskToUpdate,
+                    sprint: e.target.value !== undefined ? e.target.value : null,
+                  })
+                }>
                 <option value={undefined}>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id.toString()} value={sprint._id.toString()}>
@@ -134,7 +146,7 @@ export default function TaskUpdateModal({
                               question._id.toString() === option.value,
                           )
                           ?._id.toString() || null,
-                    ).filter((id): id is string => id !== null),
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {qlist.map((question: PopulatedDatabaseQuestion) => (
@@ -149,17 +161,18 @@ export default function TaskUpdateModal({
               <Form.Label>Task Prerequisites</Form.Label>
               <Form.Select
                 multiple
-                defaultValue={[]}
+                defaultValue={taskToUpdate.prereqTasks}
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
                     prereqTasks: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        project.sprints
-                          .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null),
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -183,10 +196,11 @@ export default function TaskUpdateModal({
                     dependentTasks: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        project.sprints
-                          .flatMap(sprint => sprint.tasks)
-                          .find(task => task._id.toString() === option.value) || null,
-                    ).filter(task => task !== null),
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -208,7 +222,7 @@ export default function TaskUpdateModal({
           <Button
             variant='success'
             onClick={() => {
-              // Call the service to update a task
+              handleUpdateTask(taskToUpdate);
               handleClose();
             }}>
             Update Task

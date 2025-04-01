@@ -3,6 +3,7 @@ import { Button, Form, Modal } from 'react-bootstrap';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import { useDispatch } from 'react-redux';
 import { updateSprintInProject } from '../../../../redux/projectReducer/projectReducer';
+import { updateSprint } from '../../../../services/sprintService';
 
 export default function SprintUpdateModal({
   show,
@@ -26,8 +27,12 @@ export default function SprintUpdateModal({
     if (!updatedSprint) {
       return;
     }
-    // Call the service to update sprint
-    dispatch(updateSprintInProject({ sprintId: updatedSprint?._id.toString(), updatedSprint }));
+    try {
+      await updateSprint(updatedSprint._id.toString(), updatedSprint);
+      dispatch(updateSprintInProject({ sprintId: updatedSprint?._id.toString(), updatedSprint }));
+    } catch (error) {
+      console.error('Error updating sprint:', error);
+    }
   };
 
   useEffect(() => {

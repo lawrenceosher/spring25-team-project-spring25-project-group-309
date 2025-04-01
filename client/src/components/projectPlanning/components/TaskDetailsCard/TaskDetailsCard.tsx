@@ -83,7 +83,9 @@ export default function TaskDetailsCard({
             {selectedTask.dependentTasks.map((dependentTask: any) => (
               <ListGroup.Item key={dependentTask} className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
-                  (task: any) => task._id.toString() === dependentTask.toString(),
+                  (task: any) =>
+                    task._id.toString() ===
+                    (dependentTask._id?.toString() || dependentTask.toString()),
                 )?.name || 'Task not found'}
               </ListGroup.Item>
             ))}
@@ -98,7 +100,8 @@ export default function TaskDetailsCard({
             {selectedTask.prereqTasks.map((preReqTask: any) => (
               <ListGroup.Item key={preReqTask} className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
-                  (task: any) => task._id.toString() === preReqTask.toString(),
+                  (task: any) =>
+                    task._id.toString() === (preReqTask._id?.toString() || preReqTask.toString()),
                 )?.name || 'Task not found'}
               </ListGroup.Item>
             ))}
