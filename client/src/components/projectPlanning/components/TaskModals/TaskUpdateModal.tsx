@@ -65,10 +65,10 @@ export default function TaskUpdateModal({
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
-                    sprint: e.target.value !== undefined ? e.target.value : null,
+                    sprint: e.target.value ? e.target.value : null,
                   })
                 }>
-                <option value={undefined}>Backlog</option>
+                <option value=''>Backlog</option>
                 {project.sprints.map(sprint => (
                   <option key={sprint._id.toString()} value={sprint._id.toString()}>
                     {sprint.name}
