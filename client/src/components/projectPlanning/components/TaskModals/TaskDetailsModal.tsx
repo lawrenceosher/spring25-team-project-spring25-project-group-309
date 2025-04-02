@@ -3,7 +3,7 @@ import { Button, Card, Form, ListGroup, Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaPencil } from 'react-icons/fa6';
 import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
 import { DatabaseClientTask } from '../../../../types/clientTypes/task';
@@ -28,6 +28,12 @@ export default function TaskDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
 
   const [taskToUpdate, setTaskToUpdate] = useState<DatabaseClientTask>({ ...selectedTask });
+
+  useEffect(() => {
+    if (selectedTask) {
+      setTaskToUpdate({ ...selectedTask });
+    }
+  }, [selectedTask]);
 
   const dispatch = useDispatch();
 
