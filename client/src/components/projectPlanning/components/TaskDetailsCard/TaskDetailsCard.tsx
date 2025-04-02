@@ -13,9 +13,9 @@ export default function TaskDetailsCard({
   handleShowTaskUpdateModal,
   setTaskForModal,
 }: {
-  handleShowDeleteTaskModal?: () => void;
-  handleShowTaskUpdateModal?: () => void;
-  setTaskForModal?: (task: PopulatedDatabaseTask) => void;
+  handleShowDeleteTaskModal: () => void;
+  handleShowTaskUpdateModal: () => void;
+  setTaskForModal: (task: PopulatedDatabaseTask) => void;
 }) {
   const { selectedTask }: { selectedTask: PopulatedDatabaseTask } = useSelector(
     (state: any) => state.selectTaskReducer,
@@ -33,9 +33,9 @@ export default function TaskDetailsCard({
       <Card.Body>
         <Card.Title className='fs-4'>
           {selectedTask.name}
-          {handleShowTaskUpdateModal && handleShowDeleteTaskModal && setTaskForModal && (
-            <span className='float-end'>
-              <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
+          <span className='float-end'>
+            <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
+            {setTaskForModal && handleShowDeleteTaskModal && (
               <FaTrash
                 className='text-danger me-1'
                 onClick={() => {
@@ -43,8 +43,8 @@ export default function TaskDetailsCard({
                   handleShowDeleteTaskModal();
                 }}
               />
-            </span>
-          )}
+            )}
+          </span>
         </Card.Title>
         <Card.Subtitle className='mb-2 text-muted'>
           {project.sprints.find(s => s._id.toString() === selectedTask.sprint?.toString())?.name ||
