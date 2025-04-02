@@ -195,7 +195,7 @@ export default function TaskDetailsModal({
             <Form.Label>Task Dependencies</Form.Label>
             <Form.Select
               multiple
-              defaultValue={[]}
+              defaultValue={taskToUpdate.dependentTasks}
               onChange={e =>
                 setTaskToUpdate({
                   ...taskToUpdate,
