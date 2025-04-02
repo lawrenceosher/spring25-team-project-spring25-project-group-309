@@ -1,7 +1,12 @@
 import { Button, Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { deleteSprint } from '../../../../services/sprintService';
-import { removeSprintFromProject } from '../../../../redux/projectReducer/projectReducer';
+import {
+  removeSprintFromProject,
+  setProject,
+} from '../../../../redux/projectReducer/projectReducer';
+import useUserContext from '../../../../hooks/useUserContext';
+import { getProjectsByUser } from '../../../../services/projectService';
 
 export default function SprintDeletionModal({
   show,
@@ -15,6 +20,7 @@ export default function SprintDeletionModal({
   sprintId: string;
 }) {
   const dispatch = useDispatch();
+  const { user: currentUser } = useUserContext();
 
   const handleDeleteSprint = async () => {
     try {
@@ -23,6 +29,8 @@ export default function SprintDeletionModal({
       if (deletedSprint) {
         dispatch(removeSprintFromProject({ sprintId }));
       }
+      const updatedProject = await getProjectsByUser(currentUser.username);
+      dispatch(setProject(updatedProject[0]));
     } catch (error) {
       console.error('Error deleting sprint:', error);
     }
