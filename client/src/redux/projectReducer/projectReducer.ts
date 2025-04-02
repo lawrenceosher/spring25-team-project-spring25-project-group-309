@@ -66,6 +66,8 @@ const projectSlice = createSlice({
         state.project.sprints = state.project.sprints.filter(
           sprint => sprint._id.toString() !== sprintId,
         );
+
+        state.project = { ...state.project, sprints: [...state.project.sprints] };
       }
     },
 

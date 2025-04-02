@@ -9,7 +9,8 @@ import useQuestionPage from '../../../../hooks/useQuestionPage';
 import { DatabaseClientTask } from '../../../../types/clientTypes/task';
 import { updateTask } from '../../../../services/taskService';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
-import { updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
+import { setProject, updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
+import { getProjectsByUser } from '../../../../services/projectService';
 
 export default function TaskDetailsModal({
   show,
@@ -42,6 +43,8 @@ export default function TaskDetailsModal({
       const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
       dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
       dispatch(setSelectedTask({ ...taskToUpdate }));
+      const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
+      dispatch(setProject(updatedProject[0]));
     } catch (error) {
       console.error('Error updating task:', error);
     }
