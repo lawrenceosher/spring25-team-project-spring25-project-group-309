@@ -125,18 +125,20 @@ export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
  */
 export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
   try {
+    const task = await TaskModel.findById(taskId).lean();
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
+    if (updates.sprint) {
+      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
+    }
     const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true }).lean();
+
     if (!updatedtask) {
       throw Error('task not found');
     }
 
-    if (updates.sprint) {
-      await SprintModel.findOneAndUpdate(
-        { 'tasks.taskId': taskId },
-        { $pull: { tasks: { taskId } } },
-        { new: true },
-      );
-    }
     if (updatedtask.sprint) {
       await propogateTaskToSprint(updatedtask._id, updatedtask.sprint);
       await ProjectModel.updateMany(
