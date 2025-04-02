@@ -131,7 +131,7 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
     }
 
     if (updates.sprint) {
-      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
+      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } }); 
     }
 
     if (task.sprint && !updates.sprint) {
