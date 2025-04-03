@@ -8,13 +8,7 @@ import {
   UpdateDependencyRequest,
   UpdateTaskRequest,
 } from '../types/types';
-import {
-  deleteTaskById,
-  getAllTasksByUser,
-  getDependentTasksById,
-  saveTask,
-  updateTask,
-} from '../services/task.service';
+import { deleteTaskById, getAllTasksByUser, saveTask, updateTask } from '../services/task.service';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -111,23 +105,6 @@ const taskController = (socket: FakeSOSocket) => {
     }
   };
 
-  const getDependentTasks = async (req: TaskIdRequest, res: Response): Promise<void> => {
-    try {
-      const { taskId } = req.params;
-
-      const tasks = await getDependentTasksById(taskId);
-      const error = tasks.find(task => 'error' in task);
-
-      if (error) {
-        throw new Error(`${error}`);
-      }
-
-      res.status(200).json(tasks);
-    } catch (error) {
-      res.status(500).send(`Error when getting dependent tasks: ${(error as Error).message}`);
-    }
-  };
-
   /**
    * Deletes a task by its ID.
    * @param req The request containing the task ID.
@@ -157,32 +134,8 @@ const taskController = (socket: FakeSOSocket) => {
   /**
    * Updates the dependencies of a task.
    * @param req The request containing the task ID and dependent task IDs.
-   * @param res The response.
+   * @param res The updated task.
    */
-  const updateTaskDependency = async (
-    req: UpdateDependencyRequest,
-    res: Response,
-  ): Promise<void> => {
-    if (!isUpdateDependencyRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-    const { taskId, dependentTaskIds } = req.body;
-    try {
-      const updatedTask = await updateTask(taskId, { dependentTasks: dependentTaskIds });
-      if ('error' in updatedTask) {
-        throw new Error(updatedTask.error);
-      }
-      socket.emit('taskUpdate', {
-        task: updatedTask,
-        type: 'updated',
-      });
-      res.json(updatedTask);
-    } catch (error) {
-      res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
-    }
-  };
-
   const updateTaskFields = async (req: UpdateTaskRequest, res: Response): Promise<void> => {
     if (!req.body.taskId || !req.body.updates) {
       res.status(400).send('Invalid request');
@@ -206,9 +159,7 @@ const taskController = (socket: FakeSOSocket) => {
 
   router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
-  router.put('/updateTaskDependency', updateTaskDependency);
   router.put('/updateTask', updateTaskFields);
-  router.get('/getDependentTasks/:taskId', getDependentTasks);
   router.delete('/deleteTask/:taskId', deleteTask);
   return router;
 };

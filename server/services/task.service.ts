@@ -30,33 +30,6 @@ export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse
 export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
   getTasksByCriteria({ assignedUser: userId });
 
-/**
- * Get a list of tasks by sprint
- * @param sprintId The sprint ID to get tasks for.
- * @returns A list of tasks or an error message.
- */
-export const getTasksBySprint = async (sprintId: string): Promise<TaskResponse[]> =>
-  getTasksByCriteria({ sprint: sprintId });
-
-/**
- * Gets the dependent tasks of a task by its ID.
- * @param taskId The ID of the task to get dependent tasks for.
- * @returns An array of dependent tasks or an error message. If the task is not found, an empty array is returned.
- */
-export const getDependentTasksById = async (taskId: string): Promise<TaskResponse[]> => {
-  try {
-    const task = await TaskModel.findById(taskId)
-      .populate<{ dependentTasks: DatabaseTask[] }>('dependentTasks')
-      .lean();
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task.dependentTasks;
-  } catch (error) {
-    return [];
-  }
-};
-
 const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<void> => {
   try {
     const project = await ProjectModel.findById(projectId);
@@ -97,23 +70,6 @@ export const saveTask = async (task: Task): Promise<TaskResponse> => {
     return result;
   } catch (error) {
     return { error: 'Error when saving a task' };
-  }
-};
-
-/**
- * Gets a task by its ID.
- * @param taskId The ID of the task to get.
- * @returns The task or an error message.
- */
-export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
-  try {
-    const task = await TaskModel.findById(taskId);
-    if (!task) {
-      throw new Error('Task not found');
-    }
-    return task;
-  } catch (error) {
-    return { error: 'Error when getting a task' };
   }
 };
 
@@ -167,31 +123,6 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
   }
 };
 
-/**
- * Updates a list of tasks with new information.
- * @param taskId The ID of the task to add to.
- * @param dependentTaskIds The IDs of the tasks to add as dependencies.
- * @returns The Updated Task
- */
-export const addDependentTasks = async (
-  taskId: string,
-  dependentTaskIds: string[],
-): Promise<TaskResponse> => {
-  try {
-    const updatedTask = await TaskModel.findByIdAndUpdate(
-      taskId,
-      { $addToSet: { dependentTasks: { $each: dependentTaskIds } } },
-      { new: true },
-    ).lean();
-    if (!updatedTask) {
-      throw new Error('Task not found');
-    }
-
-    return updatedTask;
-  } catch (error) {
-    return { error: 'Error when adding dependent tasks' };
-  }
-};
 /**
  * Deletes a task from the database.
  * @param taskId The ID of the task to be deleted.
