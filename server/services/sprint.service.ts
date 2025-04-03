@@ -1,6 +1,23 @@
 import { ObjectId } from 'mongodb';
 import { DatabaseSprint, Sprint, SprintResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
+import ProjectModel from '../models/project.model';
+import { updateProject } from './project.service';
+
+const addSprintToProject = async (sprintd: ObjectId, projectId: ObjectId): Promise<void> => {
+  try {
+    const project = await ProjectModel.findById(projectId);
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+    await updateProject(project._id.toString(), {
+      $addToSet: { sprints: sprintd },
+    });
+  } catch (error) {
+    throw new Error('Error when adding task to project');
+  }
+};
 
 /**
  * Service to create and add a sprint to the database.
@@ -10,6 +27,7 @@ import SprintModel from '../models/sprint.model';
 export const saveSprint = async (sprint: Sprint): Promise<SprintResponse> => {
   try {
     const result = await SprintModel.create(sprint);
+    await addSprintToProject(result._id, sprint.project);
     return result;
   } catch (error) {
     return { error: 'Error when saving a sprint' };
@@ -98,6 +116,13 @@ export const deleteSprintById = async (sprintId: string): Promise<SprintResponse
     if (!deletedSprint) {
       throw Error('Sprint not found');
     }
+    await ProjectModel.updateMany({ sprints: sprintId }, { $pull: { sprints: sprintId } });
+    await ProjectModel.findByIdAndUpdate(
+      deletedSprint.project,
+      { $addToSet: { backlogTasks: deletedSprint.tasks } },
+      { new: true },
+    );
+
     return deletedSprint;
   } catch (error) {
     return { error: 'Error when deleting a sprint' };

@@ -1,3 +1,4 @@
+import { UpdateQuery } from 'mongoose';
 import { Project, ProjectResponse } from '../types/types';
 import ProjectModel from '../models/project.model';
 
@@ -58,7 +59,7 @@ export const getAllProjectsByUser = async (username: string): Promise<ProjectRes
  */
 export const updateProject = async (
   projectId: string,
-  updates: Partial<Project>,
+  updates: UpdateQuery<Project>,
 ): Promise<ProjectResponse> => {
   try {
     const updatedProject = await ProjectModel.findByIdAndUpdate(projectId, updates, { new: true });

@@ -6,7 +6,7 @@ export interface Task {
   assignedUser: string;
   description: string;
   name: string;
-  sprint: ObjectId;
+  sprint: ObjectId | null;
   status: string;
   dependentTasks: ObjectId[];
   prereqTasks: ObjectId[];
@@ -51,6 +51,13 @@ export interface UpdateDependencyRequest extends Request {
   body: {
     taskId: string;
     dependentTaskIds: ObjectId[];
+  };
+}
+
+export interface UpdateTaskRequest extends Request {
+  body: {
+    taskId: string;
+    updates: Partial<Task>;
   };
 }
 

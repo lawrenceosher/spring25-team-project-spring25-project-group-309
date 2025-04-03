@@ -3,10 +3,10 @@ import { useDispatch } from 'react-redux';
 import { ListGroupItem } from 'react-bootstrap';
 import { getStatusColor } from '../../../../tool';
 import './TaskListItem.css';
-import { MockTask } from '../../../../types/mockTypes/task';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
+import { PopulatedDatabaseTask } from '../../../../types/types';
 
-export default function TaskListItem({ task }: { task: MockTask }) {
+export default function TaskListItem({ task }: { task: PopulatedDatabaseTask }) {
   const dispatch = useDispatch();
 
   return (
