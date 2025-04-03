@@ -77,10 +77,15 @@ describe('Task model', () => {
     it('should return the updated task when adding tasks', async () => {
       const taskId = '65e9b58910afe6e94fc6e6dc';
 
+      // Mock findOne to return task
       mockingoose(TaskModel).toReturn(databaseTaskWithDependency, 'findOne');
+      // Mock changing sprints
       mockingoose(SprintModel).toReturn({}, 'findOneAndUpdate');
+      // Mock moving to project backlog
       mockingoose(ProjectModel).toReturn({}, 'findOneAndUpdate');
+      // Mock removing from project backlog
       mockingoose(TaskModel).toReturn(databaseTaskWithDependency, 'findOneAndUpdate');
+      // Mock adding Task to new sprint
       mockingoose(ProjectModel).toReturn({}, 'updateMany');
 
       const updatedTask = await updateTask(taskId, {
@@ -93,10 +98,15 @@ describe('Task model', () => {
     it('should return the updated task when removing tasks', async () => {
       const taskId = '65e9b58910afe6e94fc6e6dc';
 
+      // Mock findOne to return task
       mockingoose(TaskModel).toReturn(databaseTask, 'findOne');
+      // Mock changing sprints
       mockingoose(TaskModel).toReturn(databaseTask, 'findOneAndUpdate');
+      // Mock moving to project backlog
       mockingoose(SprintModel).toReturn({}, 'findOneAndUpdate');
+      // Mock removing from project backlog
       mockingoose(ProjectModel).toReturn({}, 'findOneAndUpdate');
+      // Mock adding Task to new sprint
       mockingoose(ProjectModel).toReturn({}, 'updateMany');
 
       const updatedTask = await updateTask(taskId, {
