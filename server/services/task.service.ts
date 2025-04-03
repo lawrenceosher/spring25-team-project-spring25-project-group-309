@@ -1,10 +1,6 @@
 import { ObjectId } from 'mongodb';
 import TaskModel from '../models/task.model';
-import ProjectModel from '../models/project.model';
-import { updateProject } from './project.service';
-
 import { DatabaseTask, Task, TaskResponse } from '../types/types';
-import SprintModel from '../models/sprint.model';
 
 /**
  * Gets all that match a specific criteria.
@@ -28,7 +24,7 @@ export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse
  * @returns A list of tasks or an error message.
  */
 export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
-  getTasksByCriteria({ assignedUser: userId });
+  getTasksByCriteria({ assigned_user: userId });
 
 /**
  * Get a list of tasks by sprint
@@ -57,29 +53,6 @@ export const getDependentTasksById = async (taskId: string): Promise<TaskRespons
   }
 };
 
-const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<void> => {
-  try {
-    const project = await ProjectModel.findById(projectId);
-
-    if (!project) {
-      throw new Error('Project not found');
-    }
-    await updateProject(project._id.toString(), {
-      $addToSet: { backlogTasks: taskId },
-    });
-  } catch (error) {
-    throw new Error('Error when adding task to project');
-  }
-};
-
-const propogateTaskToSprint = async (taskId: ObjectId, sprintId: ObjectId): Promise<void> => {
-  try {
-    await SprintModel.findByIdAndUpdate(sprintId, { $addToSet: { tasks: taskId } }, { new: true });
-  } catch (error) {
-    throw new Error('Error when adding task to sprint');
-  }
-};
-
 /**
  * Saves a task to the database.
  * @param task The task object to be saved.
@@ -88,12 +61,6 @@ const propogateTaskToSprint = async (taskId: ObjectId, sprintId: ObjectId): Prom
 export const saveTask = async (task: Task): Promise<TaskResponse> => {
   try {
     const result = await TaskModel.create(task);
-    if (!result.sprint) {
-      await addTaskToProject(result._id, result.project);
-    } else {
-      await propogateTaskToSprint(result._id, result.sprint);
-    }
-
     return result;
   } catch (error) {
     return { error: 'Error when saving a task' };
@@ -125,37 +92,10 @@ export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
  */
 export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
   try {
-    const task = await TaskModel.findById(taskId).lean();
-    if (!task) {
-      throw new Error('Task not found');
-    }
-
-    // If sprint is being changed, remove task from old sprint and add to new sprint
-    if (updates.sprint) {
-      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
-    }
-
-    // If sprint is being removed, add task to project backlog
-    if (task.sprint && !updates.sprint) {
-      await ProjectModel.findByIdAndUpdate(task.project, { $addToSet: { backlogTasks: taskId } });
-      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
-    }
-
     const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true }).lean();
-
     if (!updatedtask) {
       throw Error('task not found');
     }
-
-    // If sprint is being changed, add task to new sprint
-    if (updatedtask.sprint) {
-      await propogateTaskToSprint(updatedtask._id, updatedtask.sprint);
-      await ProjectModel.updateMany(
-        { backlogTasks: updatedtask._id },
-        { $pull: { backlogTasks: updatedtask._id } },
-      );
-    }
-
     return updatedtask;
   } catch (error) {
     return { error: 'Error when updating a task' };
@@ -181,7 +121,6 @@ export const addDependentTasks = async (
     if (!updatedTask) {
       throw new Error('Task not found');
     }
-
     return updatedTask;
   } catch (error) {
     return { error: 'Error when adding dependent tasks' };
@@ -198,10 +137,6 @@ export const deleteTaskById = async (taskId: string): Promise<TaskResponse> => {
     if (!result) {
       throw new Error('Task not found');
     }
-    await ProjectModel.updateMany({ backlogTasks: taskId }, { $pull: { backlogTasks: taskId } });
-    await SprintModel.updateMany({ tasks: taskId }, { $pull: { tasks: taskId } });
-    await TaskModel.updateMany({ dependentTasks: taskId }, { $pull: { dependentTasks: taskId } });
-    await TaskModel.updateMany({ prereqTasks: taskId }, { $pull: { prereqTasks: taskId } });
     return result;
   } catch (error) {
     return { error: 'Error when deleting a task' };

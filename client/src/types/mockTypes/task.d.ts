@@ -1,19 +1,16 @@
-export interface ClientTask {
-  assignedUser: string;
+export interface MockTask {
+  _id: string;
+  assigned_user: string;
   description: string;
   name: string;
-  sprint: string | null;
+  sprint: string;
   status: string;
   dependentTasks: string[];
-  prereqTasks: string[];
+  prereqForTasks: string[];
   project: string;
   priority: string;
   taskPoints: number;
   relevantQuestions: string[];
   createdAt: Date;
   updatedAt: Date;
-}
-
-export interface DatabaseClientTask extends ClientTask {
-  _id: string;
 }

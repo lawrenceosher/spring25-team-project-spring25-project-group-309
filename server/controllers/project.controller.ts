@@ -1,56 +1,26 @@
 import express, { Response, Request } from 'express';
 import { FakeSOSocket } from '../types/types';
-import { getAllProjectsByUser, saveProject } from '../services/project.service';
-import { populateDocument } from '../utils/database.util';
+import { getAllProjectsByUser } from '../services/project.service';
 
 const projectController = (socket: FakeSOSocket) => {
   const router = express.Router();
-
-  const createProject = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const project = req.body;
-      const result = await saveProject(project);
-      if ('error' in result) {
-        throw new Error(`${result.error}`);
-      }
-
-      res.status(200).json(result);
-    } catch (error) {
-      res.status(500).send(`Error when saving a project: ${(error as Error).message}`);
-    }
-  };
 
   const getProjectsByUser = async (req: Request, res: Response): Promise<void> => {
     try {
       const { username } = req.params;
 
       const projects = await getAllProjectsByUser(username);
-      const errorProject = projects.find(project => 'error' in project);
+      const errorProject = projects.find(project => 'error' in projects);
       if (errorProject) {
         throw new Error(`${errorProject}`);
       }
 
-      const populatedProjects = await Promise.all(
-        projects.map(async project => {
-          if ('error' in project) {
-            throw new Error(`${project.error}`);
-          }
-
-          const populatedProject = await populateDocument(project._id.toString(), 'project');
-          return populatedProject;
-        }),
-      );
-      if ('error' in populatedProjects) {
-        throw new Error(`${populatedProjects.error}`);
-      }
-
-      res.status(200).json(populatedProjects);
+      res.status(200).json(projects);
     } catch (error) {
       res.status(500).send(`Error when getting a project by username: ${(error as Error).message}`);
     }
   };
   router.get('/:username', getProjectsByUser);
-  router.post('/createProject', createProject);
   return router;
 };
 

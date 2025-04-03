@@ -1,13 +1,8 @@
 import { Col, ListGroup } from 'react-bootstrap';
-import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
-
+import { MockTask } from '../../../../types/mockTypes/task';
 import TaskItemProgressColumn from './TaskItemProgressColumn';
 
-export default function BacklogColumn({
-  projectBacklog,
-}: {
-  projectBacklog: PopulatedDatabaseTask[];
-}) {
+export default function BacklogColumn({ projectBacklog }: { projectBacklog: MockTask[] }) {
   return (
     <Col>
       <div className='rounded bg-secondary-subtle p-2'>
@@ -16,7 +11,7 @@ export default function BacklogColumn({
         </h5>
         <ListGroup id='column-tasks' className='mt-0'>
           {projectBacklog.map(task => (
-            <TaskItemProgressColumn key={task._id.toString()} task={task} />
+            <TaskItemProgressColumn key={task._id} task={task} />
           ))}
         </ListGroup>
       </div>

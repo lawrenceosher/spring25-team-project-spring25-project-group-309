@@ -2,13 +2,9 @@ import { ListGroup, Button } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
-import { useDispatch } from 'react-redux';
-import { PopulatedDatabaseSprint } from '../../../../types/types';
 import TaskListItem from '../TaskListItem/TaskListItem';
+import { MockSprint } from '../../../../types/mockTypes/sprint';
 import { getFullDate, getStatusColor } from '../../../../tool';
-import { startSprint } from '../../../../services/sprintService';
-import { startSprintReducer } from '../../../../redux/projectReducer/projectReducer';
-import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function SprintListGroup({
   sprint,
@@ -16,23 +12,12 @@ export default function SprintListGroup({
   handleShowDeleteSprintModal,
   setSprintForModal,
 }: {
-  sprint: PopulatedDatabaseSprint;
+  sprint: MockSprint;
   handleShowSprintUpdateModal: () => void;
   handleShowDeleteSprintModal: () => void;
-  setSprintForModal: (sprint: PopulatedDatabaseSprint) => void;
+  setSprintForModal: (sprint: MockSprint) => void;
 }) {
   const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
-
-  const dispatch = useDispatch();
-
-  const handleStartSprint = async () => {
-    try {
-      await startSprint(sprint._id.toString());
-      dispatch(startSprintReducer({ sprintId: sprint._id.toString() }));
-    } catch (error) {
-      dispatch(setErrorMessage('Error starting sprint'));
-    }
-  };
 
   return (
     <ListGroup className='rounded-0'>
@@ -40,7 +25,7 @@ export default function SprintListGroup({
         <div id='sprint-header' className='p-3 ps-2 bg-light'>
           <span>{sprint.name}</span>
           <span className='ms-4 text-muted'>
-            {`${getFullDate(new Date(sprint.startDate))} - ${getFullDate(new Date(sprint.endDate))}`}
+            {`${getFullDate(sprint.start_date)} - ${getFullDate(sprint.end_date)}`}
           </span>
           <div className='float-end'>
             <span className={`me-3 rounded-pill p-2 ${getStatusColor(sprint.status)}`}>
@@ -69,11 +54,7 @@ export default function SprintListGroup({
           ))}
           {sprint.status === 'Not Started' && (
             <ListGroup.Item className='bg-body-secondary text-center'>
-              <Button
-                variant='success'
-                onClick={() => {
-                  handleStartSprint();
-                }}>
+              <Button variant='success'>
                 <VscDebugStart className='mb-1' /> Start Sprint
               </Button>
             </ListGroup.Item>

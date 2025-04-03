@@ -1,16 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
-import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
-import useQuestionPage from '../../../../hooks/useQuestionPage';
-import { createTask } from '../../../../services/taskService';
-import {
-  addNewTaskToBacklog,
-  addNewTaskToSprint,
-} from '../../../../redux/projectReducer/projectReducer';
-import { ClientTask } from '../../../../types/clientTypes/task';
-import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
+import { MockTask } from '../../../../types/mockTypes/task';
+import { MockProject } from '../../../../types/mockTypes/project';
+import { addNewTask } from '../../../../redux/projectReducer/projectReducer';
 
 export default function TaskCreationModal({
   show,
@@ -19,40 +12,26 @@ export default function TaskCreationModal({
 }: {
   show: boolean;
   handleClose: () => void;
-  project: PopulatedDatabaseProject;
+  project: MockProject;
 }) {
-  const { qlist } = useQuestionPage();
+  const dispatch = useDispatch();
 
-  const [createdTask, setCreatedTask] = useState<ClientTask>({
-    assignedUser: project.assignedUsers[0],
+  const [createdTask, setCreatedTask] = useState<MockTask>({
+    _id: new Date().getTime().toString(),
+    assigned_user: project.assignedUsers[0],
     description: '',
     name: '',
-    sprint: null,
+    sprint: project.backlog._id,
     status: 'To-Do',
     dependentTasks: [],
-    prereqTasks: [],
-    project: project._id.toString(),
+    prereqForTasks: [],
+    project: project._id,
     priority: 'Low',
     taskPoints: 1,
     relevantQuestions: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  const dispatch = useDispatch();
-
-  const handleCreateTask = async (task: ClientTask) => {
-    try {
-      const newTask = await createTask(task);
-
-      if (!newTask.sprint) {
-        dispatch(addNewTaskToBacklog({ newTask }));
-      } else {
-        dispatch(addNewTaskToSprint({ sprintId: newTask.sprint.toString(), newTask }));
-      }
-    } catch (error) {
-      dispatch(setErrorMessage('Error creating task'));
-    }
-  };
 
   return (
     <div>
@@ -74,16 +53,11 @@ export default function TaskCreationModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={createdTask.sprint ? createdTask.sprint : undefined}
-                onChange={e =>
-                  setCreatedTask({
-                    ...createdTask,
-                    sprint: e.target.value !== undefined ? e.target.value : null,
-                  })
-                }>
-                <option value={undefined}>Backlog</option>
+                value={createdTask.sprint}
+                onChange={e => setCreatedTask({ ...createdTask, sprint: e.target.value })}>
+                <option value={project.backlog._id}>Backlog</option>
                 {project.sprints.map(sprint => (
-                  <option key={sprint._id.toString()} value={sprint._id.toString()}>
+                  <option key={sprint._id} value={sprint._id}>
                     {sprint.name}
                   </option>
                 ))}
@@ -103,7 +77,7 @@ export default function TaskCreationModal({
               <Form.Label>User</Form.Label>
               <Form.Select
                 defaultValue={project.assignedUsers[0]}
-                onChange={e => setCreatedTask({ ...createdTask, assignedUser: e.target.value })}>
+                onChange={e => setCreatedTask({ ...createdTask, assigned_user: e.target.value })}>
                 {project.assignedUsers.map(user => (
                   <option key={user} value={user}>
                     {user}
@@ -150,23 +124,12 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    relevantQuestions: Array.from(
-                      e.target.selectedOptions,
-                      option =>
-                        qlist
-                          .find(
-                            (question: PopulatedDatabaseQuestion) =>
-                              question._id.toString() === option.value,
-                          )
-                          ?._id.toString() || null,
-                    ).filter(_id => _id !== null),
+                    relevantQuestions: Array.from(e.target.selectedOptions, option => option.value),
                   })
                 }>
-                {qlist.map((question: PopulatedDatabaseQuestion) => (
-                  <option key={question._id.toString()} value={question._id.toString()}>
-                    {question.title}
-                  </option>
-                ))}
+                <option value='1'>Question 1</option>
+                <option value='2'>Question 2</option>
+                <option value='3'>Question 3</option>
               </Form.Select>
             </Form.Group>
 
@@ -178,22 +141,15 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    prereqTasks: Array.from(
-                      e.target.selectedOptions,
-                      option =>
-                        [
-                          ...project.sprints.flatMap(sprint => sprint.tasks),
-                          ...project.backlogTasks,
-                        ].find(task => task._id.toString() === option.value)?._id || null,
-                    ).filter(_id => _id !== null),
+                    prereqForTasks: Array.from(e.target.selectedOptions, option => option.value),
                   })
                 }>
-                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
-                  task => (
+                {project.sprints.map(sprint =>
+                  sprint.tasks.map(task => (
                     <option key={task._id} value={task._id}>
                       {task.name}
                     </option>
-                  ),
+                  )),
                 )}
               </Form.Select>
             </Form.Group>
@@ -206,22 +162,15 @@ export default function TaskCreationModal({
                 onChange={e =>
                   setCreatedTask({
                     ...createdTask,
-                    dependentTasks: Array.from(
-                      e.target.selectedOptions,
-                      option =>
-                        [
-                          ...project.sprints.flatMap(sprint => sprint.tasks),
-                          ...project.backlogTasks,
-                        ].find(task => task._id.toString() === option.value)?._id || null,
-                    ).filter(_id => _id !== null),
+                    dependentTasks: Array.from(e.target.selectedOptions, option => option.value),
                   })
                 }>
-                {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
-                  task => (
+                {project.sprints.map(sprint =>
+                  sprint.tasks.map(task => (
                     <option key={task._id} value={task._id}>
                       {task.name}
                     </option>
-                  ),
+                  )),
                 )}
               </Form.Select>
             </Form.Group>
@@ -235,16 +184,18 @@ export default function TaskCreationModal({
           <Button
             variant='success'
             onClick={() => {
-              handleCreateTask(createdTask);
+              // Need to call the service to create a new Task
+              dispatch(addNewTask(createdTask));
               setCreatedTask({
-                assignedUser: project.assignedUsers[0],
+                _id: new Date().getTime().toString(),
+                assigned_user: project.assignedUsers[0],
                 description: '',
                 name: '',
-                sprint: null,
+                sprint: project.backlog._id,
                 status: 'To-Do',
                 dependentTasks: [],
-                prereqTasks: [],
-                project: project._id.toString(),
+                prereqForTasks: [],
+                project: project._id,
                 priority: 'Low',
                 taskPoints: 1,
                 relevantQuestions: [],

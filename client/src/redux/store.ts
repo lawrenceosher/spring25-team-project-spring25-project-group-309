@@ -2,9 +2,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import selectTaskReducer from './selectTask/selectTaskReducer';
 import projectReducer from './projectReducer/projectReducer';
-import errorReducer from './errorReducer/errorReducer';
 
 const store = configureStore({
-  reducer: { selectTaskReducer, projectReducer, errorReducer },
+  reducer: { selectTaskReducer, projectReducer },
 });
 export default store;

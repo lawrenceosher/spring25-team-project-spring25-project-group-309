@@ -6,7 +6,7 @@ export interface Task {
   assignedUser: string;
   description: string;
   name: string;
-  sprint: ObjectId | null;
+  sprint: ObjectId;
   status: string;
   dependentTasks: ObjectId[];
   prereqTasks: ObjectId[];
@@ -24,8 +24,8 @@ export interface DatabaseTask extends Task {
 
 export interface PopulatedDatabaseTask
   extends Omit<DatabaseTask, 'dependentTasks' | 'prereqTasks' | 'relevantQuestions'> {
-  dependentTasks: DatabaseTask[];
-  prereqTasks: DatabaseTask[];
+  dependentTasks: Task[];
+  prereqTasks: Task[];
   relevantQuestions: DatabaseQuestion[];
 }
 
@@ -51,13 +51,6 @@ export interface UpdateDependencyRequest extends Request {
   body: {
     taskId: string;
     dependentTaskIds: ObjectId[];
-  };
-}
-
-export interface UpdateTaskRequest extends Request {
-  body: {
-    taskId: string;
-    updates: Partial<Task>;
   };
 }
 

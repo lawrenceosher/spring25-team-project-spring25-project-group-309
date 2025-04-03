@@ -1,8 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { createSlice } from '@reduxjs/toolkit';
+import { project1 } from '../../mockData/mockData';
 
 const initialState = {
-  selectedTask: null,
+  selectedTask: project1.sprints[0].tasks[0],
 };
 
 const selectedTaskSlice = createSlice({

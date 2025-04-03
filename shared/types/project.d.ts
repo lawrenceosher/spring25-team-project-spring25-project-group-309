@@ -13,11 +13,7 @@ export interface DatabaseProject extends Project {
   _id: ObjectId;
 }
 
-export interface PopulatedDatabaseProject {
-  _id: ObjectId;
-  assignedUsers: string[];
-  description: string;
-  name: string;
+export interface PopulatedDatabaseProject extends Omit<DatabaseProject, 'sprints', 'backlogTasks'> {
   sprints: PopulatedDatabaseSprint[];
   backlogTasks: PopulatedDatabaseTask[];
 }

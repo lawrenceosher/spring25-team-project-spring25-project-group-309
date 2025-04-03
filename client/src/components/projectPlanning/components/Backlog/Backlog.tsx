@@ -1,9 +1,12 @@
 import { ListGroup } from 'react-bootstrap';
-import { PopulatedDatabaseTask } from '../../../../types/types';
+import { MockBacklog } from '../../../../types/mockTypes/backlog';
 import TaskListItem from '../TaskListItem/TaskListItem';
 
-export default function Backlog({ backlog }: { backlog: PopulatedDatabaseTask[] }) {
-  const totalBacklogTaskPoints = backlog.reduce((points, task) => points + task.taskPoints, 0);
+export default function Backlog({ backlog }: { backlog: MockBacklog }) {
+  const totalBacklogTaskPoints = backlog.tasks.reduce(
+    (points, task) => points + task.taskPoints,
+    0,
+  );
 
   return (
     <ListGroup className='rounded-0 '>
@@ -15,8 +18,8 @@ export default function Backlog({ backlog }: { backlog: PopulatedDatabaseTask[] 
           </div>
         </div>
         <ListGroup className='rounded-0'>
-          {backlog.map(task => (
-            <TaskListItem key={task._id.toString()} task={task} />
+          {backlog.tasks.map(task => (
+            <TaskListItem key={task._id} task={task} />
           ))}
         </ListGroup>
       </ListGroup.Item>
