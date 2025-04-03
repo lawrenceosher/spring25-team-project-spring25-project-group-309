@@ -159,7 +159,7 @@ export default function SprintPlanningPage() {
       <div className='mt-4 d-flex'>
         <div id='sprints'>
           {project.sprints.length === 0 ? (
-            <div className='text-muted flex-fill fs-2'>
+            <div className='text-muted flex-fill fs-2 mb-2'>
               No sprints created yet. Click Create Sprint to begin sprint planning.
             </div>
           ) : (
