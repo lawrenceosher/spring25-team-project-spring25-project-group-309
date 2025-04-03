@@ -150,6 +150,23 @@ const projectSlice = createSlice({
         };
       }
     },
+
+    filterTasksByUser: (state, { payload: { user } }: { payload: { user: string } }) => {
+      if (state.project) {
+        const filteredBacklogTasks = state.project.backlogTasks.filter(
+          (task: PopulatedDatabaseTask) => task.assignedUser === user,
+        );
+
+        state.project = {
+          ...state.project,
+          backlogTasks: filteredBacklogTasks,
+          sprints: state.project.sprints.map((sprint: PopulatedDatabaseSprint) => ({
+            ...sprint,
+            tasks: sprint.tasks.filter((task: PopulatedDatabaseTask) => task.assignedUser === user),
+          })),
+        };
+      }
+    },
   },
 });
 

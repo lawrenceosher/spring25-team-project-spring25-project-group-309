@@ -31,7 +31,6 @@ export default function TaskUpdateModal({
     try {
       const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
       dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
-      console.log('Updated task:', updatedTask);
       dispatch(setSelectedTask(null));
       const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
       dispatch(setProject(updatedProject[0]));
