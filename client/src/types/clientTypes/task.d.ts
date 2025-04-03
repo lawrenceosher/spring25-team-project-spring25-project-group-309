@@ -19,3 +19,7 @@ export interface ClientTask {
 export interface DatabaseClientTask extends ClientTask {
   _id: string;
 }
+
+export interface RoadmapGraphProps {
+  tasks: PopulatedDatabaseTask[];
+}
