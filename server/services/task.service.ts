@@ -130,10 +130,12 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
       throw new Error('Task not found');
     }
 
+    // If sprint is being changed, remove task from old sprint and add to new sprint
     if (updates.sprint) {
       await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
     }
 
+    // If sprint is being removed, add task to project backlog
     if (task.sprint && !updates.sprint) {
       await ProjectModel.findByIdAndUpdate(task.project, { $addToSet: { backlogTasks: taskId } });
       await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
@@ -145,6 +147,7 @@ export const updateTask = async (taskId: string, updates: Partial<Task>): Promis
       throw Error('task not found');
     }
 
+    // If sprint is being changed, add task to new sprint
     if (updatedtask.sprint) {
       await propogateTaskToSprint(updatedtask._id, updatedtask.sprint);
       await ProjectModel.updateMany(
