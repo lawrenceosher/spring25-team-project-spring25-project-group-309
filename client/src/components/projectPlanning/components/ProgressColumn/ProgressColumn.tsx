@@ -1,10 +1,19 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { Col, ListGroup } from 'react-bootstrap';
 import { useDroppable } from '@dnd-kit/core';
-import { MockSprint } from '../../../../types/mockTypes/sprint';
+import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import TaskItemProgressColumn from './TaskItemProgressColumn';
 
-export default function ProgressColumn({ sprint, column }: { sprint: MockSprint; column: string }) {
+export default function ProgressColumn({
+  sprint,
+  column,
+}: {
+  sprint: PopulatedDatabaseSprint | null;
+  column: string;
+}) {
+  if (!sprint) {
+    return null;
+  }
   const tasks = sprint.tasks.filter(task => task.status === column);
   const { isOver, setNodeRef } = useDroppable({
     id: column,

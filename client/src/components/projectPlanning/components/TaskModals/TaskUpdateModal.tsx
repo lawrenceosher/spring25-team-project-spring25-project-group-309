@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import { MockTask } from '../../../../types/mockTypes/task';
-import { MockProject } from '../../../../types/mockTypes/project';
+import { useDispatch, useSelector } from 'react-redux';
+import { PopulatedDatabaseProject, PopulatedDatabaseQuestion } from '../../../../types/types';
+import useQuestionPage from '../../../../hooks/useQuestionPage';
+import { DatabaseClientTask } from '../../../../types/clientTypes/task';
+import { setProject, updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
+import { updateTask } from '../../../../services/taskService';
+import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
+import { getProjectsByUser } from '../../../../services/projectService';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function TaskUpdateModal({
   show,
@@ -12,11 +18,27 @@ export default function TaskUpdateModal({
 }: {
   show: boolean;
   handleClose: () => void;
-  project: MockProject;
+  project: PopulatedDatabaseProject;
 }) {
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
 
-  const [taskToUpdate, setTaskToUpdate] = useState<MockTask>({ ...selectedTask });
+  const [taskToUpdate, setTaskToUpdate] = useState<DatabaseClientTask>({ ...selectedTask });
+
+  const { qlist } = useQuestionPage();
+
+  const dispatch = useDispatch();
+
+  const handleUpdateTask = async (task: DatabaseClientTask) => {
+    try {
+      const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
+      dispatch(setSelectedTask(null));
+      const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
+      dispatch(setProject(updatedProject[0]));
+    } catch (error) {
+      dispatch(setErrorMessage('Error updating task'));
+    }
+  };
 
   useEffect(() => {
     setTaskToUpdate({ ...selectedTask });
@@ -42,11 +64,16 @@ export default function TaskUpdateModal({
             <Form.Group controlId='taskSprint'>
               <Form.Label>Sprint</Form.Label>
               <Form.Select
-                value={taskToUpdate.sprint}
-                onChange={e => setTaskToUpdate({ ...taskToUpdate, sprint: e.target.value })}>
-                <option value={project.backlog._id}>Backlog</option>
+                value={taskToUpdate.sprint ? taskToUpdate.sprint : undefined}
+                onChange={e =>
+                  setTaskToUpdate({
+                    ...taskToUpdate,
+                    sprint: e.target.value ? e.target.value : null,
+                  })
+                }>
+                <option value=''>Backlog</option>
                 {project.sprints.map(sprint => (
-                  <option key={sprint._id} value={sprint._id}>
+                  <option key={sprint._id.toString()} value={sprint._id.toString()}>
                     {sprint.name}
                   </option>
                 ))}
@@ -65,8 +92,8 @@ export default function TaskUpdateModal({
             <Form.Group controlId='taskUser'>
               <Form.Label>User</Form.Label>
               <Form.Select
-                value={taskToUpdate.assigned_user}
-                onChange={e => setTaskToUpdate({ ...taskToUpdate, assigned_user: e.target.value })}>
+                value={taskToUpdate.assignedUser}
+                onChange={e => setTaskToUpdate({ ...taskToUpdate, assignedUser: e.target.value })}>
                 {project.assignedUsers.map(user => (
                   <option key={user} value={user}>
                     {user}
@@ -113,12 +140,23 @@ export default function TaskUpdateModal({
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
-                    relevantQuestions: Array.from(e.target.selectedOptions, option => option.value),
+                    relevantQuestions: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        qlist
+                          .find(
+                            (question: PopulatedDatabaseQuestion) =>
+                              question._id.toString() === option.value,
+                          )
+                          ?._id.toString() || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
-                <option value='1'>Question 1</option>
-                <option value='2'>Question 2</option>
-                <option value='3'>Question 3</option>
+                {qlist.map((question: PopulatedDatabaseQuestion) => (
+                  <option key={question._id.toString()} value={question._id.toString()}>
+                    {question.title}
+                  </option>
+                ))}
               </Form.Select>
             </Form.Group>
 
@@ -126,11 +164,18 @@ export default function TaskUpdateModal({
               <Form.Label>Task Prerequisites</Form.Label>
               <Form.Select
                 multiple
-                value={taskToUpdate.prereqForTasks}
+                value={taskToUpdate.prereqTasks}
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
-                    prereqForTasks: Array.from(e.target.selectedOptions, option => option.value),
+                    prereqTasks: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -151,7 +196,14 @@ export default function TaskUpdateModal({
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
-                    dependentTasks: Array.from(e.target.selectedOptions, option => option.value),
+                    dependentTasks: Array.from(
+                      e.target.selectedOptions,
+                      option =>
+                        [
+                          ...project.sprints.flatMap(sprint => sprint.tasks),
+                          ...project.backlogTasks,
+                        ].find(task => task._id.toString() === option.value)?._id || null,
+                    ).filter(_id => _id !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
@@ -173,7 +225,7 @@ export default function TaskUpdateModal({
           <Button
             variant='success'
             onClick={() => {
-              // Call the service to update a task
+              handleUpdateTask(taskToUpdate);
               handleClose();
             }}>
             Update Task

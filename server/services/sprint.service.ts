@@ -1,6 +1,23 @@
 import { ObjectId } from 'mongodb';
-import { Sprint, SprintResponse } from '../types/types';
+import { DatabaseSprint, Sprint, SprintResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
+import ProjectModel from '../models/project.model';
+import { updateProject } from './project.service';
+
+const addSprintToProject = async (sprintd: ObjectId, projectId: ObjectId): Promise<void> => {
+  try {
+    const project = await ProjectModel.findById(projectId);
+
+    if (!project) {
+      throw new Error('Project not found');
+    }
+    await updateProject(project._id.toString(), {
+      $addToSet: { sprints: sprintd },
+    });
+  } catch (error) {
+    throw new Error('Error when adding task to project');
+  }
+};
 
 /**
  * Service to create and add a sprint to the database.
@@ -10,6 +27,7 @@ import SprintModel from '../models/sprint.model';
 export const saveSprint = async (sprint: Sprint): Promise<SprintResponse> => {
   try {
     const result = await SprintModel.create(sprint);
+    await addSprintToProject(result._id, sprint.project);
     return result;
   } catch (error) {
     return { error: 'Error when saving a sprint' };
@@ -94,12 +112,38 @@ export const addTasksToSprint = async (
 
 export const deleteSprintById = async (sprintId: string): Promise<SprintResponse> => {
   try {
-    const deletedSprint = await SprintModel.findByIdAndDelete(sprintId);
+    const deletedSprint: DatabaseSprint | null = await SprintModel.findByIdAndDelete(sprintId);
     if (!deletedSprint) {
       throw Error('Sprint not found');
     }
+    await ProjectModel.updateMany({ sprints: sprintId }, { $pull: { sprints: sprintId } });
+    await ProjectModel.findByIdAndUpdate(
+      deletedSprint.project,
+      { $addToSet: { backlogTasks: deletedSprint.tasks } },
+      { new: true },
+    );
+
     return deletedSprint;
   } catch (error) {
     return { error: 'Error when deleting a sprint' };
+  }
+};
+
+/**
+ * Gets sprint by id
+ * @param criteria The provided id to filter by
+ * @returns A sprint or an error message.
+ */
+export const getSprintbyId = async (sprintId: string): Promise<SprintResponse> => {
+  try {
+    const sprint: DatabaseSprint | null = await SprintModel.findById(sprintId);
+
+    if (!sprint) {
+      throw new Error('Sprint not found');
+    }
+
+    return sprint;
+  } catch (error) {
+    return { error: `Error retrieving sprint: ${error}` };
   }
 };

@@ -3,15 +3,15 @@ import { ListGroupItem } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { MockTask } from '../../../../types/mockTypes/task';
+import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 import TaskDetailsModal from '../TaskModals/TaskDetailsModal';
 
-export default function TaskItemProgressColumn({ task }: { task: MockTask }) {
+export default function TaskItemProgressColumn({ task }: { task: PopulatedDatabaseTask }) {
   const dispatch = useDispatch();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: task._id,
+    id: task._id.toString(),
   });
   const style = transform
     ? {
