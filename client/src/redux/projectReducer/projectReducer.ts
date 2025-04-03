@@ -180,5 +180,6 @@ export const {
   updateTaskInProject,
   updateSprintInProject,
   startSprintReducer,
+  filterTasksByUser,
 } = projectSlice.actions;
 export default projectSlice.reducer;

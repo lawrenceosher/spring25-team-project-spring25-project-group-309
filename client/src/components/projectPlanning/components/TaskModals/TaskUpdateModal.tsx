@@ -32,6 +32,7 @@ export default function TaskUpdateModal({
       const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
       dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
       dispatch(setSelectedTask(null));
+      console.log('Updated Task:', updatedTask);
       const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
       dispatch(setProject(updatedProject[0]));
     } catch (error) {
@@ -135,7 +136,7 @@ export default function TaskUpdateModal({
               <Form.Label>Relevant FakeStackOverflow Questions</Form.Label>
               <Form.Select
                 multiple
-                defaultValue={[]}
+                value={taskToUpdate.relevantQuestions}
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
@@ -163,7 +164,7 @@ export default function TaskUpdateModal({
               <Form.Label>Task Prerequisites</Form.Label>
               <Form.Select
                 multiple
-                defaultValue={taskToUpdate.prereqTasks}
+                value={taskToUpdate.prereqTasks}
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,

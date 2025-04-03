@@ -142,7 +142,7 @@ export default function TaskDetailsModal({
             <Form.Label>Relevant FakeStackOverflow Questions</Form.Label>
             <Form.Select
               multiple
-              defaultValue={[]}
+              value={taskToUpdate.relevantQuestions}
               onChange={e =>
                 setTaskToUpdate({
                   ...taskToUpdate,
@@ -170,7 +170,7 @@ export default function TaskDetailsModal({
             <Form.Label>Task Prerequisites</Form.Label>
             <Form.Select
               multiple
-              defaultValue={taskToUpdate.prereqTasks}
+              value={taskToUpdate.prereqTasks}
               onChange={e =>
                 setTaskToUpdate({
                   ...taskToUpdate,
@@ -198,7 +198,7 @@ export default function TaskDetailsModal({
             <Form.Label>Task Dependencies</Form.Label>
             <Form.Select
               multiple
-              defaultValue={taskToUpdate.dependentTasks}
+              value={taskToUpdate.dependentTasks}
               onChange={e =>
                 setTaskToUpdate({
                   ...taskToUpdate,

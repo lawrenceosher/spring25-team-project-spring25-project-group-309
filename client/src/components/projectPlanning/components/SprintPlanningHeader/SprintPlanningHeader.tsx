@@ -1,4 +1,8 @@
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import useUserContext from '../../../../hooks/useUserContext';
+import { filterTasksByUser, setProject } from '../../../../redux/projectReducer/projectReducer';
+import { getProjectsByUser } from '../../../../services/projectService';
 
 export default function SprintPlanningHeader({
   projectName,
@@ -11,6 +15,18 @@ export default function SprintPlanningHeader({
   handleShowCreateSprintModal: () => void;
   handleShowCreateTaskModal: () => void;
 }) {
+  const { user: currentUser } = useUserContext();
+  const dispatch = useDispatch();
+
+  const handleFilterChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedUser = event.target.value;
+    const result = await getProjectsByUser(currentUser.username);
+    dispatch(setProject(result[0]));
+    if (selectedUser !== '') {
+      dispatch(filterTasksByUser({ user: selectedUser }));
+    }
+  };
+
   return (
     <div id='sprint-planning-header' className='d-flex align-items-center'>
       <h1 id='project-name-header' className='fw-bold d-flex'>
@@ -20,8 +36,7 @@ export default function SprintPlanningHeader({
         <FormGroup className='d-inline-flex me-3 align-middle'>
           <div>
             <FormLabel>Filter by User:</FormLabel>
-            <FormSelect>
-              {/* onChange call the endpoint to retrieve tasks by username */}
+            <FormSelect onChange={handleFilterChange}>
               <option value=''>All</option>
               {users.map(user => (
                 <option key={user} value={user}>
