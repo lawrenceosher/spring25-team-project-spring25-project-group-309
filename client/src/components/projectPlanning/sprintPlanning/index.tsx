@@ -3,7 +3,7 @@ import './index.css';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Spinner } from 'react-bootstrap';
-import { PopulatedDatabaseSprint, PopulatedDatabaseTask, Project } from '../../../types/types';
+import { PopulatedDatabaseSprint, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
 import TaskDeletionModal from '../components/TaskModals/TaskDeletionModal';
@@ -140,11 +140,7 @@ export default function SprintPlanningPage() {
         sprintId={sprintForModal?._id.toString() || ''}
       />
 
-      <TaskUpdateModal
-        show={showTaskUpdateModal}
-        handleClose={handleCloseTaskUpdateModal}
-        project={project}
-      />
+      <TaskUpdateModal show={showTaskUpdateModal} handleClose={handleCloseTaskUpdateModal} />
       <SprintUpdateModal
         show={showSprintUpdateModal}
         handleClose={handleCloseSprintUpdateModal}

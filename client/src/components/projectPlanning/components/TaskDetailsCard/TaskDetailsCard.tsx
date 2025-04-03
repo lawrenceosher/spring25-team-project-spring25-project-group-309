@@ -30,7 +30,6 @@ export default function TaskDetailsCard({
     return null;
   }
 
-  console.log(selectedTask);
   return (
     <Card key={selectedTask._id.toString()}>
       <Card.Body>
