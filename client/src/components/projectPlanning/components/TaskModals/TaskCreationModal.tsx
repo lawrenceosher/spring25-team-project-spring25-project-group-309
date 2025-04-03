@@ -10,6 +10,7 @@ import {
   addNewTaskToSprint,
 } from '../../../../redux/projectReducer/projectReducer';
 import { ClientTask } from '../../../../types/clientTypes/task';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function TaskCreationModal({
   show,
@@ -49,7 +50,7 @@ export default function TaskCreationModal({
         dispatch(addNewTaskToSprint({ sprintId: newTask.sprint.toString(), newTask }));
       }
     } catch (error) {
-      console.error('Error creating sprint:', error);
+      dispatch(setErrorMessage('Error creating task'));
     }
   };
 

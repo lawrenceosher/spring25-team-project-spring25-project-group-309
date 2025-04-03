@@ -3,6 +3,7 @@ import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import { useDispatch } from 'react-redux';
 import { endSprint } from '../../../../services/sprintService';
 import { updateSprintInProject } from '../../../../redux/projectReducer/projectReducer';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function SprintCompletionModal({
   activeSprint,
@@ -17,7 +18,7 @@ export default function SprintCompletionModal({
 
   const handleCompleteSprint = async () => {
     if (!activeSprint) {
-      console.error('No active sprint to complete');
+      dispatch(setErrorMessage('No active sprint to complete'));
       return;
     }
     const endedSprint = await endSprint(activeSprint._id.toString());

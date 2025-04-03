@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { PopulatedDatabaseProject, Sprint } from '../../../../types/types';
 import { createSprint } from '../../../../services/sprintService';
 import { addNewSprintToProject } from '../../../../redux/projectReducer/projectReducer';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function SprintCreationModal({
   show,
@@ -30,7 +31,7 @@ export default function SprintCreationModal({
       const newSprint = await createSprint(sprint);
       dispatch(addNewSprintToProject(newSprint));
     } catch (error) {
-      console.error('Error creating sprint:', error);
+      dispatch(setErrorMessage('Error creating sprint'));
     }
   };
 

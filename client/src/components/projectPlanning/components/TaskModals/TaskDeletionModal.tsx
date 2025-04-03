@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { deleteTask } from '../../../../services/taskService';
 import { removeTaskFromProject } from '../../../../redux/projectReducer/projectReducer';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function TaskDeletionModal({
   show,
@@ -23,7 +24,7 @@ export default function TaskDeletionModal({
       dispatch(removeTaskFromProject({ taskId }));
       dispatch(setSelectedTask(null));
     } catch (error) {
-      console.error('Error deleting task:', error);
+      dispatch(setErrorMessage('Error deleting task'));
     }
   };
 

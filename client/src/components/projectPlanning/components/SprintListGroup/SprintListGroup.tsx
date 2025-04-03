@@ -8,6 +8,7 @@ import TaskListItem from '../TaskListItem/TaskListItem';
 import { getFullDate, getStatusColor } from '../../../../tool';
 import { startSprint } from '../../../../services/sprintService';
 import { startSprintReducer } from '../../../../redux/projectReducer/projectReducer';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function SprintListGroup({
   sprint,
@@ -29,7 +30,7 @@ export default function SprintListGroup({
       await startSprint(sprint._id.toString());
       dispatch(startSprintReducer({ sprintId: sprint._id.toString() }));
     } catch (error) {
-      console.error('Error starting sprint:', error);
+      dispatch(setErrorMessage('Error starting sprint'));
     }
   };
 

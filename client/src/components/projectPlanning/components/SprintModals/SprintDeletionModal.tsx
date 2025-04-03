@@ -7,6 +7,7 @@ import {
 } from '../../../../redux/projectReducer/projectReducer';
 import useUserContext from '../../../../hooks/useUserContext';
 import { getProjectsByUser } from '../../../../services/projectService';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function SprintDeletionModal({
   show,
@@ -32,7 +33,7 @@ export default function SprintDeletionModal({
       const updatedProject = await getProjectsByUser(currentUser.username);
       dispatch(setProject(updatedProject[0]));
     } catch (error) {
-      console.error('Error deleting sprint:', error);
+      dispatch(setErrorMessage('Error deleting sprint'));
     }
   };
 

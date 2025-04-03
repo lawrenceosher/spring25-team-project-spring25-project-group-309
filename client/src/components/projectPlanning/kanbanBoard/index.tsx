@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Container, Row } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { Alert, Container, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
@@ -10,10 +10,14 @@ import BacklogColumn from '../components/ProgressColumn/BacklogColumn';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCompletionModal from '../components/SprintModals/SprintCompletionModal';
 import useKanbanBoardPage from '../../../hooks/useKanbanBoardPage';
+import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
 
 export default function KanbanBoardPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
+  const { errorMessage } = useSelector((state: any) => state.errorReducer);
   const [activeSprint, setActiveSprint] = useState<PopulatedDatabaseSprint | null>(null);
+
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
@@ -92,6 +96,13 @@ export default function KanbanBoardPage() {
         show={showCompleteSprintModal}
         handleClose={handleCloseCompleteSprintModal}
       />
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
+          <Alert.Heading>{errorMessage}</Alert.Heading>
+        </Alert>
+      )}
 
       <Container className='bg-transparent mt-3' fluid>
         <Row>

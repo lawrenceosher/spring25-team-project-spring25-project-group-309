@@ -9,6 +9,7 @@ import { setProject, updateTaskInProject } from '../../../../redux/projectReduce
 import { updateTask } from '../../../../services/taskService';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 import { getProjectsByUser } from '../../../../services/projectService';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function TaskUpdateModal({
   show,
@@ -32,11 +33,10 @@ export default function TaskUpdateModal({
       const updatedTask = await updateTask(task._id.toString(), taskToUpdate);
       dispatch(updateTaskInProject({ taskId: task._id.toString(), updatedTask }));
       dispatch(setSelectedTask(null));
-      console.log('Updated Task:', updatedTask);
       const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
       dispatch(setProject(updatedProject[0]));
     } catch (error) {
-      console.error('Error updating task:', error);
+      dispatch(setErrorMessage('Error updating task'));
     }
   };
 

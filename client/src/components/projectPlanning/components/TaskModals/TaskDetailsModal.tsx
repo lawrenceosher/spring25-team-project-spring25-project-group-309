@@ -11,6 +11,7 @@ import { updateTask } from '../../../../services/taskService';
 import { setSelectedTask } from '../../../../redux/selectTask/selectTaskReducer';
 import { setProject, updateTaskInProject } from '../../../../redux/projectReducer/projectReducer';
 import { getProjectsByUser } from '../../../../services/projectService';
+import { setErrorMessage } from '../../../../redux/errorReducer/errorReducer';
 
 export default function TaskDetailsModal({
   show,
@@ -46,7 +47,7 @@ export default function TaskDetailsModal({
       const updatedProject = await getProjectsByUser(taskToUpdate.assignedUser);
       dispatch(setProject(updatedProject[0]));
     } catch (error) {
-      console.error('Error updating task:', error);
+      dispatch(setErrorMessage('Error updating task'));
     }
   };
 

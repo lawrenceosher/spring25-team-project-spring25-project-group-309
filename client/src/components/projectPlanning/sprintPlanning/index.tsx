@@ -2,7 +2,7 @@
 import './index.css';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Spinner } from 'react-bootstrap';
+import { Alert, Spinner } from 'react-bootstrap';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
@@ -20,6 +20,7 @@ import { createProject, getProjectsByUser } from '../../../services/projectServi
 import useUserContext from '../../../hooks/useUserContext';
 import CreateProjectForm from '../components/CreateProjectForm/CreateProjectForm';
 import { setProject } from '../../../redux/projectReducer/projectReducer';
+import { clearErrorMessage, setErrorMessage } from '../../../redux/errorReducer/errorReducer';
 
 export default function SprintPlanningPage() {
   const {
@@ -45,6 +46,7 @@ export default function SprintPlanningPage() {
 
   const { project } = useSelector((state: any) => state.projectReducer);
   const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
+  const { errorMessage } = useSelector((state: any) => state.errorReducer);
 
   const { userList } = useUsersListPage();
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function SprintPlanningPage() {
       const result = await createProject(proj);
       dispatch(setProject(result));
     } catch (error) {
-      console.error('Error creating project:', error);
+      dispatch(setErrorMessage(`Error creating project`));
     }
   };
 
@@ -145,6 +147,13 @@ export default function SprintPlanningPage() {
         handleClose={handleCloseSprintUpdateModal}
         sprintToUpdate={sprintForModal}
       />
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
+          <Alert.Heading>{errorMessage}</Alert.Heading>
+        </Alert>
+      )}
 
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
