@@ -21,9 +21,12 @@ export default function SprintCompletionModal({
       dispatch(setErrorMessage('No active sprint to complete'));
       return;
     }
-    const endedSprint = await endSprint(activeSprint._id.toString());
+    const finishedSprint = await endSprint(activeSprint._id.toString());
     dispatch(
-      updateSprintInProject({ sprintId: activeSprint._id.toString(), updatedSprint: endedSprint }),
+      updateSprintInProject({
+        sprintId: activeSprint._id.toString(),
+        updatedSprint: finishedSprint,
+      }),
     );
   };
 
