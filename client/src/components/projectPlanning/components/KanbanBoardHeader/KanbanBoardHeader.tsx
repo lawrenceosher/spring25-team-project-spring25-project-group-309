@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FormGroup, FormLabel, FormSelect, Button } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
 import { getFullDate } from '../../../../tool';
+import useUserContext from '../../../../hooks/useUserContext';
+import { getProjectsByUser } from '../../../../services/projectService';
+import { filterTasksByUser, setProject } from '../../../../redux/projectReducer/projectReducer';
 
 export default function KanbanBoardHeader({
   sprint,
@@ -14,10 +17,21 @@ export default function KanbanBoardHeader({
   handleShowCompleteSprintModal: () => void;
 }) {
   const { project } = useSelector((state: any) => state.projectReducer);
+  const { user: currentUser } = useUserContext();
+  const dispatch = useDispatch();
 
   if (!sprint) {
     return null;
   }
+
+  const handleFilterChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedUser = event.target.value;
+    const result = await getProjectsByUser(currentUser.username);
+    dispatch(setProject(result[0]));
+    if (selectedUser !== '') {
+      dispatch(filterTasksByUser({ user: selectedUser }));
+    }
+  };
 
   return (
     <>
@@ -27,8 +41,7 @@ export default function KanbanBoardHeader({
           <FormGroup className='d-inline-flex me-3 align-middle'>
             <div>
               <FormLabel>Filter by User:</FormLabel>
-              <FormSelect>
-                {/* onChange call the endpoint to retrieve tasks by username */}
+              <FormSelect onChange={handleFilterChange}>
                 <option value=''>All</option>
                 {project.assignedUsers.map((user: string) => (
                   <option key={user} value={user}>

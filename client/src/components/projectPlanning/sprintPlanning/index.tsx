@@ -2,6 +2,7 @@
 import './index.css';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Spinner } from 'react-bootstrap';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
@@ -89,7 +90,15 @@ export default function SprintPlanningPage() {
     );
   }
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <Spinner
+        animation='border'
+        role='status'
+        className='position-absolute top-50 start-50 translate-middle'>
+        <span className='visually-hidden'>Loading...</span>
+      </Spinner>
+    );
 
   return (
     <div className='p-3'>
