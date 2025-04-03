@@ -125,23 +125,28 @@ export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
  */
 export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<TaskResponse> => {
   try {
-    const task = await TaskModel.findById(taskId).lean();
+    const task = await TaskModel.findOne({ _id: taskId }).lean();
     if (!task) {
       throw new Error('Task not found');
     }
 
     // If sprint is being changed, remove task from old sprint and add to new sprint
     if (updates.sprint) {
-      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
+      await SprintModel.findOneAndUpdate({ _id: task.sprint }, { $pull: { tasks: taskId } });
     }
 
     // If sprint is being removed, add task to project backlog
     if (task.sprint && !updates.sprint) {
-      await ProjectModel.findByIdAndUpdate(task.project, { $addToSet: { backlogTasks: taskId } });
-      await SprintModel.findByIdAndUpdate(task.sprint, { $pull: { tasks: taskId } });
+      await ProjectModel.findOneAndUpdate(
+        { _id: task.project },
+        { $addToSet: { backlogTasks: taskId } },
+      );
+      await SprintModel.findOneAndUpdate({ _id: task.sprint }, { $pull: { tasks: taskId } });
     }
 
-    const updatedtask = await TaskModel.findByIdAndUpdate(taskId, updates, { new: true }).lean();
+    const updatedtask = await TaskModel.findOneAndUpdate({ _id: taskId }, updates, {
+      new: true,
+    }).lean();
 
     if (!updatedtask) {
       throw Error('task not found');

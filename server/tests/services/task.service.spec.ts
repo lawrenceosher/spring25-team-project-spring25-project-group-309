@@ -8,6 +8,8 @@ import {
 } from '../../services/task.service';
 import { databaseTask, databaseTaskWithDependency } from '../mockData.models';
 import { DatabaseTask } from '../../types/types';
+import SprintModel from '../../models/sprint.model';
+import ProjectModel from '../../models/project.model';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -53,10 +55,11 @@ describe('Task model', () => {
     mockingoose.resetAll();
   });
 
+  afterAll(() => {
+    mockingoose.resetAll();
+  });
+
   describe('getAllTasksByUser', () => {
-    beforeEach(() => {
-      mockingoose.resetAll();
-    });
     it('should return the tasks for the user', async () => {
       mockingoose(TaskModel).toReturn([databaseTask], 'find');
       const tasks = await getAllTasksByUser('test');
@@ -71,25 +74,46 @@ describe('Task model', () => {
   });
 
   describe('updateTasks', () => {
-    beforeEach(() => {
-      mockingoose.resetAll();
-    });
-
     it('should return the updated task when adding tasks', async () => {
+      const taskId = '65e9b58910afe6e94fc6e6dc';
+
+      // Mock findOne to return task
+      mockingoose(TaskModel).toReturn(databaseTaskWithDependency, 'findOne');
+      // Mock changing sprints
+      mockingoose(SprintModel).toReturn({}, 'findOneAndUpdate');
+      // Mock moving to project backlog
+      mockingoose(ProjectModel).toReturn({}, 'findOneAndUpdate');
+      // Mock removing from project backlog
       mockingoose(TaskModel).toReturn(databaseTaskWithDependency, 'findOneAndUpdate');
-      const updatedTask = await updateTask('65e9b58910afe6e94fc6e6dc', {
+      // Mock adding Task to new sprint
+      mockingoose(ProjectModel).toReturn({}, 'updateMany');
+
+      const updatedTask = await updateTask(taskId, {
         dependentTasks: [new ObjectId('65e9b58910afe6e94fc6e6de')],
       });
+
       expect(updatedTask).toEqual(databaseTaskWithDependency);
     });
 
     it('should return the updated task when removing tasks', async () => {
+      const taskId = '65e9b58910afe6e94fc6e6dc';
+
+      // Mock findOne to return task
+      mockingoose(TaskModel).toReturn(databaseTask, 'findOne');
+      // Mock changing sprints
       mockingoose(TaskModel).toReturn(databaseTask, 'findOneAndUpdate');
-      const updatedTask = await updateTask('65e9b58910afe6e94fc6e6dc', {
+      // Mock moving to project backlog
+      mockingoose(SprintModel).toReturn({}, 'findOneAndUpdate');
+      // Mock removing from project backlog
+      mockingoose(ProjectModel).toReturn({}, 'findOneAndUpdate');
+      // Mock adding Task to new sprint
+      mockingoose(ProjectModel).toReturn({}, 'updateMany');
+
+      const updatedTask = await updateTask(taskId, {
         dependentTasks: [],
       });
-      expect(updatedTask).not.toEqual(databaseTaskWithDependency);
 
+      expect(updatedTask).not.toEqual(databaseTaskWithDependency);
       expect(updatedTask).toEqual(databaseTask);
     });
 
@@ -103,10 +127,6 @@ describe('Task model', () => {
   });
 
   describe('deleteTasks', () => {
-    beforeEach(() => {
-      mockingoose.resetAll();
-    });
-
     it('should return the deletedTask when succesfully deleting them', async () => {
       mockingoose(TaskModel).toReturn(databaseTask, 'findOneAndDelete');
       const deletedTask = await deleteTaskById('65e9b58910afe6e94fc6e6dc');
@@ -121,10 +141,6 @@ describe('Task model', () => {
   });
 
   describe('getDependentTasksById', () => {
-    beforeEach(() => {
-      mockingoose.resetAll();
-    });
-
     it('should return the dependent tasks from the given taskId (1 dependency)', async () => {
       mockingoose(TaskModel).toReturn({ ...databaseTaskWithDependency }, 'findOne');
       const result = await getDependentTasksById(databaseTaskWithDependency._id.toString());
