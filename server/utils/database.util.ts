@@ -141,7 +141,7 @@ const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint
         }>([{ path: 'prereqTasks', model: TaskModel }])
         .populate<{
           relevantQuestions: DatabaseQuestion[];
-        }>([{ path: 'relevantQuestions', model: TaskModel }]);
+        }>([{ path: 'relevantQuestions', model: QuestionModel }]);
 
       if (!newTaskDoc) return null;
 
