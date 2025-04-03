@@ -1,7 +1,5 @@
 import supertest from 'supertest';
-import mongoose from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
 import {
@@ -17,7 +15,7 @@ const MOCK_TASK_RESPONSE = [
     assignedUser: databaseTask.assignedUser,
     description: databaseTask.description,
     name: databaseTask.name,
-    sprint: databaseTask.sprint.toString(),
+    sprint: databaseTask.sprint?.toString(),
     status: databaseTask.status,
     dependentTasks: [],
     prereqTasks: [],
@@ -36,7 +34,7 @@ const MOCK_TASK_RESPONSE_WITH_DEPENDENCIES = [
     assignedUser: databaseTaskWithDependency.assignedUser,
     description: databaseTaskWithDependency.description,
     name: databaseTaskWithDependency.name,
-    sprint: databaseTaskWithDependency.sprint.toString(),
+    sprint: databaseTaskWithDependency.sprint?.toString(),
     status: databaseTaskWithDependency.status,
     dependentTasks: [databaseTaskWithPrereq._id.toString()],
     prereqTasks: [],
@@ -54,7 +52,7 @@ const mockTaskResponse = {
   assignedUser: databaseTask.assignedUser,
   description: databaseTask.description,
   name: databaseTask.name,
-  sprint: databaseTask.sprint.toString(),
+  sprint: databaseTask.sprint?.toString(),
   status: databaseTask.status,
   dependentTasks: [],
   prereqTasks: [],
@@ -71,7 +69,7 @@ const mockTaskResponseAllFields = {
   assignedUser: databaseTaskWithAllFields.assignedUser,
   description: databaseTaskWithAllFields.description,
   name: databaseTaskWithAllFields.name,
-  sprint: databaseTaskWithAllFields.sprint.toString(),
+  sprint: databaseTaskWithAllFields.sprint?.toString(),
   status: databaseTaskWithAllFields.status,
   dependentTasks: databaseTaskWithAllFields.dependentTasks,
   prereqTasks: databaseTaskWithAllFields.prereqTasks,
