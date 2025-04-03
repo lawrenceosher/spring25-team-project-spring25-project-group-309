@@ -20,7 +20,9 @@ export default function TaskUpdateModal({
   handleClose: () => void;
   project: PopulatedDatabaseProject;
 }) {
-  const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
+  const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
+    (state: any) => state.selectTaskReducer,
+  );
 
   const [taskToUpdate, setTaskToUpdate] = useState<DatabaseClientTask>({ ...selectedTask });
 
@@ -43,6 +45,10 @@ export default function TaskUpdateModal({
   useEffect(() => {
     setTaskToUpdate({ ...selectedTask });
   }, [selectedTask]);
+
+  if (!selectedTask) {
+    return null;
+  }
 
   return (
     <div>
@@ -136,20 +142,24 @@ export default function TaskUpdateModal({
               <Form.Label>Relevant FakeStackOverflow Questions</Form.Label>
               <Form.Select
                 multiple
-                value={taskToUpdate.relevantQuestions}
+                value={
+                  taskToUpdate.relevantQuestions
+                    ? taskToUpdate.relevantQuestions.map(q => q._id.toString())
+                    : []
+                }
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
                     relevantQuestions: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        qlist
-                          .find(
-                            (question: PopulatedDatabaseQuestion) =>
-                              question._id.toString() === option.value,
-                          )
-                          ?._id.toString() || null,
-                    ).filter(_id => _id !== null),
+                        qlist.find(
+                          (question: PopulatedDatabaseQuestion) =>
+                            question._id.toString() === option.value,
+                        ) || null,
+                    ).filter(
+                      (question): question is PopulatedDatabaseQuestion => question !== null,
+                    ),
                   })
                 }>
                 {qlist.map((question: PopulatedDatabaseQuestion) => (
@@ -164,7 +174,11 @@ export default function TaskUpdateModal({
               <Form.Label>Task Prerequisites</Form.Label>
               <Form.Select
                 multiple
-                value={taskToUpdate.prereqTasks}
+                value={
+                  taskToUpdate.prereqTasks
+                    ? taskToUpdate.prereqTasks.map(task => task._id.toString())
+                    : []
+                }
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
@@ -174,13 +188,13 @@ export default function TaskUpdateModal({
                         [
                           ...project.sprints.flatMap(sprint => sprint.tasks),
                           ...project.backlogTasks,
-                        ].find(task => task._id.toString() === option.value)?._id || null,
-                    ).filter(_id => _id !== null),
+                        ].find(task => task._id.toString() === option.value) || null,
+                    ).filter(foundTask => foundTask !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
                   sprint.tasks.map(task => (
-                    <option key={task._id} value={task._id}>
+                    <option key={task._id.toString()} value={task._id}>
                       {task.name}
                     </option>
                   )),
@@ -192,7 +206,11 @@ export default function TaskUpdateModal({
               <Form.Label>Task Dependencies</Form.Label>
               <Form.Select
                 multiple
-                value={taskToUpdate.dependentTasks}
+                value={
+                  taskToUpdate.dependentTasks
+                    ? taskToUpdate.dependentTasks.map(task => task._id.toString())
+                    : []
+                }
                 onChange={e =>
                   setTaskToUpdate({
                     ...taskToUpdate,
@@ -202,13 +220,13 @@ export default function TaskUpdateModal({
                         [
                           ...project.sprints.flatMap(sprint => sprint.tasks),
                           ...project.backlogTasks,
-                        ].find(task => task._id.toString() === option.value)?._id || null,
-                    ).filter(_id => _id !== null),
+                        ].find(task => task._id.toString() === option.value) || null,
+                    ).filter(foundTask => foundTask !== null),
                   })
                 }>
                 {project.sprints.map(sprint =>
                   sprint.tasks.map(task => (
-                    <option key={task._id} value={task._id}>
+                    <option key={task._id.toString()} value={task._id}>
                       {task.name}
                     </option>
                   )),

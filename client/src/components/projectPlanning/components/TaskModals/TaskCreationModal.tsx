@@ -153,13 +153,13 @@ export default function TaskCreationModal({
                     relevantQuestions: Array.from(
                       e.target.selectedOptions,
                       option =>
-                        qlist
-                          .find(
-                            (question: PopulatedDatabaseQuestion) =>
-                              question._id.toString() === option.value,
-                          )
-                          ?._id.toString() || null,
-                    ).filter(_id => _id !== null),
+                        qlist.find(
+                          (question: PopulatedDatabaseQuestion) =>
+                            question._id.toString() === option.value,
+                        ) || null,
+                    ).filter(
+                      (question): question is PopulatedDatabaseQuestion => question !== null,
+                    ),
                   })
                 }>
                 {qlist.map((question: PopulatedDatabaseQuestion) => (

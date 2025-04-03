@@ -4,9 +4,10 @@ import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
-import { PopulatedDatabaseProject, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
+import { PopulatedDatabaseProject } from '@fake-stack-overflow/shared';
 import { NavLink } from 'react-router-dom';
 import useQuestionPage from '../../../../hooks/useQuestionPage';
+import { DatabaseClientTask } from '../../../../types/clientTypes/task';
 
 export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
@@ -15,9 +16,9 @@ export default function TaskDetailsCard({
 }: {
   handleShowDeleteTaskModal: () => void;
   handleShowTaskUpdateModal: () => void;
-  setTaskForModal: (task: PopulatedDatabaseTask) => void;
+  setTaskForModal: (task: DatabaseClientTask) => void;
 }) {
-  const { selectedTask }: { selectedTask: PopulatedDatabaseTask } = useSelector(
+  const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
     (state: any) => state.selectTaskReducer,
   );
   const { project }: { project: PopulatedDatabaseProject } = useSelector(
@@ -28,6 +29,8 @@ export default function TaskDetailsCard({
   if (!selectedTask) {
     return null;
   }
+
+  console.log(selectedTask);
   return (
     <Card key={selectedTask._id.toString()}>
       <Card.Body>
@@ -68,7 +71,7 @@ export default function TaskDetailsCard({
             {selectedTask.relevantQuestions.map((question: any) => (
               <ListGroup.Item key={question} className='bg-transparent p-1'>
                 <NavLink to={`/question/${question}`}>
-                  {qlist.find((q: any) => q._id === question)?.title || 'Question not found'}
+                  {qlist.find((q: any) => q._id === question._id)?.title || 'Question not found'}
                 </NavLink>
               </ListGroup.Item>
             ))}

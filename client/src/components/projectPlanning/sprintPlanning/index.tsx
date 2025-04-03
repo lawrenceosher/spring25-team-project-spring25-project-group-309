@@ -21,6 +21,7 @@ import useUserContext from '../../../hooks/useUserContext';
 import CreateProjectForm from '../components/CreateProjectForm/CreateProjectForm';
 import { setProject } from '../../../redux/projectReducer/projectReducer';
 import { clearErrorMessage, setErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { DatabaseClientTask } from '../../../types/clientTypes/task';
 
 export default function SprintPlanningPage() {
   const {
@@ -45,14 +46,16 @@ export default function SprintPlanningPage() {
   } = useSprintPlanningPageModals();
 
   const { project } = useSelector((state: any) => state.projectReducer);
-  const { selectedTask } = useSelector((state: any) => state.selectTaskReducer);
+  const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
+    (state: any) => state.selectTaskReducer,
+  );
   const { errorMessage } = useSelector((state: any) => state.errorReducer);
 
   const { userList } = useUsersListPage();
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useUserContext();
   const [sprintForModal, setSprintForModal] = useState<PopulatedDatabaseSprint | null>(null);
-  const [taskForModal, setTaskForModal] = useState<PopulatedDatabaseTask | null>(null);
+  const [taskForModal, setTaskForModal] = useState<DatabaseClientTask | null>(null);
   const [newProject, setNewProject] = useState<Project>({
     assignedUsers: [],
     description: '',

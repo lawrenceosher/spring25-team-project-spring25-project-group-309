@@ -1,15 +1,17 @@
+import { PopulatedDatabaseQuestion } from '@fake-stack-overflow/shared';
+
 export interface ClientTask {
   assignedUser: string;
   description: string;
   name: string;
   sprint: string | null;
   status: string;
-  dependentTasks: string[];
-  prereqTasks: string[];
+  dependentTasks: DatabaseClientTask[];
+  prereqTasks: DatabaseClientTask[];
   project: string;
   priority: string;
   taskPoints: number;
-  relevantQuestions: string[];
+  relevantQuestions: PopulatedDatabaseQuestion[];
   createdAt: Date;
   updatedAt: Date;
 }
