@@ -182,6 +182,7 @@ const taskController = (socket: FakeSOSocket) => {
       res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
     }
   };
+
   const updateTaskFields = async (req: UpdateTaskRequest, res: Response): Promise<void> => {
     if (!req.body.taskId || !req.body.updates) {
       res.status(400).send('Invalid request');
