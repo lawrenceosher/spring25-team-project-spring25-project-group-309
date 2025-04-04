@@ -18,13 +18,13 @@ export default function RoadmapGraphPage() {
     (state: any) => state.selectTaskReducer,
   );
 
-  const [filteredTasks, setFilteredTasksState] = useState<PopulatedDatabaseTask[]>([]);
+  const [filteredTasks, updateFilteredTasks] = useState<PopulatedDatabaseTask[]>([]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const setFilteredTasks = useCallback((tasks: PopulatedDatabaseTask[]) => {
-    setFilteredTasksState(tasks);
+    updateFilteredTasks(tasks);
   }, []);
 
   useEffect(() => {
@@ -55,7 +55,9 @@ export default function RoadmapGraphPage() {
     [allTasks, dispatch],
   );
 
-  if (!project) return null;
+  if (!project) {
+    return null;
+  }
 
   if (project.sprints.length === 0 && project.backlogTasks.length === 0) {
     return (
@@ -69,6 +71,7 @@ export default function RoadmapGraphPage() {
 
   return (
     <div className='p-3'>
+      {/* Header */}
       <RoadmapHeader
         projectName={project.name}
         sprints={project.sprints}
@@ -77,12 +80,14 @@ export default function RoadmapGraphPage() {
         setFilteredTasks={setFilteredTasks}
       />
 
+      {/* Error Alert */}
       {errorMessage && (
         <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
           <Alert.Heading>{errorMessage}</Alert.Heading>
         </Alert>
       )}
 
+      {/* Conditionally render the roadmap graph if filteredTasks is empty */}
       <div className='d-flex gap-3 mt-3' style={{ contain: 'layout style' }}>
         <div className='flex-grow-1'>
           {filteredTasks.length === 0 ? (
@@ -94,17 +99,16 @@ export default function RoadmapGraphPage() {
           )}
         </div>
 
-        <div
-          style={{
-            width: '28rem',
-            visibility: selectedTask ? 'visible' : 'hidden',
-          }}>
-          <TaskDetailsCard
-            handleShowDeleteTaskModal={() => {}}
-            handleShowTaskUpdateModal={() => {}}
-            setTaskForModal={() => {}}
-          />
-        </div>
+        {/* Task Details */}
+        {selectedTask && (
+          <div id='task-details' className='ms-3'>
+            <TaskDetailsCard
+              handleShowDeleteTaskModal={() => {}}
+              handleShowTaskUpdateModal={() => {}}
+              setTaskForModal={() => {}}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

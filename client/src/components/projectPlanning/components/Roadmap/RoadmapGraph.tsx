@@ -1,22 +1,40 @@
+/* eslint-disable consistent-return */
 import React, { useEffect, useRef } from 'react';
 import { DataSet, Network } from 'vis-network/standalone';
 import 'vis-network/styles/vis-network.css';
 import { DatabaseTask } from '@fake-stack-overflow/shared';
 import { RoadmapGraphProps } from '../../../../types/clientTypes/task';
 
-const getPriorityColor = (priority: number) => {
-  const colors: { [key: string]: string } = {
-    High: '#ff4d4d',
-    Medium: '#ffcc00',
-    Low: '#3399ff',
+/**
+ * Get the color based on the task priority
+ *
+ * @param priority - The priority of the task
+ * @returns  - The color associated with the priority
+ */
+const getPriorityColor = (priority: string) => {
+  const colors: Record<string, string> = {
+    High: '#FF4D4D',
+    Medium: '#FFCC00',
+    Low: '#3399FF',
   };
-  return colors[priority] || '#007bff';
+
+  return colors[priority] || '#FFFFFF'; // Default -- white
 };
 
 type ExtendedProps = RoadmapGraphProps & {
   onTaskClick?: (taskId: string) => void;
 };
 
+/**
+ * Represents the RoadmapGraph component.
+ * It displays the project roadmap in a graph view.
+ *   - Each task is represented as a node
+ *   - Each dependency is represented as an edge
+ *     - Edges are directed from the dependent task to the task it depends on
+ *   - The color of the node is based on the priority of the task
+ *   - The higher the priority, the darker the color
+ * @returns The RoadmapGraph component
+ */
 const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
@@ -25,9 +43,10 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
     if (!containerRef.current || !Array.isArray(tasks) || tasks.length === 0) return;
 
     const frameId = requestAnimationFrame(() => {
+      // Create a new DataSet for nodes
       const nodes = new DataSet(
         tasks.map(task => ({
-          id: task._id,
+          id: task._id.toString(),
           label: `${task.name}\n(Priority: ${task.priority})`,
           shape: 'box',
           color: {
@@ -39,12 +58,14 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
         })),
       );
 
+      // Create a new DataSet for edges
+      // If Task B depends on Task A, then there is an edge from A->B
       const edges = new DataSet(
         tasks.flatMap((task, index) =>
-          task.dependentTasks.map((dep: DatabaseTask) => ({
-            id: `edge-${index}-${dep._id}-${task._id}`,
-            from: dep._id,
-            to: task._id,
+          task.dependentTasks.map((dep: DatabaseTask | string) => ({
+            id: `edge-${index}-${typeof dep === 'object' ? dep._id : dep}-${task._id}`,
+            from: typeof dep === 'object' ? dep._id.toString() : dep.toString(),
+            to: task._id.toString(),
             arrows: 'to',
             width: 2,
             smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
@@ -52,7 +73,8 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
         ),
       );
 
-      networkRef.current = new Network(
+      // Create a new network instance
+      const network = new Network(
         containerRef.current!,
         { nodes, edges },
         {
@@ -75,18 +97,30 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
             shape: 'box',
             size: 20,
           },
-          interaction: { dragView: true, zoomView: true },
+          interaction: {
+            dragView: true,
+            zoomView: true,
+          },
         },
       );
 
-      // Click handler
-      networkRef.current.on('click', params => {
+      networkRef.current = network;
+
+      // Handle task click
+      network.on('click', params => {
         if (params.nodes.length > 0) {
           const clickedId = params.nodes[0];
-          onTaskClick?.(clickedId);
+          onTaskClick?.(clickedId.toString());
         }
       });
     });
+
+    // Cleanup on unmount or rerender
+    return () => {
+      cancelAnimationFrame(frameId);
+      networkRef.current?.destroy();
+      networkRef.current = null;
+    };
   }, [tasks, onTaskClick]);
 
   return (

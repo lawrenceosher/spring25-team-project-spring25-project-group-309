@@ -1,11 +1,6 @@
 import { FormGroup, FormLabel, FormSelect } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
-import { useDispatch } from 'react-redux';
-import {
-  filterTasksByUser,
-  filterTasksBySprint,
-} from '../../../../redux/projectReducer/projectReducer';
 
 export default function RoadmapHeader({
   projectName,
@@ -20,13 +15,11 @@ export default function RoadmapHeader({
   allTasks: PopulatedDatabaseTask[];
   setFilteredTasks: (tasks: PopulatedDatabaseTask[]) => void;
 }) {
-  const dispatch = useDispatch();
-
   const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<string>('');
 
-  useEffect(() => {
-    if (!Array.isArray(sprints) || !Array.isArray(users) || !Array.isArray(allTasks)) return;
+  const filteredTasks = useMemo(() => {
+    if (!Array.isArray(sprints) || !Array.isArray(users) || !Array.isArray(allTasks)) return [];
 
     let filtered = allTasks;
 
@@ -40,10 +33,14 @@ export default function RoadmapHeader({
       filtered = filtered.filter(task => task.assignedUser === selectedUser);
     }
 
-    setFilteredTasks(filtered);
-  }, [selectedSprintId, selectedUser, allTasks, sprints, setFilteredTasks]);
+    return filtered;
+  }, [selectedSprintId, selectedUser, allTasks, sprints, users]);
 
-  // Updated filter handlers
+  useEffect(() => {
+    setFilteredTasks(filteredTasks);
+  }, [filteredTasks, setFilteredTasks]);
+
+  // Event handlers for filter changes (sprint and user)
   const handleSprintFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSprintId(event.target.value);
   };
