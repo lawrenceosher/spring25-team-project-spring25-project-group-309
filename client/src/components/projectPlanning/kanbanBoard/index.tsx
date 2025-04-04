@@ -91,21 +91,23 @@ export default function KanbanBoardPage() {
     }
   }
 
-  const handleTaskStatusUpdate = async (event: any) => {
+  const handleTaskUpdateOnDragEnd = async (event: any) => {
+    const taskId = event.active.id;
+
+    const correspondingTask = [
+      ...(activeSprint?.tasks || []),
+      ...(project.backlogTasks || []),
+    ].find((task: any) => task._id === taskId);
+
+    let taskToUpdate: DatabaseClientTask;
+
     if (event.over && event.over.id === 'Backlog') {
-      const taskId = event.active.id;
-
-      let correspondingTask = activeSprint?.tasks.find((task: any) => task._id === taskId);
-      if (!correspondingTask) {
-        correspondingTask = project.backlogTasks.find((task: any) => task._id === taskId);
-      }
-
       if (!correspondingTask.sprint) {
         // Already in the backlog, no need to update
         return;
       }
 
-      const taskToUpdate: DatabaseClientTask = {
+      taskToUpdate = {
         ...activeSprint?.tasks.find((task: any) => task._id === taskId),
         sprint: null,
       };
@@ -114,14 +116,13 @@ export default function KanbanBoardPage() {
       const updatedProject = await getProjectsByUser(updatedTask.assignedUser);
       dispatch(setProject(updatedProject[0]));
     } else if (event.over && event.over.id !== 'Backlog') {
-      const taskId = event.active.id;
-
-      let correspondingTask = activeSprint?.tasks.find((task: any) => task._id === taskId);
-      if (!correspondingTask) {
-        correspondingTask = project.backlogTasks.find((task: any) => task._id === taskId);
+      if (
+        correspondingTask.sprint === activeSprint?._id &&
+        correspondingTask.status === event.over.id
+      ) {
+        // Already in the same progress column, no need to update
+        return;
       }
-
-      let taskToUpdate: DatabaseClientTask;
 
       if (correspondingTask.sprint) {
         taskToUpdate = {
@@ -172,7 +173,7 @@ export default function KanbanBoardPage() {
 
       <Container className='bg-transparent mt-3' fluid>
         <Row>
-          <DndContext onDragEnd={handleTaskStatusUpdate} sensors={sensors}>
+          <DndContext onDragEnd={handleTaskUpdateOnDragEnd} sensors={sensors}>
             <BacklogColumn projectBacklog={project.backlogTasks} />
 
             {/* Progress Columns */}
