@@ -27,10 +27,11 @@ export default function RoadmapGraphPage() {
     }
   }, [navigate, project]);
 
-  const allTasks = useMemo(
-    () => (project?.sprints ?? []).flatMap((s: PopulatedDatabaseSprint) => s.tasks),
-    [project?.sprints],
-  );
+  const allTasks = useMemo(() => {
+    const sprintTasks = (project?.sprints ?? []).flatMap((s: PopulatedDatabaseSprint) => s.tasks);
+    const backlogTasks = (project?.backlogTasks ?? []) as PopulatedDatabaseTask[];
+    return [...sprintTasks, ...backlogTasks];
+  }, [project?.sprints, project?.backlogTasks]);
 
   useEffect(() => {
     if (allTasks.length > 0) {
@@ -38,13 +39,22 @@ export default function RoadmapGraphPage() {
     }
   }, [allTasks, setFilteredTasks]);
 
+  // SAFELY EXTRACT USERS FROM POPULATED MEMBERS
+  const projectUsers = useMemo(() => {
+    if (!project?.members) return [];
+    console.log('Project members:', project.members); // Debugging line
+    return project.members
+      .filter((m: any) => typeof m.username === 'string')
+      .map((m: any) => m.username);
+  }, [project?.members]);
+
   if (!project) return null;
 
-  if (project.sprints.length === 0) {
+  if (project.sprints.length === 0 && project.backlogTasks.length === 0) {
     return (
       <div className='p-3'>
         <h1 className='text-center'>
-          No Sprints Available. Please create sprints in Sprint Planning.
+          No Sprints or Backlog Tasks Available. Please create tasks in Sprint Planning.
         </h1>
       </div>
     );
@@ -55,7 +65,7 @@ export default function RoadmapGraphPage() {
       <RoadmapHeader
         projectName={project.name}
         sprints={project.sprints}
-        users={(project.members ?? []).map((m: { username: string }) => m.username)}
+        users={projectUsers}
         allTasks={allTasks}
         setFilteredTasks={setFilteredTasks}
       />

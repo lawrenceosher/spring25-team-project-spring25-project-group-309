@@ -19,6 +19,8 @@ export default function RoadmapHeader({
   const [selectedUser, setSelectedUser] = useState<string>('');
 
   useEffect(() => {
+    if (!Array.isArray(sprints) || !Array.isArray(users) || !Array.isArray(allTasks)) return;
+
     let filtered = allTasks;
 
     if (selectedSprintId !== '') {
@@ -47,7 +49,7 @@ export default function RoadmapHeader({
               value={selectedSprintId}
               onChange={e => setSelectedSprintId(e.target.value)}>
               <option value=''>All</option>
-              {sprints.map(sprint => (
+              {(sprints ?? []).map(sprint => (
                 <option key={sprint._id.toString()} value={sprint._id.toString()}>
                   {sprint.name}
                 </option>
@@ -61,7 +63,7 @@ export default function RoadmapHeader({
             <FormLabel>Filter by User:</FormLabel>
             <FormSelect value={selectedUser} onChange={e => setSelectedUser(e.target.value)}>
               <option value=''>All</option>
-              {users.map(user => (
+              {(users ?? []).map(user => (
                 <option key={user} value={user}>
                   {user}
                 </option>

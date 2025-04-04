@@ -4,40 +4,37 @@ import 'vis-network/styles/vis-network.css';
 import { DatabaseTask } from '@fake-stack-overflow/shared';
 import { RoadmapGraphProps } from '../../../../types/clientTypes/task';
 
-/**
- * Get the color based on the priority
- * @param priority  The priority of the task
- * @returns  The color code based on the priority, default is blue
- */
 const getPriorityColor = (priority: number) => {
   const colors: { [key: string]: string } = {
     High: '#ff4d4d',
     Medium: '#ffcc00',
     Low: '#3399ff',
   };
-  // Return blue color if priority is not in the list
   return colors[priority] || '#007bff';
 };
 
-/**
- * Represents the RoadmapGraph component.
- * It displays the project roadmap in a graph view.
- *   - Each task is represented as a node
- *   - Each dependency is represented as an edge
- *     - Edges are directed from the dependent task to the task it depends on
- *   - The color of the node is based on the priority of the task
- *   - The higher the priority, the darker the color
- * @returns The RoadmapGraph component
- */
 const RoadmapGraph: React.FC<RoadmapGraphProps> = ({ tasks }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current || tasks.length === 0) return;
+    if (!containerRef.current || !Array.isArray(tasks) || tasks.length === 0) return;
+
+    // Build a set of task IDs that are depended on
+    const dependedOnIds = new Set<string>();
+    tasks.forEach(task => {
+      task.dependentTasks.forEach((dep: DatabaseTask) => dependedOnIds.add(dep._id.toString()));
+    });
+
+    // Filter tasks to only those involved in a dependency
+    const filteredTasks = tasks.filter(
+      task => task.dependentTasks.length > 0 || dependedOnIds.has(task._id),
+    );
+
+    if (filteredTasks.length === 0) return;
 
     const nodes = new DataSet(
-      tasks.map(task => ({
+      filteredTasks.map(task => ({
         id: task._id,
         label: `${task.name}\n(Priority: ${task.priority})`,
         shape: 'box',
@@ -51,7 +48,7 @@ const RoadmapGraph: React.FC<RoadmapGraphProps> = ({ tasks }) => {
     );
 
     const edges = new DataSet(
-      tasks.flatMap((task, index) =>
+      filteredTasks.flatMap((task, index) =>
         task.dependentTasks.map((dep: DatabaseTask) => ({
           id: `edge-${index}-${dep._id}-${task._id}`,
           from: dep._id,
@@ -67,14 +64,26 @@ const RoadmapGraph: React.FC<RoadmapGraphProps> = ({ tasks }) => {
       containerRef.current,
       { nodes, edges },
       {
-        layout: { hierarchical: false },
-        nodes: { shape: 'box', size: 20 },
+        layout: {
+          hierarchical: {
+            enabled: true,
+            direction: 'DU',
+            sortMethod: 'directed',
+            levelSeparation: 150,
+            nodeSpacing: 120,
+            treeSpacing: 200,
+          },
+        },
+        physics: false,
         edges: {
           arrows: { to: { enabled: true, scaleFactor: 1.2 } },
           color: '#000',
         },
+        nodes: {
+          shape: 'box',
+          size: 20,
+        },
         interaction: { dragView: true, zoomView: true },
-        physics: { enabled: true, solver: 'barnesHut', stabilization: false },
       },
     );
   }, [tasks]);
