@@ -16,6 +16,7 @@ export default function TaskItemProgressColumn({ task }: { task: PopulatedDataba
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 1,
       }
     : undefined;
 

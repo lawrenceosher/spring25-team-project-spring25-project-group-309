@@ -161,12 +161,12 @@ export default function TaskUpdateForm({
               ).filter(foundTask => foundTask !== null),
             })
           }>
-          {project.sprints.map(sprint =>
-            sprint.tasks.map(task => (
+          {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
+            task => (
               <option key={task._id.toString()} value={task._id}>
                 {task.name}
               </option>
-            )),
+            ),
           )}
         </Form.Select>
       </Form.Group>
@@ -193,12 +193,12 @@ export default function TaskUpdateForm({
               ).filter(foundTask => foundTask !== null),
             })
           }>
-          {project.sprints.map(sprint =>
-            sprint.tasks.map(task => (
+          {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].map(
+            task => (
               <option key={task._id.toString()} value={task._id}>
                 {task.name}
               </option>
-            )),
+            ),
           )}
         </Form.Select>
       </Form.Group>

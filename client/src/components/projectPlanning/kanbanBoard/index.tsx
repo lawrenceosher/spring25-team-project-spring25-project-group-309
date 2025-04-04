@@ -101,6 +101,7 @@ export default function KanbanBoardPage() {
       }
 
       if (!correspondingTask.sprint) {
+        // Already in the backlog, no need to update
         return;
       }
 
