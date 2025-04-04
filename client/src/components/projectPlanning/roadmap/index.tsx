@@ -40,13 +40,7 @@ export default function RoadmapGraphPage() {
   }, [allTasks, setFilteredTasks]);
 
   // SAFELY EXTRACT USERS FROM POPULATED MEMBERS
-  const projectUsers = useMemo(() => {
-    if (!project?.members) return [];
-    console.log('Project members:', project.members); // Debugging line
-    return project.members
-      .filter((m: any) => typeof m.username === 'string')
-      .map((m: any) => m.username);
-  }, [project?.members]);
+  const projectUsers = useMemo(() => project?.assignedUsers ?? [], [project?.assignedUsers]);
 
   if (!project) return null;
 
@@ -69,13 +63,11 @@ export default function RoadmapGraphPage() {
         allTasks={allTasks}
         setFilteredTasks={setFilteredTasks}
       />
-
       {errorMessage && (
         <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
           <Alert.Heading>{errorMessage}</Alert.Heading>
         </Alert>
       )}
-
       <RoadmapGraph tasks={filteredTasks} />
     </div>
   );

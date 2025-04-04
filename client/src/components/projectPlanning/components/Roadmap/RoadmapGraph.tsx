@@ -70,7 +70,7 @@ const RoadmapGraph: React.FC<RoadmapGraphProps> = ({ tasks }) => {
             direction: 'DU',
             sortMethod: 'directed',
             levelSeparation: 150,
-            nodeSpacing: 120,
+            nodeSpacing: 200,
             treeSpacing: 200,
           },
         },

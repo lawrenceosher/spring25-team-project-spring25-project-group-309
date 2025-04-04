@@ -1,6 +1,11 @@
 import { FormGroup, FormLabel, FormSelect } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
+import { useDispatch } from 'react-redux';
+import {
+  filterTasksByUser,
+  filterTasksBySprint,
+} from '../../../../redux/projectReducer/projectReducer';
 
 export default function RoadmapHeader({
   projectName,
@@ -15,6 +20,8 @@ export default function RoadmapHeader({
   allTasks: PopulatedDatabaseTask[];
   setFilteredTasks: (tasks: PopulatedDatabaseTask[]) => void;
 }) {
+  const dispatch = useDispatch();
+
   const [selectedSprintId, setSelectedSprintId] = useState<string>('');
   const [selectedUser, setSelectedUser] = useState<string>('');
 
@@ -36,6 +43,15 @@ export default function RoadmapHeader({
     setFilteredTasks(filtered);
   }, [selectedSprintId, selectedUser, allTasks, sprints, setFilteredTasks]);
 
+  // Updated filter handlers
+  const handleSprintFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSprintId(event.target.value);
+  };
+
+  const handleUserFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedUser(event.target.value);
+  };
+
   return (
     <div id='roadmap-header' className='d-flex align-items-center mb-3'>
       <h1 id='roadmap-name-header' className='fw-bold d-flex'>
@@ -45,9 +61,7 @@ export default function RoadmapHeader({
         <FormGroup className='d-inline-flex me-3 align-middle'>
           <div>
             <FormLabel>Filter by Sprint:</FormLabel>
-            <FormSelect
-              value={selectedSprintId}
-              onChange={e => setSelectedSprintId(e.target.value)}>
+            <FormSelect value={selectedSprintId} onChange={handleSprintFilterChange}>
               <option value=''>All</option>
               {(sprints ?? []).map(sprint => (
                 <option key={sprint._id.toString()} value={sprint._id.toString()}>
@@ -61,7 +75,7 @@ export default function RoadmapHeader({
         <FormGroup className='d-inline-flex me-3 align-middle'>
           <div>
             <FormLabel>Filter by User:</FormLabel>
-            <FormSelect value={selectedUser} onChange={e => setSelectedUser(e.target.value)}>
+            <FormSelect value={selectedUser} onChange={handleUserFilterChange}>
               <option value=''>All</option>
               {(users ?? []).map(user => (
                 <option key={user} value={user}>
