@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
-import { DndContext } from '@dnd-kit/core';
+import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import KanbanBoardHeader from '../components/KanbanBoardHeader/KanbanBoardHeader';
 import ProgressColumn from '../components/ProgressColumn/ProgressColumn';
 import BacklogColumn from '../components/ProgressColumn/BacklogColumn';
@@ -21,6 +21,15 @@ export default function KanbanBoardPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
   const { errorMessage } = useSelector((state: any) => state.errorReducer);
   const [activeSprint, setActiveSprint] = useState<PopulatedDatabaseSprint | null>(null);
+
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+
+  const sensors = useSensors(mouseSensor);
 
   const dispatch = useDispatch();
 
@@ -162,7 +171,7 @@ export default function KanbanBoardPage() {
 
       <Container className='bg-transparent mt-3' fluid>
         <Row>
-          <DndContext onDragEnd={handleTaskStatusUpdate}>
+          <DndContext onDragEnd={handleTaskStatusUpdate} sensors={sensors}>
             <BacklogColumn projectBacklog={project.backlogTasks} />
 
             {/* Progress Columns */}
