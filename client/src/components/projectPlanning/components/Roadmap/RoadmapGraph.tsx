@@ -13,80 +13,84 @@ const getPriorityColor = (priority: number) => {
   return colors[priority] || '#007bff';
 };
 
-const RoadmapGraph: React.FC<RoadmapGraphProps> = ({ tasks }) => {
+type ExtendedProps = RoadmapGraphProps & {
+  onTaskClick?: (taskId: string) => void;
+};
+
+const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !Array.isArray(tasks) || tasks.length === 0) return;
 
-    // Build a set of task IDs that are depended on
-    const dependedOnIds = new Set<string>();
-    tasks.forEach(task => {
-      task.dependentTasks.forEach((dep: DatabaseTask) => dependedOnIds.add(dep._id.toString()));
+    const frameId = requestAnimationFrame(() => {
+      const nodes = new DataSet(
+        tasks.map(task => ({
+          id: task._id,
+          label: `${task.name}\n(Priority: ${task.priority})`,
+          shape: 'box',
+          color: {
+            background: getPriorityColor(task.priority),
+            border: '#000',
+          },
+          font: { color: '#fff' },
+          title: `Task: ${task.name}\nPriority: ${task.priority}`,
+        })),
+      );
+
+      const edges = new DataSet(
+        tasks.flatMap((task, index) =>
+          task.dependentTasks.map((dep: DatabaseTask) => ({
+            id: `edge-${index}-${dep._id}-${task._id}`,
+            from: dep._id,
+            to: task._id,
+            arrows: 'to',
+            width: 2,
+            smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
+          })),
+        ),
+      );
+
+      networkRef.current = new Network(
+        containerRef.current!,
+        { nodes, edges },
+        {
+          layout: {
+            hierarchical: {
+              enabled: true,
+              direction: 'UD',
+              sortMethod: 'directed',
+              levelSeparation: 150,
+              nodeSpacing: 120,
+              treeSpacing: 200,
+            },
+          },
+          physics: false,
+          edges: {
+            arrows: { to: { enabled: true, scaleFactor: 1.2 } },
+            color: '#000',
+          },
+          nodes: {
+            shape: 'box',
+            size: 20,
+          },
+          interaction: { dragView: true, zoomView: true },
+        },
+      );
+
+      // Click handler
+      networkRef.current.on('click', params => {
+        if (params.nodes.length > 0) {
+          const clickedId = params.nodes[0];
+          onTaskClick?.(clickedId);
+        }
+      });
     });
 
-    // Filter tasks to only those involved in a dependency
-    const filteredTasks = tasks.filter(
-      task => task.dependentTasks.length > 0 || dependedOnIds.has(task._id),
-    );
-
-    if (filteredTasks.length === 0) return;
-
-    const nodes = new DataSet(
-      filteredTasks.map(task => ({
-        id: task._id,
-        label: `${task.name}\n(Priority: ${task.priority})`,
-        shape: 'box',
-        color: {
-          background: getPriorityColor(task.priority),
-          border: '#000',
-        },
-        font: { color: '#fff' },
-        title: `Task: ${task.name}\nPriority: ${task.priority}`,
-      })),
-    );
-
-    const edges = new DataSet(
-      filteredTasks.flatMap((task, index) =>
-        task.dependentTasks.map((dep: DatabaseTask) => ({
-          id: `edge-${index}-${dep._id}-${task._id}`,
-          from: dep._id,
-          to: task._id,
-          arrows: 'to',
-          width: 2,
-          smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
-        })),
-      ),
-    );
-
-    networkRef.current = new Network(
-      containerRef.current,
-      { nodes, edges },
-      {
-        layout: {
-          hierarchical: {
-            enabled: true,
-            direction: 'DU',
-            sortMethod: 'directed',
-            levelSeparation: 150,
-            nodeSpacing: 200,
-            treeSpacing: 200,
-          },
-        },
-        physics: false,
-        edges: {
-          arrows: { to: { enabled: true, scaleFactor: 1.2 } },
-          color: '#000',
-        },
-        nodes: {
-          shape: 'box',
-          size: 20,
-        },
-        interaction: { dragView: true, zoomView: true },
-      },
-    );
-  }, [tasks]);
+    // eslint-disable-next-line consistent-return
+    return () => cancelAnimationFrame(frameId); // cleanup
+  }, [tasks, onTaskClick]);
 
   return (
     <div className='p-4 bg-white rounded-lg shadow'>

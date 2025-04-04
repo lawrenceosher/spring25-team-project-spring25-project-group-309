@@ -6,11 +6,17 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import RoadmapGraph from '../components/Roadmap/RoadmapGraph';
 import RoadmapHeader from '../components/RoadmapHeader/RoadmapHeader';
+import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
 import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { setSelectedTask } from '../../../redux/selectTask/selectTaskReducer';
+import { DatabaseClientTask } from '../../../types/clientTypes/task';
 
 export default function RoadmapGraphPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
   const { errorMessage } = useSelector((state: any) => state.errorReducer);
+  const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
+    (state: any) => state.selectTaskReducer,
+  );
 
   const [filteredTasks, setFilteredTasksState] = useState<PopulatedDatabaseTask[]>([]);
 
@@ -39,8 +45,15 @@ export default function RoadmapGraphPage() {
     }
   }, [allTasks, setFilteredTasks]);
 
-  // SAFELY EXTRACT USERS FROM POPULATED MEMBERS
   const projectUsers = useMemo(() => project?.assignedUsers ?? [], [project?.assignedUsers]);
+
+  const handleTaskClick = useCallback(
+    (taskId: string) => {
+      const task = allTasks.find(t => t._id.toString() === taskId);
+      if (task) dispatch(setSelectedTask(task));
+    },
+    [allTasks, dispatch],
+  );
 
   if (!project) return null;
 
@@ -63,12 +76,28 @@ export default function RoadmapGraphPage() {
         allTasks={allTasks}
         setFilteredTasks={setFilteredTasks}
       />
+
       {errorMessage && (
         <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
           <Alert.Heading>{errorMessage}</Alert.Heading>
         </Alert>
       )}
-      <RoadmapGraph tasks={filteredTasks} />
+
+      <div className='d-flex gap-3 mt-3'>
+        <div className='flex-grow-1'>
+          <RoadmapGraph tasks={filteredTasks} onTaskClick={handleTaskClick} />
+        </div>
+
+        {selectedTask && (
+          <div style={{ width: '28rem' }}>
+            <TaskDetailsCard
+              handleShowDeleteTaskModal={() => {}}
+              handleShowTaskUpdateModal={() => {}}
+              setTaskForModal={() => {}}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
