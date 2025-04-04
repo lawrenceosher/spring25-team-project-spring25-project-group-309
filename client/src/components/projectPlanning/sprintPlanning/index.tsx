@@ -3,6 +3,7 @@ import './index.css';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Spinner } from 'react-bootstrap';
+import { DndContext, MouseSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { PopulatedDatabaseSprint, Project } from '../../../types/types';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCreationModal from '../components/SprintModals/SprintCreationModal';
@@ -19,9 +20,10 @@ import useUsersListPage from '../../../hooks/useUsersListPage';
 import { createProject, getProjectsByUser } from '../../../services/projectService';
 import useUserContext from '../../../hooks/useUserContext';
 import CreateProjectForm from '../components/CreateProjectForm/CreateProjectForm';
-import { setProject } from '../../../redux/projectReducer/projectReducer';
+import { setProject, updateTaskInProject } from '../../../redux/projectReducer/projectReducer';
 import { clearErrorMessage, setErrorMessage } from '../../../redux/errorReducer/errorReducer';
 import { DatabaseClientTask } from '../../../types/clientTypes/task';
+import { updateTask } from '../../../services/taskService';
 
 export default function SprintPlanningPage() {
   const {
@@ -65,12 +67,64 @@ export default function SprintPlanningPage() {
   });
   const dispatch = useDispatch();
 
+  const mouseSensor = useSensor(MouseSensor, {
+    // Require the mouse to move by 10 pixels before activating
+    activationConstraint: {
+      distance: 10,
+    },
+  });
+  const sensors = useSensors(mouseSensor);
+
   const handleCreateProject = async (proj: Project) => {
     try {
       const result = await createProject(proj);
       dispatch(setProject(result));
     } catch (error) {
       dispatch(setErrorMessage(`Error creating project`));
+    }
+  };
+
+  const handleTaskUpdateOnDragEnd = async (event: any) => {
+    const taskId = event.active.id;
+
+    const correspondingTask = [
+      ...project.sprints.flatMap((sprint: PopulatedDatabaseSprint) => sprint.tasks),
+      ...project.backlogTasks,
+    ].find((task: any) => task._id === taskId);
+
+    if (!correspondingTask) {
+      return;
+    }
+
+    if (event.over && event.over.id === 'Backlog') {
+      if (!correspondingTask.sprint) {
+        // Already in the backlog, no need to update
+        return;
+      }
+
+      const taskToUpdate: DatabaseClientTask = {
+        ...correspondingTask,
+        sprint: null,
+      };
+      const updatedTask = await updateTask(taskToUpdate._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: updatedTask._id.toString(), updatedTask }));
+      const updatedProject = await getProjectsByUser(updatedTask.assignedUser);
+      dispatch(setProject(updatedProject[0]));
+    } else if (event.over && event.over.id !== 'Backlog') {
+      if (correspondingTask.sprint === event.over.id) {
+        // Already in the same sprint, no need to update
+        return;
+      }
+
+      const taskToUpdate: DatabaseClientTask = {
+        ...correspondingTask,
+        sprint: event.over.id,
+      };
+
+      const updatedTask = await updateTask(taskToUpdate._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: updatedTask._id.toString(), updatedTask }));
+      const updatedProject = await getProjectsByUser(updatedTask.assignedUser);
+      dispatch(setProject(updatedProject[0]));
     }
   };
 
@@ -157,24 +211,26 @@ export default function SprintPlanningPage() {
       {/* Sprints and Backlog */}
       <div className='mt-4 d-flex'>
         <div id='sprints'>
-          {project.sprints.length === 0 ? (
-            <div className='text-muted flex-fill fs-2 mb-2'>
-              No sprints created yet. Click Create Sprint to begin sprint planning.
-            </div>
-          ) : (
-            <div className='flex-fill'>
-              {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
-                <SprintListGroup
-                  key={sprint._id.toString()}
-                  sprint={sprint}
-                  handleShowSprintUpdateModal={handleShowSprintUpdateModal}
-                  handleShowDeleteSprintModal={handleShowDeleteSprintModal}
-                  setSprintForModal={setSprintForModal}
-                />
-              ))}
-            </div>
-          )}
-          <Backlog backlog={project.backlogTasks} />
+          <DndContext onDragEnd={handleTaskUpdateOnDragEnd} sensors={sensors}>
+            {project.sprints.length === 0 ? (
+              <div className='text-muted flex-fill fs-2 mb-2'>
+                No sprints created yet. Click Create Sprint to begin sprint planning.
+              </div>
+            ) : (
+              <div className='flex-fill'>
+                {project.sprints.map((sprint: PopulatedDatabaseSprint) => (
+                  <SprintListGroup
+                    key={sprint._id.toString()}
+                    sprint={sprint}
+                    handleShowSprintUpdateModal={handleShowSprintUpdateModal}
+                    handleShowDeleteSprintModal={handleShowDeleteSprintModal}
+                    setSprintForModal={setSprintForModal}
+                  />
+                ))}
+              </div>
+            )}
+            <Backlog backlog={project.backlogTasks} />
+          </DndContext>
         </div>
 
         {/* Task Details */}
