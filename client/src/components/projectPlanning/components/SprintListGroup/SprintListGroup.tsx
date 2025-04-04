@@ -3,6 +3,7 @@ import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
 import { VscDebugStart } from 'react-icons/vsc';
 import { useDispatch } from 'react-redux';
+import { useDroppable } from '@dnd-kit/core';
 import { PopulatedDatabaseSprint } from '../../../../types/types';
 import TaskListItem from '../TaskListItem/TaskListItem';
 import { getFullDate, getStatusColor } from '../../../../tool';
@@ -24,6 +25,13 @@ export default function SprintListGroup({
   const totalSprintTaskPoints = sprint.tasks.reduce((points, task) => points + task.taskPoints, 0);
 
   const dispatch = useDispatch();
+
+  const { isOver, setNodeRef } = useDroppable({
+    id: sprint._id.toString(),
+  });
+  const style = {
+    color: isOver ? 'green' : undefined,
+  };
 
   const handleStartSprint = async () => {
     try {
@@ -63,7 +71,7 @@ export default function SprintListGroup({
             />
           </div>
         </div>
-        <ListGroup className='rounded-0'>
+        <ListGroup className='rounded-0' ref={setNodeRef} style={style}>
           {sprint.tasks.map(task => (
             <TaskListItem key={task._id} task={task} />
           ))}

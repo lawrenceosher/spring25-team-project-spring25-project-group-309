@@ -68,10 +68,8 @@ export default function TaskDetailsCard({
           <span>Relevant Fake Stack Overflow Questions:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.relevantQuestions.map((question: any) => (
-              <ListGroup.Item
-                key={question._id?.toString() || question.toString()}
-                className='bg-transparent p-1'>
-                <NavLink to={`/question/${question._id?.toString() || question}`}>
+              <ListGroup.Item key={question._id} className='bg-transparent p-1'>
+                <NavLink to={`/question/${question}`}>
                   {qlist.find((q: any) => q._id === question._id)?.title || 'Question not found'}
                 </NavLink>
               </ListGroup.Item>
@@ -85,9 +83,7 @@ export default function TaskDetailsCard({
           <span>Task Dependencies:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.dependentTasks.map((dependentTask: any) => (
-              <ListGroup.Item
-                key={dependentTask._id?.toString() || dependentTask.toString()}
-                className='bg-transparent p-1'>
+              <ListGroup.Item key={dependentTask._id} className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
                   (task: any) =>
                     task._id.toString() ===
@@ -104,9 +100,7 @@ export default function TaskDetailsCard({
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.prereqTasks.map((preReqTask: any) => (
-              <ListGroup.Item
-                key={preReqTask._id?.toString() || preReqTask.toString()}
-                className='bg-transparent p-1'>
+              <ListGroup.Item key={preReqTask._id} className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
                   (task: any) =>
                     task._id.toString() === (preReqTask._id?.toString() || preReqTask.toString()),
