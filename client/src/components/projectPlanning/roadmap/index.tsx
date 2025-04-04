@@ -83,20 +83,22 @@ export default function RoadmapGraphPage() {
         </Alert>
       )}
 
-      <div className='d-flex gap-3 mt-3'>
+      <div className='d-flex gap-3 mt-3' style={{ contain: 'layout style' }}>
         <div className='flex-grow-1'>
           <RoadmapGraph tasks={filteredTasks} onTaskClick={handleTaskClick} />
         </div>
 
-        {selectedTask && (
-          <div style={{ width: '28rem' }}>
-            <TaskDetailsCard
-              handleShowDeleteTaskModal={() => {}}
-              handleShowTaskUpdateModal={() => {}}
-              setTaskForModal={() => {}}
-            />
-          </div>
-        )}
+        <div
+          style={{
+            width: '28rem',
+            visibility: selectedTask ? 'visible' : 'hidden',
+          }}>
+          <TaskDetailsCard
+            handleShowDeleteTaskModal={() => {}}
+            handleShowTaskUpdateModal={() => {}}
+            setTaskForModal={() => {}}
+          />
+        </div>
       </div>
     </div>
   );

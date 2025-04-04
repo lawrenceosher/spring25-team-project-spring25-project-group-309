@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/no-extraneous-dependencies */
 import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
@@ -26,11 +25,8 @@ export default function TaskDetailsCard({
   );
   const { qlist } = useQuestionPage();
 
-  if (!selectedTask) {
-    return null;
-  }
+  if (!selectedTask) return null;
 
-  console.log(selectedTask);
   return (
     <Card key={selectedTask._id.toString()}>
       <Card.Body>
@@ -49,10 +45,12 @@ export default function TaskDetailsCard({
             )}
           </span>
         </Card.Title>
+
         <Card.Subtitle className='mb-2 text-muted'>
           {project.sprints.find(s => s._id.toString() === selectedTask.sprint?.toString())?.name ||
             'Backlog'}
         </Card.Subtitle>
+
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
           Assigned To: {selectedTask.assignedUser}
@@ -61,16 +59,19 @@ export default function TaskDetailsCard({
         <Card.Subtitle className='mb-2 text-muted'>
           Task Points: {selectedTask.taskPoints}
         </Card.Subtitle>
+
         <Card.Text>{selectedTask.description}</Card.Text>
       </Card.Body>
 
-      {selectedTask.relevantQuestions && selectedTask.relevantQuestions.length > 0 && (
+      {selectedTask.relevantQuestions?.length > 0 && (
         <Card.Footer>
           <span>Relevant Fake Stack Overflow Questions:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.relevantQuestions.map((question: any) => (
-              <ListGroup.Item key={question} className='bg-transparent p-1'>
-                <NavLink to={`/question/${question}`}>
+              <ListGroup.Item
+                key={question._id?.toString() || question.toString()}
+                className='bg-transparent p-1'>
+                <NavLink to={`/question/${question._id?.toString() || question}`}>
                   {qlist.find((q: any) => q._id === question._id)?.title || 'Question not found'}
                 </NavLink>
               </ListGroup.Item>
@@ -79,12 +80,14 @@ export default function TaskDetailsCard({
         </Card.Footer>
       )}
 
-      {selectedTask.dependentTasks && selectedTask.dependentTasks.length > 0 && (
+      {selectedTask.dependentTasks?.length > 0 && (
         <Card.Footer>
           <span>Task Dependencies:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.dependentTasks.map((dependentTask: any) => (
-              <ListGroup.Item key={dependentTask} className='bg-transparent p-1'>
+              <ListGroup.Item
+                key={dependentTask._id?.toString() || dependentTask.toString()}
+                className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
                   (task: any) =>
                     task._id.toString() ===
@@ -96,12 +99,14 @@ export default function TaskDetailsCard({
         </Card.Footer>
       )}
 
-      {selectedTask.prereqTasks && selectedTask.prereqTasks.length > 0 && (
+      {selectedTask.prereqTasks?.length > 0 && (
         <Card.Footer>
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
             {selectedTask.prereqTasks.map((preReqTask: any) => (
-              <ListGroup.Item key={preReqTask} className='bg-transparent p-1'>
+              <ListGroup.Item
+                key={preReqTask._id?.toString() || preReqTask.toString()}
+                className='bg-transparent p-1'>
                 {[...project.sprints.flatMap(sprint => sprint.tasks), ...project.backlogTasks].find(
                   (task: any) =>
                     task._id.toString() === (preReqTask._id?.toString() || preReqTask.toString()),
