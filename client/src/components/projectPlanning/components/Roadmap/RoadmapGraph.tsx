@@ -81,16 +81,19 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
           layout: {
             hierarchical: {
               enabled: true,
-              direction: 'UD',
-              sortMethod: 'directed',
-              levelSeparation: 150,
-              nodeSpacing: 120,
-              treeSpacing: 200,
+              direction: 'DU',
+              sortMethod: 'hubsize',
+              levelSeparation: 250,
+              nodeSpacing: 250,
+              treeSpacing: 250,
             },
           },
-          physics: false,
+          physics: {
+            enabled: false,
+          },
           edges: {
             arrows: { to: { enabled: true, scaleFactor: 1.2 } },
+            smooth: { enabled: true, type: 'straightCross', roundness: 0 },
             color: '#000',
           },
           nodes: {
@@ -103,6 +106,12 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
           },
         },
       );
+
+      // Fit to viewport
+      network.fit({
+        animation: true,
+        minZoomLevel: 0.1,
+      });
 
       networkRef.current = network;
 
