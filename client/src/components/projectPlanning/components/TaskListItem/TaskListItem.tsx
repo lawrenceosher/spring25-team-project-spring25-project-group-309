@@ -11,7 +11,7 @@ export default function TaskListItem({ task }: { task: PopulatedDatabaseTask }) 
   const dispatch = useDispatch();
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: task._id,
+    id: task._id.toString(),
   });
 
   const style = transform
