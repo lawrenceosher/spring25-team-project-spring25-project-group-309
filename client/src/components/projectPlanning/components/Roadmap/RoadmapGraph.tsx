@@ -87,9 +87,6 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
         }
       });
     });
-
-    // eslint-disable-next-line consistent-return
-    return () => cancelAnimationFrame(frameId); // cleanup
   }, [tasks, onTaskClick]);
 
   return (

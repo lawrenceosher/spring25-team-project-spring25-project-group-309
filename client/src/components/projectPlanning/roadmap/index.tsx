@@ -85,7 +85,13 @@ export default function RoadmapGraphPage() {
 
       <div className='d-flex gap-3 mt-3' style={{ contain: 'layout style' }}>
         <div className='flex-grow-1'>
-          <RoadmapGraph tasks={filteredTasks} onTaskClick={handleTaskClick} />
+          {filteredTasks.length === 0 ? (
+            <div className='text-center text-muted fs-5 mt-4'>
+              No tasks found for the selected sprint or user.
+            </div>
+          ) : (
+            <RoadmapGraph tasks={filteredTasks} onTaskClick={handleTaskClick} />
+          )}
         </div>
 
         <div
