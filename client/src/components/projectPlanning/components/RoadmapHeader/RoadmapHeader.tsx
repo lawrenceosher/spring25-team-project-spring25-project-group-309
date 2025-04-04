@@ -21,19 +21,19 @@ export default function RoadmapHeader({
   const filteredTasks = useMemo(() => {
     if (!Array.isArray(sprints) || !Array.isArray(users) || !Array.isArray(allTasks)) return [];
 
-    let filtered = allTasks;
+    let tasksAfterFilters = allTasks;
 
     if (selectedSprintId !== '') {
       const sprint = sprints.find(s => s._id.toString() === selectedSprintId);
       const sprintTaskIds = sprint?.tasks.map(t => t._id) ?? [];
-      filtered = filtered.filter(task => sprintTaskIds.includes(task._id));
+      tasksAfterFilters = tasksAfterFilters.filter(task => sprintTaskIds.includes(task._id));
     }
 
     if (selectedUser !== '') {
-      filtered = filtered.filter(task => task.assignedUser === selectedUser);
+      tasksAfterFilters = tasksAfterFilters.filter(task => task.assignedUser === selectedUser);
     }
 
-    return filtered;
+    return tasksAfterFilters;
   }, [selectedSprintId, selectedUser, allTasks, sprints, users]);
 
   useEffect(() => {
