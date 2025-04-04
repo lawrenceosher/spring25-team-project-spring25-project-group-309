@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { PopulatedDatabaseSprint } from '@fake-stack-overflow/shared';
+import { DndContext } from '@dnd-kit/core';
 import KanbanBoardHeader from '../components/KanbanBoardHeader/KanbanBoardHeader';
 import ProgressColumn from '../components/ProgressColumn/ProgressColumn';
 import BacklogColumn from '../components/ProgressColumn/BacklogColumn';
@@ -11,6 +12,10 @@ import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCompletionModal from '../components/SprintModals/SprintCompletionModal';
 import useKanbanBoardPage from '../../../hooks/useKanbanBoardPage';
 import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { setProject, updateTaskInProject } from '../../../redux/projectReducer/projectReducer';
+import { getProjectsByUser } from '../../../services/projectService';
+import { updateTask } from '../../../services/taskService';
+import { DatabaseClientTask } from '../../../types/clientTypes/task';
 
 export default function KanbanBoardPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
@@ -77,6 +82,57 @@ export default function KanbanBoardPage() {
     }
   }
 
+  const handleTaskStatusUpdate = async (event: any) => {
+    if (event.over && event.over.id === 'Backlog') {
+      const taskId = event.active.id;
+
+      let correspondingTask = activeSprint?.tasks.find((task: any) => task._id === taskId);
+      if (!correspondingTask) {
+        correspondingTask = project.backlogTasks.find((task: any) => task._id === taskId);
+      }
+
+      if (!correspondingTask.sprint) {
+        return;
+      }
+
+      const taskToUpdate: DatabaseClientTask = {
+        ...activeSprint?.tasks.find((task: any) => task._id === taskId),
+        sprint: null,
+      };
+      const updatedTask = await updateTask(taskToUpdate._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: updatedTask._id.toString(), updatedTask }));
+      const updatedProject = await getProjectsByUser(updatedTask.assignedUser);
+      dispatch(setProject(updatedProject[0]));
+    } else if (event.over && event.over.id !== 'Backlog') {
+      const taskId = event.active.id;
+
+      let correspondingTask = activeSprint?.tasks.find((task: any) => task._id === taskId);
+      if (!correspondingTask) {
+        correspondingTask = project.backlogTasks.find((task: any) => task._id === taskId);
+      }
+
+      let taskToUpdate: DatabaseClientTask;
+
+      if (correspondingTask.sprint) {
+        taskToUpdate = {
+          ...correspondingTask,
+          status: event.over.id,
+        };
+      } else {
+        taskToUpdate = {
+          ...correspondingTask,
+          sprint: activeSprint?._id.toString(),
+          status: event.over.id,
+        };
+      }
+
+      const updatedTask = await updateTask(taskToUpdate._id.toString(), taskToUpdate);
+      dispatch(updateTaskInProject({ taskId: updatedTask._id.toString(), updatedTask }));
+      const updatedProject = await getProjectsByUser(updatedTask.assignedUser);
+      dispatch(setProject(updatedProject[0]));
+    }
+  };
+
   return (
     <div className='p-3'>
       <KanbanBoardHeader
@@ -106,12 +162,14 @@ export default function KanbanBoardPage() {
 
       <Container className='bg-transparent mt-3' fluid>
         <Row>
-          <BacklogColumn projectBacklog={project.backlogTasks} />
+          <DndContext onDragEnd={handleTaskStatusUpdate}>
+            <BacklogColumn projectBacklog={project.backlogTasks} />
 
-          {/* Progress Columns */}
-          {progressColumns.map((status: string) => (
-            <ProgressColumn key={status} sprint={activeSprint} column={status} />
-          ))}
+            {/* Progress Columns */}
+            {progressColumns.map((status: string) => (
+              <ProgressColumn key={status} sprint={activeSprint} column={status} />
+            ))}
+          </DndContext>
         </Row>
       </Container>
     </div>
