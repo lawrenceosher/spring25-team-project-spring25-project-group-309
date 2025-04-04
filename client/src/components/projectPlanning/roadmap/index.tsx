@@ -1,22 +1,25 @@
-import { Alert, Container, Row } from 'react-bootstrap';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { PopulatedDatabaseSprint, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
 import RoadmapGraph from '../components/Roadmap/RoadmapGraph';
-import { RoadmapGraphProps } from '../../../types/clientTypes/task';
+import RoadmapHeader from '../components/RoadmapHeader/RoadmapHeader';
 import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
 
 export default function RoadmapGraphPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { project } = useSelector((state: any) => state.projectReducer);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { errorMessage } = useSelector((state: any) => state.errorReducer);
-  const [activeSprint, setActiveSprint] = useState<PopulatedDatabaseSprint | null>(null);
+
+  const [filteredTasks, setFilteredTasksState] = useState<PopulatedDatabaseTask[]>([]);
 
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
+
+  const setFilteredTasks = useCallback((tasks: PopulatedDatabaseTask[]) => {
+    setFilteredTasksState(tasks);
+  }, []);
 
   useEffect(() => {
     if (!project) {
@@ -24,22 +27,19 @@ export default function RoadmapGraphPage() {
     }
   }, [navigate, project]);
 
-  useEffect(() => {
-    if (project && project.sprints.length > 0) {
-      const currentSprint = project.sprints.find(
-        (sprint: PopulatedDatabaseSprint) => sprint.status === 'In Progress',
-      );
-      if (currentSprint) {
-        setActiveSprint(currentSprint);
-      }
-    }
-  }, [activeSprint, project]);
+  const allTasks = useMemo(
+    () => (project?.sprints ?? []).flatMap((s: PopulatedDatabaseSprint) => s.tasks),
+    [project?.sprints],
+  );
 
-  if (!project) {
-    return null;
-  }
-  console.log('Project:', project);
-  console.log('Sprints:', project.sprints);
+  useEffect(() => {
+    if (allTasks.length > 0) {
+      setFilteredTasks(allTasks);
+    }
+  }, [allTasks, setFilteredTasks]);
+
+  if (!project) return null;
+
   if (project.sprints.length === 0) {
     return (
       <div className='p-3'>
@@ -50,24 +50,15 @@ export default function RoadmapGraphPage() {
     );
   }
 
-  if (project && project.sprints.length !== 0) {
-    const activeSprintIndex = project.sprints.findIndex(
-      (sprint: PopulatedDatabaseSprint) => sprint.status === 'In Progress',
-    );
-    if (activeSprintIndex === -1) {
-      return (
-        <div className='p-3'>
-          <h2 className='text-center text-muted'>
-            No Active Sprint Available. Please start a sprint in Sprint Planning.
-          </h2>
-        </div>
-      );
-    }
-  }
-
   return (
     <div className='p-3'>
-      <h1 className='text-2x1 font-bold mb-3'>Task Dependency Roadmap</h1>
+      <RoadmapHeader
+        projectName={project.name}
+        sprints={project.sprints}
+        users={(project.members ?? []).map((m: { username: string }) => m.username)}
+        allTasks={allTasks}
+        setFilteredTasks={setFilteredTasks}
+      />
 
       {errorMessage && (
         <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
@@ -75,7 +66,7 @@ export default function RoadmapGraphPage() {
         </Alert>
       )}
 
-      {activeSprint && <RoadmapGraph tasks={activeSprint.tasks as PopulatedDatabaseTask[]} />}
+      <RoadmapGraph tasks={filteredTasks} />
     </div>
   );
 }
