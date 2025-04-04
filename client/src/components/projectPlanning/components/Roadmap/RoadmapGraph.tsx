@@ -92,7 +92,15 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
   return (
     <div className='p-4 bg-white rounded-lg shadow'>
       <h2 className='text-xl font-bold mb-4'>Task Dependency Roadmap</h2>
-      <div ref={containerRef} style={{ height: '500px', border: '1px solid #ddd' }} />
+      <div
+        ref={containerRef}
+        style={{
+          height: '500px',
+          border: '1px solid #ddd',
+          contain: 'layout style size',
+          overflow: 'auto',
+        }}
+      />
     </div>
   );
 };
