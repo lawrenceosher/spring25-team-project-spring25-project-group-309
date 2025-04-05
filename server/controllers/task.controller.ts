@@ -5,7 +5,6 @@ import {
   TaskIdRequest,
   CreateTaskRequest,
   Task,
-  UpdateDependencyRequest,
   UpdateTaskRequest,
 } from '../types/types';
 import { deleteTaskById, getAllTasksByUser, saveTask, updateTask } from '../services/task.service';
@@ -26,9 +25,6 @@ const taskController = (socket: FakeSOSocket) => {
     !!req.body.priority &&
     !!req.body.project &&
     req.body.taskPoints !== undefined;
-
-  const isUpdateDependencyRequestValid = (req: UpdateDependencyRequest): boolean =>
-    !!req.body.taskId && !!req.body.dependentTaskIds;
 
   /**
    * Creates a new task with the given details to be saved to the database.

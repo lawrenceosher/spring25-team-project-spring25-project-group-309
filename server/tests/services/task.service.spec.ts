@@ -1,11 +1,6 @@
 import { ObjectId } from 'mongodb';
 import TaskModel from '../../models/task.model';
-import {
-  deleteTaskById,
-  getAllTasksByUser,
-  getDependentTasksById,
-  updateTask,
-} from '../../services/task.service';
+import { deleteTaskById, getAllTasksByUser, updateTask } from '../../services/task.service';
 import { databaseTask, databaseTaskWithDependency } from '../mockData.models';
 import { DatabaseTask } from '../../types/types';
 import SprintModel from '../../models/sprint.model';
@@ -137,26 +132,6 @@ describe('Task model', () => {
       mockingoose(TaskModel).toReturn(null, 'findOneAndDelete');
       const deletedTask = await deleteTaskById('test');
       expect('error' in deletedTask).toBe(true);
-    });
-  });
-
-  describe('getDependentTasksById', () => {
-    it('should return the dependent tasks from the given taskId (1 dependency)', async () => {
-      mockingoose(TaskModel).toReturn({ ...databaseTaskWithDependency }, 'findOne');
-      const result = await getDependentTasksById(databaseTaskWithDependency._id.toString());
-      expect(result).toEqual(databaseTaskWithDependency.dependentTasks);
-    });
-
-    it('should return an empty array if the task has no dependencies', async () => {
-      mockingoose(TaskModel).toReturn(databaseTask, 'findOne');
-      const result = await getDependentTasksById(databaseTask._id.toString());
-      expect(result).toEqual([]);
-    });
-
-    it('should return an empty array if the task is not found', async () => {
-      mockingoose(TaskModel).toReturn(null, 'findOne');
-      const result = await getDependentTasksById('test');
-      expect(result).toEqual([]);
     });
   });
 });

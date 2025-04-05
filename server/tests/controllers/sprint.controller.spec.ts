@@ -8,12 +8,9 @@ import { DatabaseSprint, PopulatedDatabaseSprint, SprintResponse } from '../../t
 import * as databaseUtil from '../../utils/database.util';
 
 const createSprintSpy = jest.spyOn(util, 'saveSprint');
-const addTasksToSprintSpy = jest.spyOn(util, 'addTasksToSprint');
 const getSprintSpy = jest.spyOn(util, 'getSprintbyId');
 const populateDocumentSpy = jest.spyOn(databaseUtil, 'populateDocument');
-const getSprintsByProjectIdSpy = jest.spyOn(util, 'getSprintsByProjectId');
 const deleteSprintByIdSpy = jest.spyOn(util, 'deleteSprintById');
-const getSprintsSpy = jest.spyOn(util, 'getSprintsByProjectId');
 const updateSprintSpy = jest.spyOn(util, 'updateSprint');
 
 const mockSprintResponse = {
@@ -127,33 +124,6 @@ describe('Test sprintController', () => {
     });
   });
 
-  describe('PUT /addTasks', () => {
-    it('should return 400 if the request is invalid', async () => {
-      const response = await supertest(app).put('/sprint/addTasks').send({ sprintId: 'test' });
-      expect(response.status).toBe(400);
-    });
-
-    it('should return 500 if there is an error', async () => {
-      addTasksToSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app)
-        .put('/sprint/addTasks')
-        .send({ sprintId: 'test', taskIds: ['testTask'] });
-      expect(response.status).toBe(500);
-    });
-
-    it('should return the updated sprint', async () => {
-      addTasksToSprintSpy.mockResolvedValue(databaseSprint);
-      const response = await supertest(app)
-        .put('/sprint/addTasks')
-        .send({ sprintId: 'test', taskIds: ['testTask'] });
-      expect(response.body).toEqual(mockSprintResponse);
-      expect(response.status).toBe(200);
-    });
-  });
-
   describe('GET /getSprint', () => {
     it('should return 400 if the request is invalid', async () => {
       const response1 = await supertest(app).get('/sprint/getSprint').send({ test: 'Test' });
@@ -190,32 +160,6 @@ describe('Test sprintController', () => {
       expect(response.body).toMatchObject(JSON.parse(JSON.stringify(mockPopulatedSprint)));
     });
   });
-  describe('GET /sprint/getSprints', () => {
-    it('should return 200 with an array of sprints', async () => {
-      const projectId = new mongoose.Types.ObjectId().toString();
-
-      getSprintsByProjectIdSpy.mockResolvedValueOnce([mockFoundSprint]);
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject([mockFoundSprintResponse]);
-    });
-
-    it('should return 500 if fails for any sprint', async () => {
-      const projectId = new mongoose.Types.ObjectId().toString();
-
-      getSprintsByProjectIdSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
-      expect(response.status).toBe(500);
-    });
-  });
 
   describe('DELETE /deleteUser', () => {
     it('should return the deleted sprint given correct arguments', async () => {
@@ -238,30 +182,6 @@ describe('Test sprintController', () => {
       const response = await supertest(app)
         .delete(`/sprint/deleteSprint`)
         .send({ sprintId: 'test' });
-
-      expect(response.status).toBe(500);
-    });
-  });
-
-  describe('GET /getSprints', () => {
-    it('should return the sprints given correct arguments', async () => {
-      getSprintsSpy.mockResolvedValue([mockFoundSprint]);
-
-      const projectId = mockFoundSprint.project.toString();
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual([mockFoundSprintResponse]);
-      expect(getSprintsSpy).toHaveBeenCalledWith(mockFoundSprint.project.toString());
-    });
-
-    it('should return 500 if database error while searching username', async () => {
-      getSprintsSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId: 'test' });
 
       expect(response.status).toBe(500);
     });

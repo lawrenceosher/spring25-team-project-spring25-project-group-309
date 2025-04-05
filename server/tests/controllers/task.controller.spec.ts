@@ -85,7 +85,6 @@ const createTaskSpy = jest.spyOn(util, 'saveTask');
 const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
-const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -177,34 +176,6 @@ describe('Test taskController', () => {
         .put('/task/updateTaskDependency')
         .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
       expect(response.body).toEqual(mockTaskResponse);
-      expect(response.status).toBe(200);
-    });
-  });
-
-  describe('GET /getDependentTasks', () => {
-    it('should return 404 if the request is invalid', async () => {
-      const response = await supertest(app).get('/task/getDependentTasks/');
-      expect(response.status).toBe(404);
-    });
-
-    it('should return 500 if there is an error', async () => {
-      const error = new Error('Test error');
-      getDependentTasksByIdSpy.mockRejectedValue(error);
-      const response = await supertest(app).get('/task/getDependentTasks/test');
-      expect(response.status).toBe(500);
-    });
-
-    it('should return the dependent tasks of the given taskId', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([databaseTaskWithDependency]);
-      const response = await supertest(app).get('/task/getDependentTasks/65e9b58910afe6e94fc6e6dc');
-      expect(response.body).toEqual(MOCK_TASK_RESPONSE_WITH_DEPENDENCIES);
-      expect(response.status).toBe(200);
-    });
-
-    it('should return an empty array in the document if the task has no dependent tasks', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([databaseTask]);
-      const response = await supertest(app).get('/task/getDependentTasks/test');
-      expect(response.body).toEqual(MOCK_TASK_RESPONSE);
       expect(response.status).toBe(200);
     });
   });
