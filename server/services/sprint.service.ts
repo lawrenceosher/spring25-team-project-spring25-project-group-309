@@ -35,36 +35,6 @@ export const saveSprint = async (sprint: Sprint): Promise<SprintResponse> => {
 };
 
 /**
- * Gets all sprints that match a specific criteria.
- * @param criteria The provided criteria to filter by
- * @returns A list of sprints or an error message.
- */
-const getSprintsByCriteria = async (criteria: object): Promise<SprintResponse[]> => {
-  try {
-    const sprints = await SprintModel.find(criteria);
-    return sprints;
-  } catch (error) {
-    return [{ error: 'Error when getting sprints' }];
-  }
-};
-
-/**
- * Gets all sprints associated with a specific project.
- * @param projectId The ID of the project to get sprints for.
- * @returns A list of sprints or an error message.
- */
-export const getSprintsByProjectId = async (projectId: string): Promise<SprintResponse[]> =>
-  getSprintsByCriteria({ project: projectId });
-
-/**
- * Gets all sprints with a specific status.
- * @param status The status to filter sprints by.
- * @returns A list of sprints or an error message.
- */
-export const getSprintsByStatus = async (status: string): Promise<SprintResponse[]> =>
-  getSprintsByCriteria({ status });
-
-/**
  * Updates a sprint with new information.
  * @param sprintId The ID of the sprint to update.
  * @param updates The new information to update the sprint with.
@@ -82,31 +52,6 @@ export const updateSprint = async (
     return updatedSprint;
   } catch (error) {
     return { error: 'Error when updating a sprint' };
-  }
-};
-
-/**
- * Adds a lists of tasks to a sprint.
- * @param sprintId The spring to add the tasks to.
- * @param taskIds The list of tasks to add to the sprint.
- * @returns The updated sprint or an error message.
- */
-export const addTasksToSprint = async (
-  sprintId: string,
-  taskIds: string[],
-): Promise<SprintResponse> => {
-  try {
-    const updatedSprint = await SprintModel.findOneAndUpdate(
-      { _id: new ObjectId(sprintId) },
-      { $addToSet: { tasks: { $each: taskIds } } },
-      { new: true },
-    ).lean();
-    if (!updatedSprint) {
-      throw new Error('Sprint not found');
-    }
-    return updatedSprint;
-  } catch (error) {
-    return { error: 'Error updating sprint' };
   }
 };
 

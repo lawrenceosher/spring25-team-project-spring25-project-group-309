@@ -3,7 +3,7 @@ import TaskModel from '../models/task.model';
 import ProjectModel from '../models/project.model';
 import { updateProject } from './project.service';
 
-import { DatabaseTask, Task, TaskResponse } from '../types/types';
+import { Task, TaskResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
 
 /**
