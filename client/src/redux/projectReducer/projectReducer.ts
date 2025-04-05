@@ -167,6 +167,24 @@ const projectSlice = createSlice({
         };
       }
     },
+
+    filterTasksBySprint: (state, { payload: { sprintId } }: { payload: { sprintId: string } }) => {
+      if (state.project) {
+        const filteredSprints = state.project.sprints.filter(
+          (sprint: PopulatedDatabaseSprint) => sprint._id.toString() === sprintId,
+        );
+
+        const filteredBacklogTasks = state.project.backlogTasks.filter(
+          (task: PopulatedDatabaseTask) => task.sprint?.toString() === sprintId,
+        );
+
+        state.project = {
+          ...state.project,
+          backlogTasks: filteredBacklogTasks,
+          sprints: filteredSprints,
+        };
+      }
+    },
   },
 });
 
@@ -181,5 +199,6 @@ export const {
   updateSprintInProject,
   startSprintReducer,
   filterTasksByUser,
+  filterTasksBySprint,
 } = projectSlice.actions;
 export default projectSlice.reducer;

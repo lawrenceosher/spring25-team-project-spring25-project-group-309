@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/no-extraneous-dependencies */
 import { Card, ListGroup } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
 import { FaPencil } from 'react-icons/fa6';
@@ -26,9 +25,7 @@ export default function TaskDetailsCard({
   );
   const { qlist } = useQuestionPage();
 
-  if (!selectedTask) {
-    return null;
-  }
+  if (!selectedTask) return null;
 
   return (
     <Card key={selectedTask._id.toString()}>
@@ -48,10 +45,12 @@ export default function TaskDetailsCard({
             )}
           </span>
         </Card.Title>
+
         <Card.Subtitle className='mb-2 text-muted'>
           {project.sprints.find(s => s._id.toString() === selectedTask.sprint?.toString())?.name ||
             'Backlog'}
         </Card.Subtitle>
+
         <Card.Subtitle className='mb-2 text-muted'>Priority: {selectedTask.priority}</Card.Subtitle>
         <Card.Subtitle className='mb-2 text-muted'>
           Assigned To: {selectedTask.assignedUser}
@@ -60,10 +59,11 @@ export default function TaskDetailsCard({
         <Card.Subtitle className='mb-2 text-muted'>
           Task Points: {selectedTask.taskPoints}
         </Card.Subtitle>
+
         <Card.Text>{selectedTask.description}</Card.Text>
       </Card.Body>
 
-      {selectedTask.relevantQuestions && selectedTask.relevantQuestions.length > 0 && (
+      {selectedTask.relevantQuestions?.length > 0 && (
         <Card.Footer>
           <span>Relevant Fake Stack Overflow Questions:</span>
           <ListGroup variant='flush' className='mt-2'>
@@ -78,7 +78,7 @@ export default function TaskDetailsCard({
         </Card.Footer>
       )}
 
-      {selectedTask.dependentTasks && selectedTask.dependentTasks.length > 0 && (
+      {selectedTask.dependentTasks?.length > 0 && (
         <Card.Footer>
           <span>Task Dependencies:</span>
           <ListGroup variant='flush' className='mt-2'>
@@ -95,7 +95,7 @@ export default function TaskDetailsCard({
         </Card.Footer>
       )}
 
-      {selectedTask.prereqTasks && selectedTask.prereqTasks.length > 0 && (
+      {selectedTask.prereqTasks?.length > 0 && (
         <Card.Footer>
           <span>Task Prerequisites:</span>
           <ListGroup variant='flush' className='mt-2'>
