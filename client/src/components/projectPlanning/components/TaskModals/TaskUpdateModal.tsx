@@ -65,7 +65,7 @@ export default function TaskUpdateModal({
       // 1. Ensure that every task in the new prereqTasks is finished.
       if (task.status === 'Done') {
         if (task.prereqTasks.some(prereqTask => prereqTask.status !== 'Done')) {
-          setErrorMessage('Cannot update task: All prerequisite tasks must be finished.');
+          dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
           return;
         }
       }
@@ -76,7 +76,7 @@ export default function TaskUpdateModal({
         task.prereqTasks.map(ptask => ptask._id),
       );
       if (cycleExists) {
-        setErrorMessage('Cannot update task: Dependency cycle detected in prerequisites.');
+        dispatch(setErrorMessage('Cannot update task: Dependency cycle detected in prerequisites.'));
         return;
       }
 

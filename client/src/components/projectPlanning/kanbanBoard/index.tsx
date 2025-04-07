@@ -16,6 +16,8 @@ import { setProject, updateTaskInProject } from '../../../redux/projectReducer/p
 import { getProjectsByUser } from '../../../services/projectService';
 import { updateTask, getTask } from '../../../services/taskService';
 import { DatabaseClientTask } from '../../../types/clientTypes/task';
+import { setErrorMessage } from '../../../redux/errorReducer/errorReducer';
+
 
 export default function KanbanBoardPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
@@ -175,6 +177,7 @@ export default function KanbanBoardPage() {
       // Ensure that every task in the new prereqTasks is finished.
       if (taskToUpdate.status === 'Done') {
         if (taskToUpdate.prereqTasks.some(prereqTask => prereqTask.status !== 'Done')) {
+          dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
           return;
         }
       }
@@ -185,6 +188,7 @@ export default function KanbanBoardPage() {
         taskToUpdate.prereqTasks.map(ptask => ptask._id),
       );
       if (cycleExists) {
+        dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
         return;
       }
 
