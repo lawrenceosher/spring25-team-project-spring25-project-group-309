@@ -11,13 +11,11 @@ import BacklogColumn from '../components/ProgressColumn/BacklogColumn';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCompletionModal from '../components/SprintModals/SprintCompletionModal';
 import useKanbanBoardPage from '../../../hooks/useKanbanBoardPage';
-import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { clearErrorMessage, setErrorMessage } from '../../../redux/errorReducer/errorReducer';
 import { setProject, updateTaskInProject } from '../../../redux/projectReducer/projectReducer';
 import { getProjectsByUser } from '../../../services/projectService';
 import { updateTask, getTask } from '../../../services/taskService';
 import { DatabaseClientTask } from '../../../types/clientTypes/task';
-import { setErrorMessage } from '../../../redux/errorReducer/errorReducer';
-
 
 export default function KanbanBoardPage() {
   const { project } = useSelector((state: any) => state.projectReducer);
