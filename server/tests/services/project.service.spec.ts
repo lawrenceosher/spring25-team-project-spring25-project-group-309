@@ -1,5 +1,6 @@
+import { DatabaseProject } from '../../types/types';
 import ProjectModel from '../../models/project.model';
-import { getAllProjectsByUser, saveProject } from '../../services/project.service';
+import { getAllProjectsByUser, saveProject, updateProject } from '../../services/project.service';
 import { databaseProject, project } from '../mockData.models';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -44,6 +45,30 @@ describe('Project model', () => {
       jest.spyOn(ProjectModel, 'create').mockRejectedValueOnce(new Error('DB Error'));
       const savedProject = await saveProject(project);
       expect(savedProject).toEqual({ error: 'Error when saving a project' });
+    });
+  });
+  describe('updateProject', () => {
+    beforeEach(() => {
+      mockingoose.resetAll();
+    });
+    afterEach(() => {
+      mockingoose.resetAll();
+    });
+
+    it('should return the updated project', async () => {
+      mockingoose(ProjectModel).toReturn(databaseProject, 'findOneAndUpdate');
+      const updatedProject = (await updateProject(databaseProject._id.toString(), {
+        name: 'Updated Project',
+      })) as DatabaseProject;
+      expect(updatedProject).toMatchObject(databaseProject);
+    });
+
+    it('should return an error message if the project is not updated', async () => {
+      mockingoose(ProjectModel).toReturn(null, 'findOneAndUpdate');
+      const updatedProject = await updateProject(databaseProject._id.toString(), {
+        name: 'Updated Project',
+      });
+      expect(updatedProject).toEqual({ error: 'Error when updating a project' });
     });
   });
 });

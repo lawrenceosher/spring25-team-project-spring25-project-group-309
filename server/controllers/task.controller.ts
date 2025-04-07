@@ -5,7 +5,6 @@ import {
   TaskIdRequest,
   CreateTaskRequest,
   Task,
-  UpdateDependencyRequest,
   UpdateTaskRequest,
 } from '../types/types';
 import {
@@ -16,6 +15,7 @@ import {
   updateTask,
   getTaskById,
 } from '../services/task.service';
+import { populateDocument } from '../utils/database.util';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -33,9 +33,6 @@ const taskController = (socket: FakeSOSocket) => {
     !!req.body.priority &&
     !!req.body.project &&
     req.body.taskPoints !== undefined;
-
-  const isUpdateDependencyRequestValid = (req: UpdateDependencyRequest): boolean =>
-    !!req.body.taskId && !!req.body.dependentTaskIds;
 
   /**
    * Creates a new task with the given details to be saved to the database.
@@ -85,12 +82,18 @@ const taskController = (socket: FakeSOSocket) => {
         throw new Error(savedTask.error);
       }
 
+      const populatedTask = await populateDocument(savedTask._id.toString(), 'task');
+
+      if ('error' in populatedTask) {
+        throw new Error(populatedTask.error);
+      }
+
       socket.emit('taskUpdate', {
-        task: savedTask,
+        task: populatedTask,
         type: 'created',
       });
 
-      res.status(201).json(savedTask);
+      res.status(201).json(populatedTask);
     } catch (error) {
       res.status(500).send(`Error when creating a task: ${(error as Error).message}`);
     }
@@ -109,23 +112,6 @@ const taskController = (socket: FakeSOSocket) => {
       res.status(200).json(tasks);
     } catch (error) {
       res.status(500).send(`Error when getting a task by username: ${(error as Error).message}`);
-    }
-  };
-
-  const getDependentTasks = async (req: TaskIdRequest, res: Response): Promise<void> => {
-    try {
-      const { taskId } = req.params;
-
-      const tasks = await getDependentTasksById(taskId);
-      const error = tasks.find(task => 'error' in task);
-
-      if (error) {
-        throw new Error(`${error}`);
-      }
-
-      res.status(200).json(tasks);
-    } catch (error) {
-      res.status(500).send(`Error when getting dependent tasks: ${(error as Error).message}`);
     }
   };
 
@@ -158,32 +144,8 @@ const taskController = (socket: FakeSOSocket) => {
   /**
    * Updates the dependencies of a task.
    * @param req The request containing the task ID and dependent task IDs.
-   * @param res The response.
+   * @param res The updated task.
    */
-  const updateTaskDependency = async (
-    req: UpdateDependencyRequest,
-    res: Response,
-  ): Promise<void> => {
-    if (!isUpdateDependencyRequestValid(req)) {
-      res.status(400).send('Invalid request');
-      return;
-    }
-    const { taskId, dependentTaskIds } = req.body;
-    try {
-      const updatedTask = await updateTask(taskId, { dependentTasks: dependentTaskIds });
-      if ('error' in updatedTask) {
-        throw new Error(updatedTask.error);
-      }
-      socket.emit('taskUpdate', {
-        task: updatedTask,
-        type: 'updated',
-      });
-      res.json(updatedTask);
-    } catch (error) {
-      res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
-    }
-  };
-
   const updateTaskFields = async (req: UpdateTaskRequest, res: Response): Promise<void> => {
     if (!req.body.taskId || !req.body.updates) {
       res.status(400).send('Invalid request');
@@ -195,11 +157,17 @@ const taskController = (socket: FakeSOSocket) => {
       if ('error' in updatedTask) {
         throw new Error(updatedTask.error);
       }
+
+      const populatedTask = await populateDocument(updatedTask._id.toString(), 'task');
+      if ('error' in populatedTask) {
+        throw new Error(populatedTask.error);
+      }
+
       socket.emit('taskUpdate', {
-        task: updatedTask,
+        task: populatedTask,
         type: 'updated',
       });
-      res.json(updatedTask);
+      res.json(populatedTask);
     } catch (error) {
       res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
     }
@@ -223,9 +191,7 @@ const taskController = (socket: FakeSOSocket) => {
 
   router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
-  router.put('/updateTaskDependency', updateTaskDependency);
   router.put('/updateTask', updateTaskFields);
-  router.get('/getDependentTasks/:taskId', getDependentTasks);
   router.delete('/deleteTask/:taskId', deleteTask);
   router.get('/getTask/:taskId', getTask);
   return router;

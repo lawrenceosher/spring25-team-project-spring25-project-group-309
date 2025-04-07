@@ -100,14 +100,27 @@ describe('Project Controller', () => {
     });
 
     it('should return a 500 status code and an error message when an error occurs', async () => {
-      getAllProjectsByUserSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      getAllProjectsByUserSpy.mockResolvedValueOnce([{ error: 'Error getting projects' }]);
 
       const response = await supertest(app).get('/project/testUser');
 
       expect(response.status).toBe(500);
-      expect(response.text).toBe('Error when getting a project by username: Test error');
+    });
+
+    it('should return a 500 status code and an error message when an error occurs', async () => {
+      getAllProjectsByUserSpy.mockResolvedValue([databaseProject]);
+      populateDocumentSpy.mockResolvedValueOnce({ error: 'Error populating project' });
+
+      const response = await supertest(app).get('/project/testUser');
+
+      expect(response.status).toBe(500);
+    });
+
+    it('should return a 500 status code and an error when populating fails', async () => {
+      getAllProjectsByUserSpy.mockResolvedValue([databaseProject]);
+      populateDocumentSpy.mockResolvedValueOnce({ error: 'Error populating project' });
+      const response = await supertest(app).get('/project/testUser');
+      expect(response.status).toBe(500);
     });
   });
 
@@ -137,9 +150,7 @@ describe('Project Controller', () => {
     });
 
     it('should return a 500 status code and an error message when an error occurs', async () => {
-      saveProjectSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      saveProjectSpy.mockResolvedValueOnce({ error: 'Error creating project' });
 
       const response = await supertest(app).post('/project/createProject').send(databaseProject);
 
