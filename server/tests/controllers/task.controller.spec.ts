@@ -1,7 +1,9 @@
 import supertest from 'supertest';
 import { ObjectId } from 'mongodb';
+import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared/types/task';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
+import * as dbUtil from '../../utils/database.util';
 import {
   databaseTask,
   databaseTaskWithPrereq,
@@ -85,6 +87,7 @@ const createTaskSpy = jest.spyOn(util, 'saveTask');
 const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
+const populateDocumentSpy = jest.spyOn(dbUtil, 'populateDocument');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -113,14 +116,28 @@ describe('Test taskController', () => {
     });
 
     it('should return the created task (empty arrays)', async () => {
+      const mockRepsonse: PopulatedDatabaseTask = {
+        ...databaseTask,
+        dependentTasks: [],
+        prereqTasks: [],
+        relevantQuestions: [],
+      };
       createTaskSpy.mockResolvedValue(databaseTask);
+      populateDocumentSpy.mockResolvedValue(mockRepsonse);
       const response = await supertest(app).post('/task/createTask').send(databaseTask);
-      expect(response.body).toEqual(mockTaskResponse);
+      expect(response.body._id).toEqual(mockRepsonse._id.toString());
       expect(response.status).toBe(201);
     });
 
     it('should return the created task (populated arrays)', async () => {
+      const mockResponse: PopulatedDatabaseTask = {
+        ...databaseTaskWithDependency,
+        dependentTasks: [databaseTaskWithPrereq],
+        prereqTasks: [],
+        relevantQuestions: [],
+      };
       createTaskSpy.mockResolvedValue(databaseTaskWithAllFields);
+      populateDocumentSpy.mockResolvedValue(mockResponse);
       const response = await supertest(app)
         .post('/task/createTask')
         .send(databaseTaskWithAllFields);
@@ -196,7 +213,15 @@ describe('Test taskController', () => {
     });
 
     it('should return the updated task', async () => {
+      const mockResponse: PopulatedDatabaseTask = {
+        ...databaseTask,
+        dependentTasks: [],
+        prereqTasks: [],
+        relevantQuestions: [],
+      };
+
       updateTaskDependencySpy.mockResolvedValue(databaseTask);
+      populateDocumentSpy.mockResolvedValue(mockResponse);
       const response = await supertest(app)
         .put('/task/updateTask')
         .send({ taskId: 'testId', updates: {} });
