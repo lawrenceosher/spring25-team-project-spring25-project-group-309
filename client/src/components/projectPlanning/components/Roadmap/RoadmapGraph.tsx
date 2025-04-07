@@ -59,7 +59,7 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
       );
 
       // Create a new DataSet for edges
-      // If Task B depends on Task A, then there is an edge from A->B
+      // If Task B depends on Task A, then there is an edge from B->A
       const edges = new DataSet(
         tasks.flatMap((task, index) =>
           task.dependentTasks.map((dep: DatabaseTask | string) => ({
