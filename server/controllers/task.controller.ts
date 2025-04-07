@@ -14,6 +14,7 @@ import {
   getDependentTasksById,
   saveTask,
   updateTask,
+  getTaskById,
 } from '../services/task.service';
 
 const taskController = (socket: FakeSOSocket) => {
@@ -204,12 +205,29 @@ const taskController = (socket: FakeSOSocket) => {
     }
   };
 
+  const getTask = async (req: TaskIdRequest, res: Response): Promise<void> => {
+    const { taskId } = req.params;
+
+    try {
+      const foundTask = await getTaskById(taskId.toString());
+
+      if ('error' in foundTask) {
+        throw new Error(foundTask.error);
+      }
+
+      res.json(foundTask);
+    } catch (err: unknown) {
+      res.status(500).send(`Error retrieving task ${taskId.toString()}: ${(err as Error).message}`);
+    }
+  };
+
   router.post('/createTask', createTask);
   router.get('/getTaskByUser/:username', getTasksByUser);
   router.put('/updateTaskDependency', updateTaskDependency);
   router.put('/updateTask', updateTaskFields);
   router.get('/getDependentTasks/:taskId', getDependentTasks);
   router.delete('/deleteTask/:taskId', deleteTask);
+  router.get('/getTask/:taskId', getTask);
   return router;
 };
 

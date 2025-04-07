@@ -107,7 +107,7 @@ export const saveTask = async (task: Task): Promise<TaskResponse> => {
  */
 export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
   try {
-    const task = await TaskModel.findById(taskId);
+    const task = await TaskModel.findById(taskId).lean();
     if (!task) {
       throw new Error('Task not found');
     }

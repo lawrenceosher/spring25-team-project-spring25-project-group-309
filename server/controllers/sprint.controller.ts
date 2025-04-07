@@ -117,7 +117,7 @@ const sprintController = (socket: FakeSOSocket) => {
 
       res.json(populatedSprint);
     } catch (err: unknown) {
-      res.status(500).send(`Error retrieving chat: ${(err as Error).message}`);
+      res.status(500).send(`Error retrieving sprint: ${(err as Error).message}`);
     }
   };
 

@@ -1,5 +1,7 @@
 import supertest from 'supertest';
 import { ObjectId } from 'mongodb';
+import mongoose from 'mongoose';
+import { data } from 'vis-network';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
 import {
@@ -86,6 +88,7 @@ const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
 const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');
+const getTaskSpy = jest.spyOn(util, 'getTaskById');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -231,6 +234,31 @@ describe('Test taskController', () => {
       const response = await supertest(app).delete('/task/deleteTask/test');
       expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(200);
+    });
+  });
+
+  describe('GET /getTask', () => {
+    it('should return 500 if there is an error', async () => {
+      getTaskSpy.mockImplementation(() => {
+        throw new Error('Test error');
+      });
+
+      const response = await supertest(app).get('/task/getTask/aa');
+      expect(response.status).toBe(500);
+    });
+    it('should return the sprint', async () => {
+      // Mock the service calls
+      getTaskSpy.mockResolvedValue(databaseTask);
+
+      // Invoke the endpoint
+      const response = await supertest(app).get(`/task/getTask/${databaseTask._id}`);
+
+      // Assertions
+      expect(response.status).toBe(200);
+      expect(getTaskSpy).toHaveBeenCalledWith(databaseTask._id.toString());
+
+      // Convert ObjectIds and Dates for comparison
+      expect(response.body).toMatchObject(JSON.parse(JSON.stringify(databaseTask)));
     });
   });
 });
