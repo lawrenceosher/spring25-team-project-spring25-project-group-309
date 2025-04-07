@@ -89,6 +89,23 @@ export const saveTask = async (task: Task): Promise<TaskResponse> => {
 };
 
 /**
+ * Gets a task by its ID.
+ * @param taskId The ID of the task to get.
+ * @returns The task or an error message.
+ */
+export const getTaskById = async (taskId: string): Promise<TaskResponse> => {
+  try {
+    const task = await TaskModel.findById(taskId).lean();
+    if (!task) {
+      throw new Error('Task not found');
+    }
+    return task;
+  } catch (error) {
+    return { error: 'Error when getting a task' };
+  }
+};
+
+/**
  * Updates a task with new information.
  * @param taskId The ID of the task to update.
  * @param updates The new information to update the task with.

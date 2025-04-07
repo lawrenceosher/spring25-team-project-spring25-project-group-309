@@ -1,4 +1,4 @@
-import { PopulatedDatabaseTask, Task } from '@fake-stack-overflow/shared';
+import { PopulatedDatabaseTask, Task, DatabaseTask } from '@fake-stack-overflow/shared';
 import api from './config';
 import { ClientTask, DatabaseClientTask } from '../types/clientTypes/task';
 
@@ -40,6 +40,16 @@ export const updateTask = async (
 
   if (res.status !== 200) {
     throw new Error('Error when updating task');
+  }
+
+  return res.data;
+};
+
+export const getTask = async (taskId: string): Promise<DatabaseTask> => {
+  const res = await api.get(`${TASK_API_URL}/getTask/${taskId}`);
+
+  if (res.status !== 200) {
+    throw new Error(`Error when fetching task: ${taskId}`);
   }
 
   return res.data;

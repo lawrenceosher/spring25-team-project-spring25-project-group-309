@@ -11,10 +11,10 @@ import BacklogColumn from '../components/ProgressColumn/BacklogColumn';
 import TaskCreationModal from '../components/TaskModals/TaskCreationModal';
 import SprintCompletionModal from '../components/SprintModals/SprintCompletionModal';
 import useKanbanBoardPage from '../../../hooks/useKanbanBoardPage';
-import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { clearErrorMessage, setErrorMessage } from '../../../redux/errorReducer/errorReducer';
 import { setProject, updateTaskInProject } from '../../../redux/projectReducer/projectReducer';
 import { getProjectsByUser } from '../../../services/projectService';
-import { updateTask } from '../../../services/taskService';
+import { updateTask, getTask } from '../../../services/taskService';
 import { DatabaseClientTask } from '../../../types/clientTypes/task';
 
 export default function KanbanBoardPage() {
@@ -91,6 +91,41 @@ export default function KanbanBoardPage() {
     }
   }
 
+  // Recursively checks if adding the currentTask as a dependency creates a cycle
+  const hasDependencyCycle = async (targetId: string, currentTaskId: string): Promise<boolean> => {
+    const currentTask = await getTask(currentTaskId);
+    if (!currentTask) return false;
+
+    // Check if the current task already depends on the target task
+    if (currentTask.prereqTasks.map(id => id.toString()).includes(targetId)) {
+      return true;
+    }
+
+    // Recursively check each prerequisite of the current task
+    const cycleResults = await Promise.all(
+      currentTask.prereqTasks.map(nextTaskId =>
+        hasDependencyCycle(targetId, nextTaskId.toString()),
+      ),
+    );
+
+    if (cycleResults.some(result => result)) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Checks across all new prerequisites if a cycle exists for the current task
+  const checkForCycle = async (taskId: string, prereqTaskIds: string[]): Promise<boolean> => {
+    const results = await Promise.all(
+      prereqTaskIds.map(prereqId => hasDependencyCycle(taskId, prereqId)),
+    );
+    if (results.some(result => result)) {
+      return true;
+    }
+    return false;
+  };
+
   const handleTaskUpdateOnDragEnd = async (event: any) => {
     const taskId = event.active.id;
 
@@ -135,6 +170,24 @@ export default function KanbanBoardPage() {
           sprint: activeSprint?._id.toString(),
           status: event.over.id,
         };
+      }
+
+      // Ensure that every task in the new prereqTasks is finished.
+      if (taskToUpdate.status === 'Done') {
+        if (taskToUpdate.prereqTasks.some(prereqTask => prereqTask.status !== 'Done')) {
+          dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
+          return;
+        }
+      }
+
+      // Check that updating this task does not create a dependency cycles.
+      const cycleExists = await checkForCycle(
+        taskToUpdate._id.toString(),
+        taskToUpdate.prereqTasks.map(ptask => ptask._id),
+      );
+      if (cycleExists) {
+        dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
+        return;
       }
 
       const updatedTask = await updateTask(taskToUpdate._id.toString(), taskToUpdate);
