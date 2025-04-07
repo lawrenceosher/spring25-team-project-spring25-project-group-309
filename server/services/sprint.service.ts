@@ -1,21 +1,25 @@
 import { ObjectId } from 'mongodb';
-import { DatabaseSprint, Sprint, SprintResponse } from '../types/types';
+import { DatabaseSprint, ProjectResponse, Sprint, SprintResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
 import ProjectModel from '../models/project.model';
 import { updateProject } from './project.service';
 
-const addSprintToProject = async (sprintd: ObjectId, projectId: ObjectId): Promise<void> => {
+export const addSprintToProject = async (
+  sprintd: ObjectId,
+  projectId: ObjectId,
+): Promise<ProjectResponse> => {
   try {
     const project = await ProjectModel.findById(projectId);
 
     if (!project) {
       throw new Error('Project not found');
     }
-    await updateProject(project._id.toString(), {
+    const updatedProject = await updateProject(project._id.toString(), {
       $addToSet: { sprints: sprintd },
     });
+    return updatedProject;
   } catch (error) {
-    throw new Error('Error when adding task to project');
+    return { error: 'Error when adding task to project' };
   }
 };
 

@@ -45,7 +45,9 @@ export const updateProject = async (
   updates: UpdateQuery<Project>,
 ): Promise<ProjectResponse> => {
   try {
-    const updatedProject = await ProjectModel.findByIdAndUpdate(projectId, updates, { new: true });
+    const updatedProject = await ProjectModel.findByIdAndUpdate(projectId, updates, {
+      new: true,
+    }).lean();
     if (!updatedProject) {
       throw Error('Project not found');
     }

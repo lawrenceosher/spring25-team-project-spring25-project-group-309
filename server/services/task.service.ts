@@ -3,7 +3,7 @@ import TaskModel from '../models/task.model';
 import ProjectModel from '../models/project.model';
 import { updateProject } from './project.service';
 
-import { Task, TaskResponse } from '../types/types';
+import { ProjectResponse, SprintResponse, Task, TaskResponse } from '../types/types';
 import SprintModel from '../models/sprint.model';
 
 /**
@@ -30,26 +30,41 @@ export const getTasksByCriteria = async (criteria: object): Promise<TaskResponse
 export const getAllTasksByUser = async (userId: string): Promise<TaskResponse[]> =>
   getTasksByCriteria({ assignedUser: userId });
 
-const addTaskToProject = async (taskId: ObjectId, projectId: ObjectId): Promise<void> => {
+export const addTaskToProject = async (
+  taskId: ObjectId,
+  projectId: ObjectId,
+): Promise<ProjectResponse> => {
   try {
-    const project = await ProjectModel.findById(projectId);
+    const project = await ProjectModel.findById(projectId).lean();
 
     if (!project) {
       throw new Error('Project not found');
     }
-    await updateProject(project._id.toString(), {
+    const projectValue = await updateProject(project._id.toString(), {
       $addToSet: { backlogTasks: taskId },
     });
+    return projectValue;
   } catch (error) {
-    throw new Error('Error when adding task to project');
+    return { error: 'Error when adding task to project' };
   }
 };
 
-const propogateTaskToSprint = async (taskId: ObjectId, sprintId: ObjectId): Promise<void> => {
+export const propogateTaskToSprint = async (
+  taskId: ObjectId,
+  sprintId: ObjectId,
+): Promise<SprintResponse> => {
   try {
-    await SprintModel.findByIdAndUpdate(sprintId, { $addToSet: { tasks: taskId } }, { new: true });
+    const updatedSprint = await SprintModel.findByIdAndUpdate(
+      sprintId,
+      { $addToSet: { tasks: taskId } },
+      { new: true },
+    ).lean();
+    if (!updatedSprint) {
+      throw new Error('Sprint not found');
+    }
+    return updatedSprint;
   } catch (error) {
-    throw new Error('Error when adding task to sprint');
+    return { error: 'Error when adding task to sprint' };
   }
 };
 
