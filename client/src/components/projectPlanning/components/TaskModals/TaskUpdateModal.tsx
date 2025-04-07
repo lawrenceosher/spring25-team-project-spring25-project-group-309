@@ -76,7 +76,9 @@ export default function TaskUpdateModal({
         task.prereqTasks.map(ptask => ptask._id),
       );
       if (cycleExists) {
-        dispatch(setErrorMessage('Cannot update task: Dependency cycle detected in prerequisites.'));
+        dispatch(
+          setErrorMessage('Cannot update task: Dependency cycle detected in prerequisites.'),
+        );
         return;
       }
 
