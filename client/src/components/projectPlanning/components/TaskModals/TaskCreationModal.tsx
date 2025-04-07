@@ -43,6 +43,7 @@ export default function TaskCreationModal({
   const handleCreateTask = async (task: ClientTask) => {
     try {
       const newTask = await createTask(task);
+      console.log(newTask);
 
       if (!newTask.sprint) {
         dispatch(addNewTaskToBacklog({ newTask }));
