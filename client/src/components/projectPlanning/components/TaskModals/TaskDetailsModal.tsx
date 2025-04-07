@@ -92,11 +92,11 @@ export default function TaskDetailsModal({
 
           {selectedTask.relevantQuestions && selectedTask.relevantQuestions.length > 0 && (
             <Card.Footer>
-              <span>Relevant Fake Stack Overflow Questions:</span>
+              <span>Relevant Questions:</span>
               <ListGroup variant='flush' className='mt-2'>
                 {selectedTask.relevantQuestions.map((question: any) => (
                   <ListGroup.Item key={question._id} className='bg-transparent p-1'>
-                    <NavLink to={`/question/${question}`}>
+                    <NavLink to={`/question/${question._id}`}>
                       {qlist.find((q: any) => q._id === question._id)?.title ||
                         'Question not found'}
                     </NavLink>
