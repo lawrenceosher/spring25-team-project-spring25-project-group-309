@@ -1,97 +1,115 @@
-import React, { useEffect, useRef } from 'react';
-import { DataSet, Network } from 'vis-network/standalone';
-import 'vis-network/styles/vis-network.css';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Alert } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { PopulatedDatabaseSprint, PopulatedDatabaseTask } from '@fake-stack-overflow/shared';
+import RoadmapGraph from '../components/Roadmap/RoadmapGraph';
+import RoadmapHeader from '../components/RoadmapHeader/RoadmapHeader';
+import TaskDetailsCard from '../components/TaskDetailsCard/TaskDetailsCard';
+import { clearErrorMessage } from '../../../redux/errorReducer/errorReducer';
+import { setSelectedTask } from '../../../redux/selectTask/selectTaskReducer';
+import { DatabaseClientTask } from '../../../types/clientTypes/task';
 
-const FAKETASKS = [
-  { id: 'task-1', name: 'Design UI', dependsOn: [], priority: 1 },
-  { id: 'task-2', name: 'Set up Backend', dependsOn: ['task-1'], priority: 2 },
-  { id: 'task-3', name: 'API Integration', dependsOn: ['task-1', 'task-2'], priority: 3 },
-  { id: 'task-4', name: 'Unit Testing', dependsOn: ['task-3'], priority: 4 },
-  { id: 'task-5', name: 'Deployment', dependsOn: ['task-3', 'task-4'], priority: 5 },
-];
+export default function RoadmapGraphPage() {
+  const { project } = useSelector((state: any) => state.projectReducer);
+  const { errorMessage } = useSelector((state: any) => state.errorReducer);
+  const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
+    (state: any) => state.selectTaskReducer,
+  );
 
-/**
- * Get the color based on the priority
- * @param priority  The priority of the task
- * @returns  The color code based on the priority, default is blue
- */
-const getPriorityColor = (priority: number) => {
-  const colors: { [key: number]: string } = {
-    1: '#ff4d4d',
-    2: '#ffcc00',
-    3: '#3399ff',
-    4: '#33cc33',
-    5: '#999999',
-  };
-  // Return blue color if priority is not in the list
-  return colors[priority] || '#007bff';
-};
+  const [filteredTasks, updateFilteredTasks] = useState<PopulatedDatabaseTask[]>([]);
 
-/**
- * Represents the RoadmapGraph component.
- * It displays the project roadmap in a graph view.
- *   - Each task is represented as a node
- *   - Each dependency is represented as an edge
- *     - Edges are directed from the dependent task to the task it depends on
- *   - The color of the node is based on the priority of the task
- *   - The higher the priority, the darker the color
- * @returns The RoadmapGraph component
- */
-const RoadmapGraph = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const networkRef = useRef<Network | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  // Initialize the network graph
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    // Create a new DataSet for nodes
-    const nodes = new DataSet(
-      FAKETASKS.map(task => ({
-        id: task.id,
-        label: `${task.name}\n(Priority ${task.priority})`,
-        shape: 'box',
-        color: { background: getPriorityColor(task.priority), border: '#000' },
-        font: { color: '#fff' },
-        title: `Task: ${task.name}\nPriority: ${task.priority}`,
-      })),
-    );
-
-    // Create a new DataSet for edges
-    // If Task B depends on Task A, then there is an edge from A->B
-    const edges = new DataSet(
-      FAKETASKS.flatMap((task, index) =>
-        task.dependsOn.map(dep => ({
-          id: `edge-${index}-${dep}-${task.id}`,
-          from: dep,
-          to: task.id,
-          arrows: 'to',
-          width: 2,
-          smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
-        })),
-      ),
-    );
-
-    // Create a new Network instance
-    networkRef.current = new Network(
-      containerRef.current,
-      { nodes, edges },
-      {
-        layout: { hierarchical: false },
-        nodes: { shape: 'box', size: 20 },
-        edges: { arrows: { to: { enabled: true, scaleFactor: 1.2 } }, color: '#000000' },
-        interaction: { dragNodes: true, dragView: true, zoomView: true },
-        physics: { enabled: true, solver: 'barnesHut', stabilization: false },
-      },
-    );
+  const setFilteredTasks = useCallback((tasks: PopulatedDatabaseTask[]) => {
+    updateFilteredTasks(tasks);
   }, []);
 
+  useEffect(() => {
+    if (!project) {
+      navigate('/project/sprint-planning');
+    }
+  }, [navigate, project]);
+
+  const allTasks = useMemo(() => {
+    const sprintTasks = (project?.sprints ?? []).flatMap((s: PopulatedDatabaseSprint) => s.tasks);
+    const backlogTasks = (project?.backlogTasks ?? []) as PopulatedDatabaseTask[];
+    return [...sprintTasks, ...backlogTasks];
+  }, [project?.sprints, project?.backlogTasks]);
+
+  useEffect(() => {
+    if (allTasks.length > 0) {
+      setFilteredTasks(allTasks);
+    }
+  }, [allTasks, setFilteredTasks]);
+
+  const projectUsers = useMemo(() => project?.assignedUsers ?? [], [project?.assignedUsers]);
+
+  const handleTaskClick = useCallback(
+    (taskId: string) => {
+      const task = allTasks.find(t => t._id.toString() === taskId);
+      if (task) dispatch(setSelectedTask(task));
+    },
+    [allTasks, dispatch],
+  );
+
+  if (!project) {
+    return null;
+  }
+
+  if (project.sprints.length === 0 && project.backlogTasks.length === 0) {
+    return (
+      <div className='p-3'>
+        <h1 className='text-center'>
+          No Sprints or Backlog Tasks Available. Please create tasks in Sprint Planning.
+        </h1>
+      </div>
+    );
+  }
+
   return (
-    <div className='p-4 bg-white rounded-lg shadow'>
-      <h2 className='text-xl fw-bold'>Project Roadmap (Graph View)</h2>
-      <div ref={containerRef} style={{ height: '500px', border: '1px solid #ddd' }} />
+    <div className='p-3'>
+      {/* Header */}
+      <RoadmapHeader
+        projectName={project.name}
+        sprints={project.sprints}
+        users={projectUsers}
+        allTasks={allTasks}
+        setFilteredTasks={setFilteredTasks}
+      />
+
+      {/* Error Alert */}
+      {errorMessage && (
+        <Alert variant='danger' onClose={() => dispatch(clearErrorMessage())} dismissible>
+          <Alert.Heading>{errorMessage}</Alert.Heading>
+        </Alert>
+      )}
+
+      {/* Conditionally render the roadmap graph if filteredTasks is empty */}
+      <div className='d-flex gap-3 mt-3' style={{ contain: 'layout style' }}>
+        <div className='flex-grow-1'>
+          {filteredTasks.length === 0 ? (
+            <div className='text-center text-muted fs-5 mt-4'>
+              No tasks found for the selected sprint or user.
+            </div>
+          ) : (
+            <RoadmapGraph tasks={filteredTasks} onTaskClick={handleTaskClick} />
+          )}
+        </div>
+
+        {/* Task Details */}
+        {selectedTask && (
+          <div id='task-details' className='ms-3'>
+            <TaskDetailsCard
+              handleShowDeleteTaskModal={() => {}}
+              handleShowTaskUpdateModal={() => {}}
+              setTaskForModal={() => {}}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
-};
-
-export default RoadmapGraph;
+}
