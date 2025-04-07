@@ -119,6 +119,51 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
   return transformedChat;
 };
 
+/**
+ * Fetches and populates a Task document with its related dependent tasks, prerequisite tasks, and relevant questions.\
+ *
+ * @param taskId - The ID of the task to fetch.
+ * @returns {Promise<PopulatedDatabaseTask | null>} - The populated task document, or an error if not found.
+ * @throws {Error} - Throws an error if the task document is not found.
+ */
+const populateTask = async (taskId: string): Promise<PopulatedDatabaseTask | null> => {
+  const taskDoc = await TaskModel.findOne({ _id: taskId });
+
+  if (!taskDoc) {
+    throw new Error('Task not found');
+  }
+
+  const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+    .populate<{
+      dependentTasks: DatabaseTask[];
+    }>([{ path: 'dependentTasks', model: TaskModel }])
+    .populate<{
+      prereqTasks: DatabaseTask[];
+    }>([{ path: 'prereqTasks', model: TaskModel }])
+    .populate<{
+      relevantQuestions: DatabaseQuestion[];
+    }>([{ path: 'relevantQuestions', model: QuestionModel }]);
+
+  if (!newTaskDoc) return null;
+
+  return {
+    _id: newTaskDoc._id,
+    assignedUser: newTaskDoc.assignedUser,
+    description: newTaskDoc.description,
+    name: newTaskDoc.name,
+    sprint: newTaskDoc.sprint,
+    status: newTaskDoc.status,
+    dependentTasks: newTaskDoc.dependentTasks,
+    prereqTasks: newTaskDoc.prereqTasks,
+    project: newTaskDoc.project,
+    priority: newTaskDoc.priority,
+    taskPoints: newTaskDoc.taskPoints,
+    relevantQuestions: newTaskDoc.relevantQuestions,
+    createdAt: newTaskDoc.createdAt,
+    updatedAt: newTaskDoc.updatedAt,
+  };
+};
+
 const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint | null> => {
   const sprintDoc = await SprintModel.findOne({ _id: sprintId }).populate<{
     tasks: DatabaseTask[];
@@ -261,11 +306,12 @@ const populateProject = async (projectId: string): Promise<PopulatedDatabaseProj
 // eslint-disable-next-line import/prefer-default-export
 export const populateDocument = async (
   id: string,
-  type: 'question' | 'answer' | 'chat' | 'sprint' | 'project',
+  type: 'question' | 'answer' | 'chat' | 'task' | 'sprint' | 'project',
 ): Promise<
   | PopulatedDatabaseAnswer
   | PopulatedDatabaseChat
   | PopulatedDatabaseQuestion
+  | PopulatedDatabaseTask
   | PopulatedDatabaseSprint
   | PopulatedDatabaseProject
   | { error: string }
@@ -286,6 +332,9 @@ export const populateDocument = async (
         break;
       case 'chat':
         result = await populateChat(id);
+        break;
+      case 'task':
+        result = await populateTask(id);
         break;
       case 'sprint':
         result = await populateSprint(id);

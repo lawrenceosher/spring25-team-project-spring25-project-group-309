@@ -1,7 +1,9 @@
 import supertest from 'supertest';
 import { ObjectId } from 'mongodb';
+import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared/types/task';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
+import * as dbUtil from '../../utils/database.util';
 import {
   databaseTask,
   databaseTaskWithPrereq,
@@ -85,6 +87,7 @@ const createTaskSpy = jest.spyOn(util, 'saveTask');
 const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
+const populateDocumentSpy = jest.spyOn(dbUtil, 'populateDocument');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -115,14 +118,48 @@ describe('Test taskController', () => {
     });
 
     it('should return the created task (empty arrays)', async () => {
+      const mockTaskResponse2: PopulatedDatabaseTask = {
+        _id: databaseTask._id,
+        dependentTasks: [],
+        prereqTasks: [],
+        relevantQuestions: [],
+        assignedUser: '',
+        description: '',
+        name: '',
+        sprint: null,
+        status: '',
+        project: new ObjectId(),
+        priority: '',
+        taskPoints: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
       createTaskSpy.mockResolvedValue(databaseTask);
+      jest.spyOn(dbUtil, 'populateDocument').mockResolvedValue(mockTaskResponse2);
+
       const response = await supertest(app).post('/task/createTask').send(databaseTask);
-      expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(201);
+      expect(response.body._id).toEqual(mockTaskResponse2._id.toString());
+      expect(response.body.dependentTasks).toEqual(mockTaskResponse2.dependentTasks);
+      expect(response.body.prereqTasks).toEqual(mockTaskResponse2.prereqTasks);
+      expect(response.body.relevantQuestions).toEqual(mockTaskResponse2.relevantQuestions);
     });
 
     it('should return the created task (populated arrays)', async () => {
-      createTaskSpy.mockResolvedValue(databaseTaskWithAllFields);
+      const populatedTaskMock: PopulatedDatabaseTask = {
+        ...databaseTaskWithAllFields,
+        _id: new ObjectId(databaseTaskWithAllFields._id),
+        sprint: databaseTaskWithAllFields.sprint,
+        project: new ObjectId(databaseTaskWithAllFields.project),
+        createdAt: new Date(databaseTaskWithAllFields.createdAt),
+        updatedAt: new Date(databaseTaskWithAllFields.updatedAt),
+        dependentTasks: [databaseTaskWithDependency],
+        prereqTasks: [databaseTaskWithPrereq],
+        relevantQuestions: [],
+      };
+
+      populateDocumentSpy.mockResolvedValue(populatedTaskMock);
+
       const response = await supertest(app)
         .post('/task/createTask')
         .send(databaseTaskWithAllFields);
