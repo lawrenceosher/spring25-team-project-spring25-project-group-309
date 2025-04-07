@@ -169,6 +169,10 @@ const sprintController = (socket: FakeSOSocket) => {
   };
 
   const updateSprintFields = async (req: UpdateSprintRequest, res: Response): Promise<void> => {
+    if (!req.body || !req.body.sprintId) {
+      res.status(400).send('Invalid request');
+      return;
+    }
     const { sprintId, updates } = req.body;
 
     try {

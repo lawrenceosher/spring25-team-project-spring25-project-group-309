@@ -100,9 +100,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      createSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      createSprintSpy.mockResolvedValueOnce({ error: 'Error creating sprint' });
 
       const response = await supertest(app).post('/sprint/createSprint').send(databaseSprint);
       expect(response.status).toBe(500);
@@ -131,10 +129,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      getSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
+      getSprintSpy.mockResolvedValueOnce({ error: 'Error getting sprint' });
       const response = await supertest(app).get('/sprint/getSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
     });
@@ -175,9 +170,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if database error while searching username', async () => {
-      deleteSprintByIdSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      deleteSprintByIdSpy.mockResolvedValueOnce({ error: 'Error deleting sprint' });
 
       const response = await supertest(app)
         .delete(`/sprint/deleteSprint`)
@@ -195,9 +188,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      updateSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
 
       const response = await supertest(app).put('/sprint/startSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
@@ -249,9 +240,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      updateSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
 
       const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
@@ -290,6 +279,49 @@ describe('Test sprintController', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(endedSprintResponse);
+    });
+  });
+  describe('PUT /updateSprint', () => {
+    it('should return 400 if the request is invalid', async () => {
+      const response = await supertest(app).put('/sprint/updateSprint').send({});
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Invalid request');
+    });
+
+    it('should return 500 if there is an error', async () => {
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
+
+      const response = await supertest(app).put('/sprint/updateSprint').send({ sprintId: 'test' });
+      expect(response.status).toBe(500);
+      expect(response.text).toBe('Error when updating a sprint: Test error');
+    });
+
+    it('should return 200 if the sprint is updated successfully', async () => {
+      const sprintId = databaseSprint._id.toString();
+      const updatedSprint: SprintResponse = {
+        ...databaseSprint,
+        name: 'Updated Sprint',
+        status: 'In Progress',
+      };
+
+      const updatedSprintResponse = {
+        _id: updatedSprint._id.toString(),
+        name: updatedSprint.name,
+        project: updatedSprint.project.toString(),
+        startDate: updatedSprint.startDate.toISOString(),
+        endDate: updatedSprint.endDate.toISOString(),
+        status: 'In Progress',
+        tasks: updatedSprint.tasks.map(task => task.toString()),
+      };
+
+      updateSprintSpy.mockResolvedValue(updatedSprint);
+
+      const response = await supertest(app)
+        .put('/sprint/updateSprint')
+        .send({ sprintId, name: 'Updated Sprint' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(updatedSprintResponse);
     });
   });
 });
