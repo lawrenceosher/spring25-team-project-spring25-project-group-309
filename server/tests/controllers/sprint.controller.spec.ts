@@ -8,12 +8,9 @@ import { DatabaseSprint, PopulatedDatabaseSprint, SprintResponse } from '../../t
 import * as databaseUtil from '../../utils/database.util';
 
 const createSprintSpy = jest.spyOn(util, 'saveSprint');
-const addTasksToSprintSpy = jest.spyOn(util, 'addTasksToSprint');
 const getSprintSpy = jest.spyOn(util, 'getSprintbyId');
 const populateDocumentSpy = jest.spyOn(databaseUtil, 'populateDocument');
-const getSprintsByProjectIdSpy = jest.spyOn(util, 'getSprintsByProjectId');
 const deleteSprintByIdSpy = jest.spyOn(util, 'deleteSprintById');
-const getSprintsSpy = jest.spyOn(util, 'getSprintsByProjectId');
 const updateSprintSpy = jest.spyOn(util, 'updateSprint');
 
 const mockSprintResponse = {
@@ -103,9 +100,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      createSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      createSprintSpy.mockResolvedValueOnce({ error: 'Error creating sprint' });
 
       const response = await supertest(app).post('/sprint/createSprint').send(databaseSprint);
       expect(response.status).toBe(500);
@@ -127,33 +122,6 @@ describe('Test sprintController', () => {
     });
   });
 
-  describe('PUT /addTasks', () => {
-    it('should return 400 if the request is invalid', async () => {
-      const response = await supertest(app).put('/sprint/addTasks').send({ sprintId: 'test' });
-      expect(response.status).toBe(400);
-    });
-
-    it('should return 500 if there is an error', async () => {
-      addTasksToSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app)
-        .put('/sprint/addTasks')
-        .send({ sprintId: 'test', taskIds: ['testTask'] });
-      expect(response.status).toBe(500);
-    });
-
-    it('should return the updated sprint', async () => {
-      addTasksToSprintSpy.mockResolvedValue(databaseSprint);
-      const response = await supertest(app)
-        .put('/sprint/addTasks')
-        .send({ sprintId: 'test', taskIds: ['testTask'] });
-      expect(response.body).toEqual(mockSprintResponse);
-      expect(response.status).toBe(200);
-    });
-  });
-
   describe('GET /getSprint', () => {
     it('should return 400 if the request is invalid', async () => {
       const response1 = await supertest(app).get('/sprint/getSprint').send({ test: 'Test' });
@@ -161,10 +129,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      getSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
+      getSprintSpy.mockResolvedValueOnce({ error: 'Error getting sprint' });
       const response = await supertest(app).get('/sprint/getSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
     });
@@ -190,32 +155,6 @@ describe('Test sprintController', () => {
       expect(response.body).toMatchObject(JSON.parse(JSON.stringify(mockPopulatedSprint)));
     });
   });
-  describe('GET /sprint/getSprints', () => {
-    it('should return 200 with an array of sprints', async () => {
-      const projectId = new mongoose.Types.ObjectId().toString();
-
-      getSprintsByProjectIdSpy.mockResolvedValueOnce([mockFoundSprint]);
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
-      expect(response.status).toBe(200);
-      expect(response.body).toMatchObject([mockFoundSprintResponse]);
-    });
-
-    it('should return 500 if fails for any sprint', async () => {
-      const projectId = new mongoose.Types.ObjectId().toString();
-
-      getSprintsByProjectIdSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(getSprintsByProjectIdSpy).toHaveBeenCalledWith(projectId);
-      expect(response.status).toBe(500);
-    });
-  });
 
   describe('DELETE /deleteUser', () => {
     it('should return the deleted sprint given correct arguments', async () => {
@@ -231,37 +170,11 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if database error while searching username', async () => {
-      deleteSprintByIdSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      deleteSprintByIdSpy.mockResolvedValueOnce({ error: 'Error deleting sprint' });
 
       const response = await supertest(app)
         .delete(`/sprint/deleteSprint`)
         .send({ sprintId: 'test' });
-
-      expect(response.status).toBe(500);
-    });
-  });
-
-  describe('GET /getSprints', () => {
-    it('should return the sprints given correct arguments', async () => {
-      getSprintsSpy.mockResolvedValue([mockFoundSprint]);
-
-      const projectId = mockFoundSprint.project.toString();
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual([mockFoundSprintResponse]);
-      expect(getSprintsSpy).toHaveBeenCalledWith(mockFoundSprint.project.toString());
-    });
-
-    it('should return 500 if database error while searching username', async () => {
-      getSprintsSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-
-      const response = await supertest(app).get(`/sprint/getSprints`).send({ projectId: 'test' });
 
       expect(response.status).toBe(500);
     });
@@ -275,9 +188,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      updateSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
 
       const response = await supertest(app).put('/sprint/startSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
@@ -329,9 +240,7 @@ describe('Test sprintController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      updateSprintSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
 
       const response = await supertest(app).put('/sprint/endSprint').send({ sprintId: 'test' });
       expect(response.status).toBe(500);
@@ -370,6 +279,49 @@ describe('Test sprintController', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(endedSprintResponse);
+    });
+  });
+  describe('PUT /updateSprint', () => {
+    it('should return 400 if the request is invalid', async () => {
+      const response = await supertest(app).put('/sprint/updateSprint').send({});
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Invalid request');
+    });
+
+    it('should return 500 if there is an error', async () => {
+      updateSprintSpy.mockResolvedValueOnce({ error: 'Test error' });
+
+      const response = await supertest(app).put('/sprint/updateSprint').send({ sprintId: 'test' });
+      expect(response.status).toBe(500);
+      expect(response.text).toBe('Error when updating a sprint: Test error');
+    });
+
+    it('should return 200 if the sprint is updated successfully', async () => {
+      const sprintId = databaseSprint._id.toString();
+      const updatedSprint: SprintResponse = {
+        ...databaseSprint,
+        name: 'Updated Sprint',
+        status: 'In Progress',
+      };
+
+      const updatedSprintResponse = {
+        _id: updatedSprint._id.toString(),
+        name: updatedSprint.name,
+        project: updatedSprint.project.toString(),
+        startDate: updatedSprint.startDate.toISOString(),
+        endDate: updatedSprint.endDate.toISOString(),
+        status: 'In Progress',
+        tasks: updatedSprint.tasks.map(task => task.toString()),
+      };
+
+      updateSprintSpy.mockResolvedValue(updatedSprint);
+
+      const response = await supertest(app)
+        .put('/sprint/updateSprint')
+        .send({ sprintId, name: 'Updated Sprint' });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(updatedSprintResponse);
     });
   });
 });
