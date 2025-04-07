@@ -89,7 +89,6 @@ const createTaskSpy = jest.spyOn(util, 'saveTask');
 const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
-const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');
 const getTaskSpy = jest.spyOn(util, 'getTaskById');
 const populateDocumentSpy = jest.spyOn(dbUtil, 'populateDocument');
 
