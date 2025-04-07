@@ -64,8 +64,8 @@ const RoadmapGraph: React.FC<ExtendedProps> = ({ tasks, onTaskClick }) => {
         tasks.flatMap((task, index) =>
           task.dependentTasks.map((dep: DatabaseTask | string) => ({
             id: `edge-${index}-${typeof dep === 'object' ? dep._id : dep}-${task._id}`,
-            from: typeof dep === 'object' ? dep._id.toString() : dep.toString(),
-            to: task._id.toString(),
+            from: task._id.toString(),
+            to: typeof dep === 'object' ? dep._id.toString() : dep,
             arrows: 'to',
             width: 2,
             smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 },
