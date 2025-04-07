@@ -33,17 +33,16 @@ const projectController = (socket: FakeSOSocket) => {
       const populatedProjects = await Promise.all(
         projects.map(async project => {
           if ('error' in project) {
-            throw new Error(`${project.error}`);
+            return project;
           }
-
           const populatedProject = await populateDocument(project._id.toString(), 'project');
           return populatedProject;
         }),
       );
-      if ('error' in populatedProjects) {
-        throw new Error(`${populatedProjects.error}`);
+      const errorPopulatedProject = populatedProjects.find(project => 'error' in project);
+      if (errorPopulatedProject) {
+        throw new Error(`${errorPopulatedProject}`);
       }
-
       res.status(200).json(populatedProjects);
     } catch (error) {
       res.status(500).send(`Error when getting a project by username: ${(error as Error).message}`);

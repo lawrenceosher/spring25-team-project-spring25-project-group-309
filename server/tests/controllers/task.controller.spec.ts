@@ -85,7 +85,6 @@ const createTaskSpy = jest.spyOn(util, 'saveTask');
 const deleteTaskSpy = jest.spyOn(util, 'deleteTaskById');
 const getAllTasksByUserSpy = jest.spyOn(util, 'getAllTasksByUser');
 const updateTaskDependencySpy = jest.spyOn(util, 'updateTask');
-const getDependentTasksByIdSpy = jest.spyOn(util, 'getDependentTasksById');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
@@ -106,9 +105,7 @@ describe('Test taskController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      createTaskSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      createTaskSpy.mockResolvedValueOnce({ error: 'Error creating a task' });
 
       const response = await supertest(app).post('/task/createTask').send(databaseTask);
       expect(response.status).toBe(500);
@@ -139,9 +136,7 @@ describe('Test taskController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      getAllTasksByUserSpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
+      getAllTasksByUserSpy.mockResolvedValueOnce([{ error: 'Error getting task by user' }]);
 
       const response = await supertest(app).get('/task/getTaskByUser/testUser');
       expect(response.status).toBe(500);
@@ -150,60 +145,6 @@ describe('Test taskController', () => {
     it('should return the updated task', async () => {
       getAllTasksByUserSpy.mockResolvedValue([databaseTask]);
       const response = await supertest(app).get('/task/getTaskByUser/testUser');
-      expect(response.body).toEqual(MOCK_TASK_RESPONSE);
-      expect(response.status).toBe(200);
-    });
-  });
-
-  describe('PUT /updateTaskDependency', () => {
-    it('should return 400 if the request is invalid', async () => {
-      const response = await supertest(app)
-        .put('/task/updateTaskDependency')
-        .send({ taskId: 'test' });
-      expect(response.status).toBe(400);
-    });
-    it('should return 500 if there is an error', async () => {
-      updateTaskDependencySpy.mockImplementation(() => {
-        throw new Error('Test error');
-      });
-      const response = await supertest(app)
-        .put('/task/updateTaskDependency')
-        .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
-      expect(response.status).toBe(500);
-    });
-    it('should return the updated task', async () => {
-      updateTaskDependencySpy.mockResolvedValue(databaseTask);
-      const response = await supertest(app)
-        .put('/task/updateTaskDependency')
-        .send({ taskId: 'test', dependentTaskIds: ['testTask'] });
-      expect(response.body).toEqual(mockTaskResponse);
-      expect(response.status).toBe(200);
-    });
-  });
-
-  describe('GET /getDependentTasks', () => {
-    it('should return 404 if the request is invalid', async () => {
-      const response = await supertest(app).get('/task/getDependentTasks/');
-      expect(response.status).toBe(404);
-    });
-
-    it('should return 500 if there is an error', async () => {
-      const error = new Error('Test error');
-      getDependentTasksByIdSpy.mockRejectedValue(error);
-      const response = await supertest(app).get('/task/getDependentTasks/test');
-      expect(response.status).toBe(500);
-    });
-
-    it('should return the dependent tasks of the given taskId', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([databaseTaskWithDependency]);
-      const response = await supertest(app).get('/task/getDependentTasks/65e9b58910afe6e94fc6e6dc');
-      expect(response.body).toEqual(MOCK_TASK_RESPONSE_WITH_DEPENDENCIES);
-      expect(response.status).toBe(200);
-    });
-
-    it('should return an empty array in the document if the task has no dependent tasks', async () => {
-      getDependentTasksByIdSpy.mockResolvedValue([databaseTask]);
-      const response = await supertest(app).get('/task/getDependentTasks/test');
       expect(response.body).toEqual(MOCK_TASK_RESPONSE);
       expect(response.status).toBe(200);
     });
@@ -220,8 +161,7 @@ describe('Test taskController', () => {
     });
 
     it('should return 500 if there is an error', async () => {
-      const error = new Error('Test error');
-      deleteTaskSpy.mockRejectedValue(error);
+      deleteTaskSpy.mockResolvedValueOnce({ error: 'Error deleting task' });
       const response = await supertest(app).delete('/task/deleteTask/test');
       expect(response.status).toBe(500);
     });
@@ -229,6 +169,37 @@ describe('Test taskController', () => {
     it('should return the deleted task', async () => {
       deleteTaskSpy.mockResolvedValue(databaseTask);
       const response = await supertest(app).delete('/task/deleteTask/test');
+      expect(response.body).toEqual(mockTaskResponse);
+      expect(response.status).toBe(200);
+    });
+  });
+  describe('PUT /updateTask', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return 400 if the request is invalid', async () => {
+      const response = await supertest(app).put('/task/updateTask').send({
+        assignedUser: 'user123',
+      });
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Invalid request');
+    });
+
+    it('should return 500 if there is an error', async () => {
+      updateTaskDependencySpy.mockResolvedValueOnce({ error: 'Error updating task' });
+
+      const response = await supertest(app)
+        .put('/task/updateTask')
+        .send({ taskId: 'testId', updates: {} });
+      expect(response.status).toBe(500);
+    });
+
+    it('should return the updated task', async () => {
+      updateTaskDependencySpy.mockResolvedValue(databaseTask);
+      const response = await supertest(app)
+        .put('/task/updateTask')
+        .send({ taskId: 'testId', updates: {} });
       expect(response.body).toEqual(mockTaskResponse);
       expect(response.status).toBe(200);
     });

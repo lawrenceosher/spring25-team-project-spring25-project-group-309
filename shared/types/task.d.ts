@@ -47,13 +47,6 @@ export interface TaskIdRequest extends Request {
   };
 }
 
-export interface UpdateDependencyRequest extends Request {
-  body: {
-    taskId: string;
-    dependentTaskIds: ObjectId[];
-  };
-}
-
 export interface UpdateTaskRequest extends Request {
   body: {
     taskId: string;
