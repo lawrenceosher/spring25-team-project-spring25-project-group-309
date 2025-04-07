@@ -8,6 +8,7 @@ import {
   UpdateTaskRequest,
 } from '../types/types';
 import { deleteTaskById, getAllTasksByUser, saveTask, updateTask } from '../services/task.service';
+import { populateDocument } from '../utils/database.util';
 
 const taskController = (socket: FakeSOSocket) => {
   const router = express.Router();
@@ -74,12 +75,18 @@ const taskController = (socket: FakeSOSocket) => {
         throw new Error(savedTask.error);
       }
 
+      const populatedTask = await populateDocument(savedTask._id.toString(), 'task');
+
+      if ('error' in populatedTask) {
+        throw new Error(populatedTask.error);
+      }
+
       socket.emit('taskUpdate', {
-        task: savedTask,
+        task: populatedTask,
         type: 'created',
       });
 
-      res.status(201).json(savedTask);
+      res.status(201).json(populatedTask);
     } catch (error) {
       res.status(500).send(`Error when creating a task: ${(error as Error).message}`);
     }
@@ -143,11 +150,17 @@ const taskController = (socket: FakeSOSocket) => {
       if ('error' in updatedTask) {
         throw new Error(updatedTask.error);
       }
+
+      const populatedTask = await populateDocument(updatedTask._id.toString(), 'task');
+      if ('error' in populatedTask) {
+        throw new Error(populatedTask.error);
+      }
+
       socket.emit('taskUpdate', {
-        task: updatedTask,
+        task: populatedTask,
         type: 'updated',
       });
-      res.json(updatedTask);
+      res.json(populatedTask);
     } catch (error) {
       res.status(500).send(`Error when updating a task: ${(error as Error).message}`);
     }
