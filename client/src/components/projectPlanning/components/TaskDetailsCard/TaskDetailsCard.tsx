@@ -12,10 +12,14 @@ export default function TaskDetailsCard({
   handleShowDeleteTaskModal,
   handleShowTaskUpdateModal,
   setTaskForModal,
+  isEditing,
+  setIsEditing,
 }: {
-  handleShowDeleteTaskModal: () => void;
-  handleShowTaskUpdateModal: () => void;
-  setTaskForModal: (task: DatabaseClientTask) => void;
+  handleShowDeleteTaskModal?: () => void;
+  handleShowTaskUpdateModal?: () => void;
+  setTaskForModal?: (task: DatabaseClientTask) => void;
+  isEditing?: boolean;
+  setIsEditing?: (isEditing: boolean) => void;
 }) {
   const { selectedTask }: { selectedTask: DatabaseClientTask } = useSelector(
     (state: any) => state.selectTaskReducer,
@@ -33,7 +37,14 @@ export default function TaskDetailsCard({
         <Card.Title className='fs-4'>
           {selectedTask.name}
           <span className='float-end'>
-            <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
+            {handleShowTaskUpdateModal && (
+              <FaPencil className='text-primary me-3' onClick={handleShowTaskUpdateModal} />
+            )}
+
+            {!isEditing && setIsEditing && (
+              <FaPencil className='text-primary me-3' onClick={() => setIsEditing(true)} />
+            )}
+
             {setTaskForModal && handleShowDeleteTaskModal && (
               <FaTrash
                 className='text-danger me-1'

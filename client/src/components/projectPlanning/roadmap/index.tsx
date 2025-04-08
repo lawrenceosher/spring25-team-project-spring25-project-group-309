@@ -102,11 +102,7 @@ export default function RoadmapGraphPage() {
         {/* Task Details */}
         {selectedTask && (
           <div id='task-details' className='ms-3'>
-            <TaskDetailsCard
-              handleShowDeleteTaskModal={() => {}}
-              handleShowTaskUpdateModal={() => {}}
-              setTaskForModal={() => {}}
-            />
+            <TaskDetailsCard />
           </div>
         )}
       </div>
