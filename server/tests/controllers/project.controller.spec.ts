@@ -1,9 +1,5 @@
-import mongoose from 'mongoose';
-import { before } from 'node:test';
 import supertest from 'supertest';
-import { data } from 'vis-network';
 import * as projectService from '../../services/project.service';
-import projectController from '../../controllers/project.controller';
 import { databaseProject, databaseProjectwithAllFields } from '../mockData.models';
 import { app } from '../../app';
 import * as databaseUtil from '../../utils/database.util';
@@ -11,14 +7,6 @@ import * as databaseUtil from '../../utils/database.util';
 const getAllProjectsByUserSpy = jest.spyOn(projectService, 'getAllProjectsByUser');
 const populateDocumentSpy = jest.spyOn(databaseUtil, 'populateDocument');
 const saveProjectSpy = jest.spyOn(projectService, 'saveProject');
-const mockDataBaseProject = {
-  _id: databaseProject._id.toString(),
-  assignedUsers: databaseProject.assignedUsers,
-  description: databaseProject.description,
-  name: databaseProject.name,
-  sprints: databaseProject.sprints.map(sprint => sprint.toString()),
-  backlogTasks: databaseProject.backlogTasks.map(task => task.toString()),
-};
 
 describe('Project Controller', () => {
   beforeEach(() => {

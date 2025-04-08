@@ -6,7 +6,6 @@ import {
   saveTask,
   updateTask,
   addTaskToProject,
-  propogateTaskToSprint,
 } from '../../services/task.service';
 import { databaseTask, databaseTaskWithDependency } from '../mockData.models';
 import { DatabaseTask } from '../../types/types';
@@ -15,42 +14,6 @@ import ProjectModel from '../../models/project.model';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mockingoose = require('mockingoose');
-
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const mockDependentTasks: DatabaseTask[] = [
-  {
-    _id: new ObjectId('65e9b58910afe6e94fc6e6dc'),
-    assignedUser: 'user1',
-    description: 'Dep task 1',
-    name: 'Task 1',
-    sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
-    status: 'todo',
-    dependentTasks: [],
-    prereqTasks: [],
-    project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
-    priority: 'high',
-    taskPoints: 3,
-    relevantQuestions: [],
-    createdAt: new Date('2023-11-18T09:24:00'),
-    updatedAt: new Date('2023-11-18T09:24:00'),
-  },
-  {
-    _id: new ObjectId('65e9b58910afe6e94fc6e6df'),
-    assignedUser: 'user2',
-    description: 'Dep task 2',
-    name: 'Task 2',
-    sprint: new ObjectId('47e9b58310afe6e94fc2e9dc'),
-    status: 'in progress',
-    dependentTasks: [],
-    prereqTasks: [],
-    project: new ObjectId('15e9b58310afe6e94fc6e6dc'),
-    priority: 'medium',
-    taskPoints: 5,
-    relevantQuestions: [],
-    createdAt: new Date('2023-11-18T09:24:00'),
-    updatedAt: new Date('2023-11-18T09:24:00'),
-  },
-];
 
 describe('Task model', () => {
   beforeEach(() => {

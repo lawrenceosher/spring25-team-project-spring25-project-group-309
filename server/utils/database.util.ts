@@ -11,12 +11,8 @@ import {
   PopulatedDatabaseChat,
   PopulatedDatabaseQuestion,
   PopulatedDatabaseSprint,
-  Task,
   PopulatedDatabaseTask,
-  SprintResponse,
   PopulatedDatabaseProject,
-  DatabaseSprint,
-  ProjectResponse,
 } from '../types/types';
 import AnswerModel from '../models/answers.model';
 import QuestionModel from '../models/questions.model';
