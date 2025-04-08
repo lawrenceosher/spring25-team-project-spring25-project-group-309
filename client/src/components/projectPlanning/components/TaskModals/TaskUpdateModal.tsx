@@ -63,7 +63,7 @@ export default function TaskUpdateModal({
   const handleUpdateTask = async (task: DatabaseClientTask) => {
     try {
       // 1. Ensure that every task in the new prereqTasks is finished.
-      if (task.status === 'Done') {
+      if (task.status === 'Done' || task.status === 'In Progress') {
         if (task.prereqTasks.some(prereqTask => prereqTask.status !== 'Done')) {
           dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
           return;

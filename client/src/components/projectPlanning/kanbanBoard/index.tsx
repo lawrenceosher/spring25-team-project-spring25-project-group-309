@@ -173,7 +173,7 @@ export default function KanbanBoardPage() {
       }
 
       // Ensure that every task in the new prereqTasks is finished.
-      if (taskToUpdate.status === 'Done') {
+      if (taskToUpdate.status === 'Done' || taskToUpdate.status === 'In Progress') {
         if (taskToUpdate.prereqTasks.some(prereqTask => prereqTask.status !== 'Done')) {
           dispatch(setErrorMessage('Cannot update task: All prerequisite tasks must be finished.'));
           return;
