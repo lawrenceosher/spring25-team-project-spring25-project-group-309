@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb';
-import { data, Data } from 'vis-network';
 import {
   DatabaseAnswer,
   DatabaseComment,
@@ -12,7 +11,6 @@ import {
   Project,
   SafeDatabaseUser,
   User,
-  PopulatedDatabaseSprint,
   PopulatedDatabaseProject,
 } from '../types/types';
 import { T1_DESC, T2_DESC, T3_DESC } from '../data/posts_strings';

@@ -1,7 +1,5 @@
 import supertest from 'supertest';
 import { ObjectId } from 'mongodb';
-import mongoose from 'mongoose';
-import { data } from 'vis-network';
 import { PopulatedDatabaseTask } from '@fake-stack-overflow/shared/types/task';
 import { app } from '../../app';
 import * as util from '../../services/task.service';
@@ -32,25 +30,6 @@ const MOCK_TASK_RESPONSE = [
   },
 ];
 
-const MOCK_TASK_RESPONSE_WITH_DEPENDENCIES = [
-  {
-    _id: databaseTaskWithDependency._id.toString(),
-    assignedUser: databaseTaskWithDependency.assignedUser,
-    description: databaseTaskWithDependency.description,
-    name: databaseTaskWithDependency.name,
-    sprint: databaseTaskWithDependency.sprint?.toString(),
-    status: databaseTaskWithDependency.status,
-    dependentTasks: [databaseTaskWithPrereq._id.toString()],
-    prereqTasks: [],
-    project: databaseTaskWithDependency.project.toString(),
-    priority: databaseTaskWithDependency.priority,
-    taskPoints: databaseTaskWithDependency.taskPoints,
-    relevantQuestions: [],
-    createdAt: databaseTaskWithDependency.createdAt.toISOString(),
-    updatedAt: databaseTaskWithDependency.updatedAt.toISOString(),
-  },
-];
-
 const mockTaskResponse = {
   _id: databaseTask._id.toString(),
   assignedUser: databaseTask.assignedUser,
@@ -66,23 +45,6 @@ const mockTaskResponse = {
   relevantQuestions: [],
   createdAt: databaseTask.createdAt.toISOString(),
   updatedAt: databaseTask.updatedAt.toISOString(),
-};
-
-const mockTaskResponseAllFields = {
-  _id: databaseTaskWithAllFields._id.toString(),
-  assignedUser: databaseTaskWithAllFields.assignedUser,
-  description: databaseTaskWithAllFields.description,
-  name: databaseTaskWithAllFields.name,
-  sprint: databaseTaskWithAllFields.sprint?.toString(),
-  status: databaseTaskWithAllFields.status,
-  dependentTasks: databaseTaskWithAllFields.dependentTasks,
-  prereqTasks: databaseTaskWithAllFields.prereqTasks,
-  project: databaseTaskWithAllFields.project.toString(),
-  priority: databaseTaskWithAllFields.priority,
-  taskPoints: databaseTaskWithAllFields.taskPoints,
-  relevantQuestions: databaseTaskWithAllFields.relevantQuestions,
-  createdAt: databaseTaskWithAllFields.createdAt.toISOString(),
-  updatedAt: databaseTaskWithAllFields.updatedAt.toISOString(),
 };
 
 const createTaskSpy = jest.spyOn(util, 'saveTask');
