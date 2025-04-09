@@ -34,7 +34,7 @@ To access NU Board on the deployed site:
 The schemas for the database are documented in the directory `server/models/schema`.
 A class diagram for the schema definition is shown below:
 
-![Class Diagram](class-diagram.png)
+![Class Diagram](nuboard_schema.jpg)
 
 ## API Routes
 
