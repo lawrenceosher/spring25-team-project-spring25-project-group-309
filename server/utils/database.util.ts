@@ -1,12 +1,18 @@
+import { ObjectId } from 'mongodb';
 import {
   DatabaseComment,
   DatabaseMessage,
   DatabaseTag,
   DatabaseUser,
   MessageInChat,
+  DatabaseTask,
+  DatabaseQuestion,
   PopulatedDatabaseAnswer,
   PopulatedDatabaseChat,
   PopulatedDatabaseQuestion,
+  PopulatedDatabaseSprint,
+  PopulatedDatabaseTask,
+  PopulatedDatabaseProject,
 } from '../types/types';
 import AnswerModel from '../models/answers.model';
 import QuestionModel from '../models/questions.model';
@@ -15,6 +21,9 @@ import CommentModel from '../models/comments.model';
 import ChatModel from '../models/chat.model';
 import UserModel from '../models/users.model';
 import MessageModel from '../models/messages.model';
+import SprintModel from '../models/sprint.model';
+import TaskModel from '../models/task.model';
+import ProjectModel from '../models/project.model';
 
 /**
  * Fetches and populates a question document with its related tags, answers, and comments.
@@ -107,19 +116,201 @@ const populateChat = async (chatID: string): Promise<PopulatedDatabaseChat | nul
 };
 
 /**
+ * Fetches and populates a Task document with its related dependent tasks, prerequisite tasks, and relevant questions.\
+ *
+ * @param taskId - The ID of the task to fetch.
+ * @returns {Promise<PopulatedDatabaseTask | null>} - The populated task document, or an error if not found.
+ * @throws {Error} - Throws an error if the task document is not found.
+ */
+const populateTask = async (taskId: string): Promise<PopulatedDatabaseTask | null> => {
+  const taskDoc = await TaskModel.findOne({ _id: taskId });
+
+  if (!taskDoc) {
+    throw new Error('Task not found');
+  }
+
+  const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+    .populate<{
+      dependentTasks: DatabaseTask[];
+    }>([{ path: 'dependentTasks', model: TaskModel }])
+    .populate<{
+      prereqTasks: DatabaseTask[];
+    }>([{ path: 'prereqTasks', model: TaskModel }])
+    .populate<{
+      relevantQuestions: DatabaseQuestion[];
+    }>([{ path: 'relevantQuestions', model: QuestionModel }]);
+
+  if (!newTaskDoc) return null;
+
+  return {
+    _id: newTaskDoc._id,
+    assignedUser: newTaskDoc.assignedUser,
+    description: newTaskDoc.description,
+    name: newTaskDoc.name,
+    sprint: newTaskDoc.sprint,
+    status: newTaskDoc.status,
+    dependentTasks: newTaskDoc.dependentTasks,
+    prereqTasks: newTaskDoc.prereqTasks,
+    project: newTaskDoc.project,
+    priority: newTaskDoc.priority,
+    taskPoints: newTaskDoc.taskPoints,
+    relevantQuestions: newTaskDoc.relevantQuestions,
+    createdAt: newTaskDoc.createdAt,
+    updatedAt: newTaskDoc.updatedAt,
+  };
+};
+
+const populateSprint = async (sprintId: string): Promise<PopulatedDatabaseSprint | null> => {
+  const sprintDoc = await SprintModel.findOne({ _id: sprintId }).populate<{
+    tasks: DatabaseTask[];
+  }>([{ path: 'tasks', model: TaskModel }]);
+
+  if (!sprintDoc) {
+    throw new Error('Sprint not found');
+  }
+
+  const sprintTasks: Array<PopulatedDatabaseTask | null> = await Promise.all(
+    sprintDoc.tasks.map(async (taskDoc: DatabaseTask) => {
+      if (!taskDoc) return null;
+
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+        .populate<{
+          dependentTasks: DatabaseTask[];
+        }>([{ path: 'dependentTasks', model: TaskModel }])
+        .populate<{
+          prereqTasks: DatabaseTask[];
+        }>([{ path: 'prereqTasks', model: TaskModel }])
+        .populate<{
+          relevantQuestions: DatabaseQuestion[];
+        }>([{ path: 'relevantQuestions', model: QuestionModel }]);
+
+      if (!newTaskDoc) return null;
+
+      return {
+        _id: newTaskDoc._id,
+        assignedUser: newTaskDoc.assignedUser,
+        description: newTaskDoc.description,
+        name: newTaskDoc.name,
+        sprint: newTaskDoc.sprint,
+        status: newTaskDoc.status,
+        dependentTasks: newTaskDoc.dependentTasks,
+        prereqTasks: newTaskDoc.prereqTasks,
+        project: newTaskDoc.project,
+        priority: newTaskDoc.priority,
+        taskPoints: newTaskDoc.taskPoints,
+        relevantQuestions: newTaskDoc.relevantQuestions,
+        createdAt: newTaskDoc.createdAt,
+        updatedAt: newTaskDoc.updatedAt,
+      };
+    }),
+  );
+
+  // Filters out null values
+  const enrichedTasks = sprintTasks.filter(Boolean);
+  const transformedSprint: PopulatedDatabaseSprint = {
+    ...(sprintDoc.toObject ? sprintDoc.toObject() : sprintDoc),
+    tasks: enrichedTasks as PopulatedDatabaseTask[],
+  };
+
+  return transformedSprint;
+};
+
+const populateProject = async (projectId: string): Promise<PopulatedDatabaseProject | null> => {
+  const projectDoc = await ProjectModel.findOne({ _id: projectId }).populate<{
+    backlogTasks: DatabaseTask[];
+  }>([{ path: 'backlogTasks', model: TaskModel }]);
+
+  if (!projectDoc) {
+    throw new Error('Project not found');
+  }
+
+  const newBacklog = await Promise.all(
+    projectDoc.backlogTasks.map(async (taskDoc: DatabaseTask) => {
+      if (!taskDoc) return null;
+
+      const newTaskDoc = await TaskModel.findOne({ _id: taskDoc._id })
+        .populate<{
+          dependentTasks: DatabaseTask[];
+        }>([{ path: 'dependentTasks', model: TaskModel }])
+        .populate<{
+          prereqTasks: DatabaseTask[];
+        }>([{ path: 'prereqTasks', model: TaskModel }])
+        .populate<{
+          relevantQuestions: DatabaseQuestion[];
+        }>([{ path: 'relevantQuestions', model: TaskModel }]);
+
+      if (!newTaskDoc) return null;
+
+      return {
+        _id: newTaskDoc._id,
+        assignedUser: newTaskDoc.assignedUser,
+        description: newTaskDoc.description,
+        name: newTaskDoc.name,
+        sprint: newTaskDoc.sprint,
+        status: newTaskDoc.status,
+        dependentTasks: newTaskDoc.dependentTasks,
+        prereqTasks: newTaskDoc.prereqTasks,
+        project: newTaskDoc.project,
+        priority: newTaskDoc.priority,
+        taskPoints: newTaskDoc.taskPoints,
+        relevantQuestions: newTaskDoc.relevantQuestions,
+        createdAt: newTaskDoc.createdAt,
+        updatedAt: newTaskDoc.updatedAt,
+      };
+    }),
+  );
+
+  const projectSprints: Array<PopulatedDatabaseSprint | null> = await Promise.all(
+    projectDoc.sprints.map(async (sprintDoc: ObjectId) => {
+      if (!sprintDoc) return null;
+
+      const newSprintDoc = await populateSprint(sprintDoc.toString());
+
+      if (!newSprintDoc) return null;
+
+      return {
+        _id: newSprintDoc._id,
+        name: newSprintDoc.name,
+        project: newSprintDoc.project,
+        status: newSprintDoc.status,
+        startDate: newSprintDoc.startDate,
+        endDate: newSprintDoc.endDate,
+        tasks: newSprintDoc.tasks,
+      };
+    }),
+  );
+
+  // Filters out null values
+  const enriched = projectSprints.filter(Boolean);
+  const transformedProject: PopulatedDatabaseProject = {
+    ...(projectDoc.toObject ? projectDoc.toObject() : projectDoc),
+    sprints: enriched as PopulatedDatabaseSprint[],
+    backlogTasks: newBacklog as PopulatedDatabaseTask[],
+  };
+
+  return transformedProject;
+};
+
+/**
  * Fetches and populates a question, answer, or chat document based on the provided ID and type.
  *
  * @param {string | undefined} id - The ID of the document to fetch.
  * @param {'question' | 'answer' | 'chat'} type - Specifies the type of document to fetch.
- * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse>} - A promise resolving to the populated document or an error message if the operation fails.
+ * @returns {Promise<QuestionResponse | AnswerResponse | ChatResponse | SprintResponse | ProjectResponse>} - A promise resolving to the populated document or an error message if the operation fails.
  */
 // eslint-disable is for testing purposes only, so that Jest spy functions can be used.
 // eslint-disable-next-line import/prefer-default-export
 export const populateDocument = async (
   id: string,
-  type: 'question' | 'answer' | 'chat',
+  type: 'question' | 'answer' | 'chat' | 'task' | 'sprint' | 'project',
 ): Promise<
-  PopulatedDatabaseAnswer | PopulatedDatabaseChat | PopulatedDatabaseQuestion | { error: string }
+  | PopulatedDatabaseAnswer
+  | PopulatedDatabaseChat
+  | PopulatedDatabaseQuestion
+  | PopulatedDatabaseTask
+  | PopulatedDatabaseSprint
+  | PopulatedDatabaseProject
+  | { error: string }
 > => {
   try {
     if (!id) {
@@ -137,6 +328,15 @@ export const populateDocument = async (
         break;
       case 'chat':
         result = await populateChat(id);
+        break;
+      case 'task':
+        result = await populateTask(id);
+        break;
+      case 'sprint':
+        result = await populateSprint(id);
+        break;
+      case 'project':
+        result = await populateProject(id);
         break;
       default:
         throw new Error('Invalid type provided.');

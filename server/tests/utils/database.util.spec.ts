@@ -3,6 +3,9 @@ import QuestionModel from '../../models/questions.model';
 import AnswerModel from '../../models/answers.model';
 import ChatModel from '../../models/chat.model';
 import UserModel from '../../models/users.model';
+import SprintModel from '../../models/sprint.model';
+import ProjectModel from '../../models/project.model';
+import TaskModel from '../../models/task.model';
 
 jest.mock('../../models/questions.model');
 jest.mock('../../models/answers.model');
@@ -11,10 +14,23 @@ jest.mock('../../models/messages.model');
 jest.mock('../../models/users.model');
 jest.mock('../../models/tags.model');
 jest.mock('../../models/comments.model');
+jest.mock('../../models/sprint.model');
+jest.mock('../../models/task.model');
+jest.mock('../../models/project.model');
 
 describe('populateDocument', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should return an error message if no ID is provided', async () => {
+    const result = await populateDocument('', 'question');
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Provided ID is undefined.',
+    });
   });
 
   it('should fetch and populate a question document', async () => {
@@ -184,6 +200,267 @@ describe('populateDocument', () => {
 
   it('should return an error message if type is invalid', async () => {
     const invalidType = 'invalidType' as 'question' | 'answer' | 'chat';
+    const result = await populateDocument('someId', invalidType);
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Invalid type provided.',
+    });
+  });
+
+  it('should fetch and populate a sprint document', async () => {
+    // Mock Task Data with relevant fields
+    const mockTask = {
+      _id: 'taskId',
+      name: 'Task 1',
+      description: 'Description of task',
+      assignedUser: 'user1',
+      sprint: 'sprintId',
+      status: 'todo',
+      dependentTasks: [],
+      prereqTasks: [],
+      project: 'projectId',
+      priority: 'low',
+      taskPoints: 5,
+      relevantQuestions: [],
+      createdAt: new Date('2025-03-31T15:05:28Z'),
+      updatedAt: new Date('2025-03-31T15:05:28Z'),
+    };
+
+    // Mock Sprint Data with task references
+    const mockSprint = {
+      _id: 'sprintId',
+      tasks: [mockTask],
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(),
+      toObject: () => ({
+        _id: 'sprintId',
+        name: 'Sprint 1',
+        project: 'projectId',
+        status: 'active',
+        startDate: new Date(),
+        endDate: new Date(),
+        tasks: [mockTask],
+      }),
+    };
+
+    // Mock and populate Sprint document
+    (SprintModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockSprint),
+    });
+
+    // Mock and populate Task document
+    (TaskModel.findOne as jest.Mock).mockImplementation(() => {
+      const chain = {
+        ...mockTask,
+        populate: jest.fn().mockReturnThis(),
+        toObject: () => mockTask,
+      };
+      return chain;
+    });
+
+    const result = await populateDocument('sprintId', 'sprint');
+
+    expect(SprintModel.findOne).toHaveBeenCalledWith({ _id: 'sprintId' });
+    expect(TaskModel.findOne).toHaveBeenCalledWith({ _id: 'taskId' });
+
+    expect(result).toEqual({
+      _id: 'sprintId',
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: expect.any(Date),
+      endDate: expect.any(Date),
+      tasks: [mockTask],
+    });
+  });
+
+  it('should return an error message if sprint document is not found', async () => {
+    (SprintModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(null),
+    });
+
+    const result = await populateDocument('invalidSprintId', 'sprint');
+
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Sprint not found',
+    });
+  });
+
+  it('should return an error message if fetching a sprint document throws an error', async () => {
+    (SprintModel.findOne as jest.Mock).mockImplementation(() => {
+      throw new Error('Database error');
+    });
+
+    const result = await populateDocument('sprintId', 'sprint');
+
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Database error',
+    });
+  });
+
+  it('should fetch and populate a project document', async () => {
+    // Mock Question Data
+    const mockQuestion = {
+      _id: 'questionId',
+      title: 'What is the purpose of this task?',
+      text: 'This task is intended to test the feature integration.',
+      tags: ['integration', 'testing'],
+      askedBy: 'user1',
+      askDateTime: new Date(),
+      answers: [],
+      views: ['user1', 'user2'],
+      upVotes: ['user1'],
+      downVotes: ['user3'],
+      comments: [],
+    };
+
+    // Mock Task Data with relevant fields
+    const mockDependentTask = {
+      _id: 'dependentTaskId',
+      name: 'Dependent Task',
+      description: 'Description of dependent task',
+    };
+
+    const mockPrereqTask = {
+      _id: 'prereqTaskId',
+      name: 'Prerequisite Task',
+      description: 'Description of prerequisite task',
+    };
+
+    const mockTask = {
+      _id: 'taskId',
+      name: 'Backlog Task 1',
+      description: 'Description of backlog task',
+      assignedUser: null,
+      createdAt: new Date(),
+      dependentTasks: [mockDependentTask],
+      prereqTasks: [mockPrereqTask],
+      priority: 1,
+      project: 'projectId',
+      relevantQuestions: [mockQuestion],
+      sprint: 'sprintId',
+      status: 'todo',
+      taskPoints: 5,
+      updatedAt: new Date(),
+    };
+
+    // Mock Sprint Data with task references
+    const mockSprint = {
+      _id: 'sprintId',
+      name: 'Sprint 1',
+      project: 'projectId',
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(),
+      tasks: [mockTask],
+      toObject: () => ({
+        _id: 'sprintId',
+        name: 'Sprint 1',
+        project: 'projectId',
+        status: 'active',
+        startDate: new Date(),
+        endDate: new Date(),
+        tasks: [mockTask],
+      }),
+    };
+
+    // Mock Project Data with sprint references
+    const mockProject = {
+      _id: 'projectId',
+      name: 'Test Project',
+      assignedUsers: ['user1', 'user2'],
+      description: 'This is a test project',
+      backlogTasks: [mockTask],
+      sprints: [mockSprint._id],
+      toObject: () => ({
+        _id: 'projectId',
+        name: 'Test Project',
+        backlogTasks: [mockTask],
+        sprints: [mockSprint._id],
+      }),
+    };
+
+    // Mock and populate Project document
+    (ProjectModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockProject),
+    });
+
+    // Mock population of Task documents
+    (TaskModel.findOne as jest.Mock).mockImplementation(({ _id }) => {
+      const chain = {
+        populate: jest.fn().mockReturnThis(),
+        toObject: () => mockTask,
+        ...mockTask,
+      };
+
+      if (_id === 'dependentTaskId') return { ...chain, ...mockDependentTask };
+      if (_id === 'prereqTaskId') return { ...chain, ...mockPrereqTask };
+      if (_id === 'taskId') return chain;
+
+      return chain;
+    });
+
+    // Mock population of dependent and prerequisite tasks
+    (SprintModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockSprint),
+    });
+
+    // Mock population of relevant questions
+    (QuestionModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(mockQuestion),
+    });
+
+    const result = await populateDocument('projectId', 'project');
+
+    expect(ProjectModel.findOne).toHaveBeenCalledWith({ _id: 'projectId' });
+    expect(TaskModel.findOne).toHaveBeenCalledWith({ _id: 'taskId' });
+
+    expect(result).toEqual({
+      _id: 'projectId',
+      name: 'Test Project',
+      backlogTasks: [mockTask],
+      sprints: [
+        {
+          _id: 'sprintId',
+          name: 'Sprint 1',
+          project: 'projectId',
+          status: 'active',
+          startDate: expect.any(Date),
+          endDate: expect.any(Date),
+          tasks: [mockTask],
+        },
+      ],
+    });
+  });
+
+  it('should return an error message if project document is not found', async () => {
+    (ProjectModel.findOne as jest.Mock).mockReturnValue({
+      populate: jest.fn().mockResolvedValue(null),
+    });
+
+    const result = await populateDocument('invalidProjectId', 'project');
+
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Project not found',
+    });
+  });
+
+  it('should return an error message if fetching a project document throws an error', async () => {
+    (ProjectModel.findOne as jest.Mock).mockImplementation(() => {
+      throw new Error('Database error');
+    });
+
+    const result = await populateDocument('projectId', 'project');
+
+    expect(result).toEqual({
+      error: 'Error when fetching and populating a document: Database error',
+    });
+  });
+
+  it('should return an error message if type is invalid for sprint or project', async () => {
+    const invalidType = 'invalidType' as 'question' | 'answer' | 'chat' | 'sprint' | 'project';
     const result = await populateDocument('someId', invalidType);
     expect(result).toEqual({
       error: 'Error when fetching and populating a document: Invalid type provided.',

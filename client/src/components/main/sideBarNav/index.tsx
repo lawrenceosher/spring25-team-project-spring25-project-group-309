@@ -3,16 +3,21 @@ import './index.css';
 import { NavLink, useLocation } from 'react-router-dom';
 
 /**
- * The SideBarNav component has four menu items: "Questions", "Tags", "Messaging", and "Users".
+ * The SideBarNav component has five menu items: "Questions", "Tags", "Messaging", "Users", "Games", and "Project Planning".
  * It highlights the currently selected item based on the active page and
  * triggers corresponding functions when the menu items are clicked.
  */
 const SideBarNav = () => {
   const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [showProjectPlanningOptions, setShowProjectPlanningOptions] = useState<boolean>(false);
   const location = useLocation();
 
   const toggleOptions = () => {
     setShowOptions(!showOptions);
+  };
+
+  const toggleProjectPlanningOptions = () => {
+    setShowProjectPlanningOptions(!showProjectPlanningOptions);
   };
 
   const isActiveOption = (path: string) =>
@@ -65,6 +70,32 @@ const SideBarNav = () => {
         className={({ isActive }) => `menu_button ${isActive ? 'menu_selected' : ''}`}>
         Games
       </NavLink>
+      <NavLink
+        to='/project/sprint-planning'
+        id='menu_project_planning'
+        className={`menu_button ${location.pathname.includes('project') ? 'menu_selected' : ''}`}
+        onClick={toggleProjectPlanningOptions}>
+        Project Planning
+      </NavLink>
+      {showProjectPlanningOptions && (
+        <div className='additional-options'>
+          <NavLink
+            to='/project/sprint-planning'
+            className={`menu_button message-options ${isActiveOption('/project/sprint-planning')}`}>
+            Sprint Planning
+          </NavLink>
+          <NavLink
+            to='/project/board'
+            className={`menu_button message-options ${isActiveOption('/project/board')}`}>
+            Kanban Board
+          </NavLink>
+          <NavLink
+            to='/project/roadmap'
+            className={`menu_button message-options ${isActiveOption('/project/roadmap')}`}>
+            Task Roadmap
+          </NavLink>
+        </div>
+      )}
     </div>
   );
 };

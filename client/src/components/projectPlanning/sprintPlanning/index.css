@@ -1,0 +1,15 @@
+#sprints {
+  width: 60%;
+}
+
+#task-details {
+  width: 40%;
+}
+
+#project-name-header {
+  max-width: 60%;
+}
+
+#sprint-action-button {
+  height: fit-content;
+}
