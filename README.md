@@ -5,6 +5,8 @@ To access NU Board on the deployed site:
 1. Go to https://cs4530-s25-309.onrender.com/
 2. Log In or Sign Up and click the ‘Project Planning’ tab on the sidebar navigation. Sprint Planning, Kanban Board, and Task Roadmap are the three pages where our features are implemented
 
+Please note that the server is running on a free instance of Render, so it takes about 40-50 seconds for the server to wake up from inactivity.
+
 ## Getting Started
 
 1. Download the zip file or clone our repository locally. The repository is located at: https://github.com/neu-cs4530/spring25-team-project-spring25-project-group-309
